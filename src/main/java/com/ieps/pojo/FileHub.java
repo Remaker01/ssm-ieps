@@ -1,18 +1,10 @@
 package com.ieps.pojo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.experimental.Accessors;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-@Accessors(chain = true)
 public class FileHub {
     
     private Integer id;
@@ -46,5 +38,75 @@ public class FileHub {
     @JsonFormat(pattern="yyyy-MM-dd", timezone="GMT+8")
     private Date updateTime;
 
-    
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public String getTypeNum() {
+        return typeNum;
+    }
+
+    public void setTypeNum(String typeNum) {
+        this.typeNum = typeNum;
+    }
+
+    public String getUserNum() {
+        return userNum;
+    }
+
+    public void setUserNum(String userNum) {
+        this.userNum = userNum;
+    }
+
+    public String getAcademy() {
+        return academy;
+    }
+
+    public void setAcademy(String academy) {
+        this.academy = academy;
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
+    }
+
+    public Integer getFileSize() {
+        return fileSize;
+    }
+
+    public void setFileSize(Integer fileSize) {
+        this.fileSize = fileSize;
+    }
+
+    public Integer getFileKind() {
+        return fileKind;
+    }
+
+    public void setFileKind(Integer fileKind) {
+        this.fileKind = fileKind;
+    }
+
+    public Date getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(Date createTime) {
+        this.createTime = createTime;
+    }
+
+    public Date getUpdateTime() {
+        return updateTime;
+    }
+
+    public void setUpdateTime(Date updateTime) {
+        this.updateTime = updateTime;
+    }
 }

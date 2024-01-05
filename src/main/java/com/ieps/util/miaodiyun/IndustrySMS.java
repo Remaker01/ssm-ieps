@@ -4,7 +4,6 @@ import java.net.URLEncoder;
 
 /**
  * 验证码通知短信接口
- * 
  * @ClassName: IndustrySMS
  * @Description: 验证码通知短信接口
  *

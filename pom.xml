@@ -148,15 +148,6 @@
         </dependency>
         <!--生成图片验证码 End-->
 
-        <!-- lombok Start -->
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>1.18.2</version>
-            <scope>provided</scope>
-        </dependency>
-        <!-- lombok End -->
-
         <!--时间处理 -->
         <dependency>
             <groupId>joda-time</groupId>

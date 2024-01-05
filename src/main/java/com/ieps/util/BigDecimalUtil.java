@@ -1,12 +1,11 @@
 package com.ieps.util;
 
 import java.math.BigDecimal;
-
+//TODO:好像要把BigDecimal改成double才对，原作者可能是为了避免误差？
 /**
  * Created by ljw
  */
 public class BigDecimalUtil {
-
     private BigDecimalUtil(){
 
     }
@@ -14,7 +13,7 @@ public class BigDecimalUtil {
     public static BigDecimal add(double v1,double v2){
         BigDecimal b1 = new BigDecimal(Double.toString(v1));
         BigDecimal b2 = new BigDecimal(Double.toString(v2));
-        
+
         return b1.add(b2);
     }
 

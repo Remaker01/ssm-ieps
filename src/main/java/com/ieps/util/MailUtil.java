@@ -10,10 +10,7 @@ import javax.mail.*;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import java.util.Properties;
-
-/**
- * 邮件工具类
- */
+//TODO:这个好像是邮件用的，在自己的毕设中删除这个功能。
 public class MailUtil {
     /**
      * 发送邮件

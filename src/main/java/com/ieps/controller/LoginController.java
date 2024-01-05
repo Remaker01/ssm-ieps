@@ -85,7 +85,7 @@ public class LoginController {
      */
     @RequestMapping(value = "/register.do", method = RequestMethod.POST)
     @ResponseBody
-    public ServerResponse register(User user, UserInfo userInfo, Integer roleId) {
+    public ServerResponse register(User user, UserInfo userInfo, int roleId) {
         return userService.register(user, userInfo, roleId);
     }
     
@@ -155,8 +155,6 @@ public class LoginController {
     public String goForgotPwd() {
         return "common/forgetPwd";
     }
-    
-    
     //            首页
     // 重要通知详情
     @RequestMapping(value = "/goShowInformDetail.do", method = RequestMethod.GET)
@@ -189,7 +187,4 @@ public class LoginController {
     public String goShowDownLoadMore() {
         return "show/showDownLoadMore";
     }
-    
-    
-    
 }

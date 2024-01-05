@@ -14,7 +14,6 @@ import java.util.List;
  */
 @Service
 public class RolePermServiceImpl implements RolePermService {
-    
     @Autowired
     private RolePermMapper rolePermMapper;
     
@@ -23,12 +22,11 @@ public class RolePermServiceImpl implements RolePermService {
         
         List<RolePerm> rolePermList = rolePermMapper.getPerm(roleId);
     
-        System.out.println(rolePermList.get(0).getPermList());
+//        System.out.println(rolePermList.get(0).getPermList());
         
         if (rolePermList.size() == 0) {
             return ServerResponse.createByErrorMessage("加载菜单出错，请重试！");
         }
-        
         return ServerResponse.createBySuccess("菜单加载完成，请尽情享用！", rolePermList);
     }
 }

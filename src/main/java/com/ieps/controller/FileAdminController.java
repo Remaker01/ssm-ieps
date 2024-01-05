@@ -350,9 +350,9 @@ public class FileAdminController {
     @ResponseBody
     public ServerResponse downloadFileWithItemNum(@RequestParam("itemNum") String itemNum, HttpServletRequest request,
                                                   HttpServletResponse response) {
-        
-        System.out.println(itemNum);
-        
+
+//        System.out.println(itemNum);
+
         if (fileAdminService.getFileWithItemNum(itemNum).getStatus() != 0) {
             return ServerResponse.createByErrorMessage("对不起，你还没有上传项目附件呢!请关闭窗口再重试！");
         }
@@ -472,7 +472,7 @@ public class FileAdminController {
             out.flush();//释放缓存
             out.close();//关闭输出流
         } catch (Exception e) {
-            System.out.println("你关闭了已连接的对象流！");
+//            System.out.println("你关闭了已连接的对象流！");
         }
         
         return ServerResponse.createBySuccess("文件已打包下载,请到指定路径下查看!");
@@ -527,7 +527,7 @@ public class FileAdminController {
                 }
             }
         } catch (Exception e) {
-            System.out.println("FileAdminException e关闭数据流失败!");
+//            System.out.println("FileAdminException e关闭数据流失败!");
         }
         return null;
     }

@@ -21,14 +21,14 @@ public class UserController {
     @RequestMapping(value = "/forgetPwd.do", method = RequestMethod.POST)
     @ResponseBody
     public ServerResponse forgetPwd(String userNum, String userPwd) {
-        System.out.println(userNum + "   " + userPwd);
+//        System.out.println(userNum + "   " + userPwd);
         return userService.forgetPwd(userNum, userPwd);
     }
     
     @RequestMapping(value = "/modifyPwd.do", method = RequestMethod.POST)
     @ResponseBody
     public ServerResponse modifyPwd(User user) {
-        System.out.println(user.toString());
+//        System.out.println(user.toString());
         
         return userService.modifyPwd(user);
     }

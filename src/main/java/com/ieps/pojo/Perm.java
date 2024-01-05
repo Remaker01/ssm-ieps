@@ -1,20 +1,11 @@
 package com.ieps.pojo;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.experimental.Accessors;
-
 import java.io.Serializable;
 import java.util.Date;
 
 /**
  * Created by ljw
  */
-@Data
-@Accessors(chain = true)
-@AllArgsConstructor
-@NoArgsConstructor
 public class Perm implements Serializable {
 
     private Integer permId;
@@ -44,6 +35,85 @@ public class Perm implements Serializable {
 
     private Date updateTime;
 
+    public Integer getPermId() {
+        return permId;
+    }
+
+    public void setPermId(Integer permId) {
+        this.permId = permId;
+    }
+
+    public String getPermName() {
+        return permName;
+    }
+
+    public void setPermName(String permName) {
+        this.permName = permName;
+    }
+
+    public String getPermType() {
+        return permType;
+    }
+
+    public void setPermType(String permType) {
+        this.permType = permType;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public String getIcon() {
+        return icon;
+    }
+
+    public void setIcon(String icon) {
+        this.icon = icon;
+    }
+
+    public Integer getParentId() {
+        return parentId;
+    }
+
+    public void setParentId(Integer parentId) {
+        this.parentId = parentId;
+    }
+
+    public String getPermCode() {
+        return permCode;
+    }
+
+    public void setPermCode(String permCode) {
+        this.permCode = permCode;
+    }
+
+    public String getPermDesc() {
+        return permDesc;
+    }
+
+    public void setPermDesc(String permDesc) {
+        this.permDesc = permDesc;
+    }
+
+    public Date getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(Date createTime) {
+        this.createTime = createTime;
+    }
+
+    public Date getUpdateTime() {
+        return updateTime;
+    }
+
+    public void setUpdateTime(Date updateTime) {
+        this.updateTime = updateTime;
+    }
     // private List<Role> roleList;
     
 }

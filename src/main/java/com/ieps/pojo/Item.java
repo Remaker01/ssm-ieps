@@ -1,10 +1,6 @@
 package com.ieps.pojo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.experimental.Accessors;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.io.Serializable;
@@ -13,10 +9,6 @@ import java.util.Date;
 /**
  * Created by ljw
  */
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-@Accessors(chain = true)
 public class Item implements Serializable {
 
     private Integer itemId;
@@ -52,4 +44,91 @@ public class Item implements Serializable {
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date updateTime;
 
+    public Integer getItemId() {
+        return itemId;
+    }
+
+    public void setItemId(Integer itemId) {
+        this.itemId = itemId;
+    }
+
+    public String getItemNum() {
+        return itemNum;
+    }
+
+    public void setItemNum(String itemNum) {
+        this.itemNum = itemNum;
+    }
+
+    public String getItemName() {
+        return itemName;
+    }
+
+    public void setItemName(String itemName) {
+        this.itemName = itemName;
+    }
+
+    public String getLeaderNum() {
+        return leaderNum;
+    }
+
+    public void setLeaderNum(String leaderNum) {
+        this.leaderNum = leaderNum;
+    }
+
+    public String getLeaderName() {
+        return leaderName;
+    }
+
+    public void setLeaderName(String leaderName) {
+        this.leaderName = leaderName;
+    }
+
+    public String getTutorNum() {
+        return tutorNum;
+    }
+
+    public void setTutorNum(String tutorNum) {
+        this.tutorNum = tutorNum;
+    }
+
+    public String getTutorName() {
+        return tutorName;
+    }
+
+    public void setTutorName(String tutorName) {
+        this.tutorName = tutorName;
+    }
+
+    public Integer getItemStatus() {
+        return itemStatus;
+    }
+
+    public void setItemStatus(Integer itemStatus) {
+        this.itemStatus = itemStatus;
+    }
+
+    public Date getItemDate() {
+        return itemDate;
+    }
+
+    public void setItemDate(Date itemDate) {
+        this.itemDate = itemDate;
+    }
+
+    public Date getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(Date createTime) {
+        this.createTime = createTime;
+    }
+
+    public Date getUpdateTime() {
+        return updateTime;
+    }
+
+    public void setUpdateTime(Date updateTime) {
+        this.updateTime = updateTime;
+    }
 }

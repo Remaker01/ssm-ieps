@@ -1,5 +1,7 @@
 package com.ieps.util.miaodiyun;
 
+import org.apache.commons.codec.digest.DigestUtils;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -9,8 +11,6 @@ import java.net.URLConnection;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import org.apache.commons.codec.digest.DigestUtils;
-
 /**
  * http请求工具
  */
@@ -18,7 +18,6 @@ public class HttpUtil
 {
 	/**
 	 * 构造通用参数timestamp、sig和respDataType
-	 * 
 	 * @return
 	 */
 	public static String createCommonParam()

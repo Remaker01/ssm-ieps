@@ -1,23 +1,12 @@
 package com.ieps.pojo;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.experimental.Accessors;
-
 import java.io.Serializable;
-import java.math.BigDecimal;
 import java.util.Date;
 
 /**
  * Created by ljw
  */
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-@Accessors(chain = true)
 public class ItemInfo implements Serializable {
-
     private Integer id;
 
     // 项目编号
@@ -33,13 +22,84 @@ public class ItemInfo implements Serializable {
     private String summary;
 
     // 校级经费
-    private BigDecimal collegeFunds;
+    private Double collegeFunds;
 
     // 财政经费
-    private BigDecimal governFunds;
+    private Double governFunds;
 
     private Date createTime;
 
     private Date updateTime;
 
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public String getItemNum() {
+        return itemNum;
+    }
+
+    public void setItemNum(String itemNum) {
+        this.itemNum = itemNum;
+    }
+
+    public Integer getItemLevel() {
+        return itemLevel;
+    }
+
+    public void setItemLevel(Integer itemLevel) {
+        this.itemLevel = itemLevel;
+    }
+
+    public Integer getItemType() {
+        return itemType;
+    }
+
+    public void setItemType(Integer itemType) {
+        this.itemType = itemType;
+    }
+
+    public String getSummary() {
+        return summary;
+    }
+
+    public void setSummary(String summary) {
+        this.summary = summary;
+    }
+
+    public Double getCollegeFunds() {
+        return collegeFunds;
+    }
+
+    public void setCollegeFunds(Double collegeFunds) {
+        this.collegeFunds = collegeFunds;
+    }
+
+    public Double getGovernFunds() {
+        return governFunds;
+    }
+
+    public void setGovernFunds(Double governFunds) {
+        this.governFunds = governFunds;
+    }
+
+    public Date getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(Date createTime) {
+        this.createTime = createTime;
+    }
+
+    public Date getUpdateTime() {
+        return updateTime;
+    }
+
+    public void setUpdateTime(Date updateTime) {
+        this.updateTime = updateTime;
+    }
 }

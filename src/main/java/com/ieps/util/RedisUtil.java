@@ -2,7 +2,6 @@ package com.ieps.util;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;
@@ -17,6 +16,7 @@ import java.util.concurrent.TimeUnit;
  * 针对所有的Set 都是以s开头的方法
  * 针对所有的List 都是以l开头的方法
  */
+//TODO:redis功能，好像是spring自带的？如果还需要自己装redis的话就删了吧。
 public class RedisUtil {
     
     @Autowired

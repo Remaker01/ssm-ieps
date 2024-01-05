@@ -1,23 +1,14 @@
 package com.ieps.pojo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.experimental.Accessors;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 import java.util.Date;
 
 /**
  * Created by ljw
  */
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-@Accessors(chain = true)
 public class Review implements Serializable {
     
     private Integer id;
@@ -29,7 +20,7 @@ public class Review implements Serializable {
     private String itemNum;
     
     // 分数
-    private BigDecimal reviewScore;
+    private Double reviewScore;
     
     // 评审意见
     private String reviewOption;
@@ -48,5 +39,84 @@ public class Review implements Serializable {
     private Date createTime;
     
     private Date updateTime;
-    
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public String getUserNum() {
+        return userNum;
+    }
+
+    public void setUserNum(String userNum) {
+        this.userNum = userNum;
+    }
+
+    public String getItemNum() {
+        return itemNum;
+    }
+
+    public void setItemNum(String itemNum) {
+        this.itemNum = itemNum;
+    }
+
+    public double getReviewScore() {
+        return reviewScore;
+    }
+
+    public void setReviewScore(double reviewScore) {
+        this.reviewScore = reviewScore;
+    }
+
+    public String getReviewOption() {
+        return reviewOption;
+    }
+
+    public void setReviewOption(String reviewOption) {
+        this.reviewOption = reviewOption;
+    }
+
+    public Integer getReviewType() {
+        return reviewType;
+    }
+
+    public void setReviewType(Integer reviewType) {
+        this.reviewType = reviewType;
+    }
+
+    public Integer getReviewLevel() {
+        return reviewLevel;
+    }
+
+    public void setReviewLevel(Integer reviewLevel) {
+        this.reviewLevel = reviewLevel;
+    }
+
+    public Date getReviewTime() {
+        return reviewTime;
+    }
+
+    public void setReviewTime(Date reviewTime) {
+        this.reviewTime = reviewTime;
+    }
+
+    public Date getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(Date createTime) {
+        this.createTime = createTime;
+    }
+
+    public Date getUpdateTime() {
+        return updateTime;
+    }
+
+    public void setUpdateTime(Date updateTime) {
+        this.updateTime = updateTime;
+    }
 }
