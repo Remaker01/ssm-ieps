@@ -233,7 +233,7 @@
                          scrolldelay="3"
                          align="left" direction="left"
                          style="width: 100%; color: #fcfdff; font-family: 宋体; font-size: 14px; font-weight: lighter">
-                    欢迎登录大学生创新创业项目智能管理系统！注意：项目学生申报截止11月30日晚上12点，请大家及时申报！
+                    欢迎登录大学生创业项目管理平台！注意：项目学生申报截止11月30日晚上12点，请大家及时申报！
                 </marquee>
             </div>
         </div>
@@ -361,19 +361,18 @@ line-height: 43px;"></div>
     var userPwd = $("input[name='userPwd']");
 
     userPwd.focus(function () {
-        userPwd.mouseleave(function () {
-            if (userNum.val() == "") {
-                userPwd.val("");
-                return layer.msg("请先输入账号！", {icon: 2});
-            }
-        })
+        // userPwd.mouseleave(function () {
+        //     if (userNum.val() == "") {
+        //         userPwd.val("");
+        //         return layer.msg("请先输入账号！", {icon: 2});
+        //     }
+        // })
     });
 
     $(function () {
-
         //回车事件绑定
         userPwd.bind("keydown", function (event) {
-            if (event.keyCode == 13 || event.keyCode == 9) {
+            if (event.keyCode === 13 || event.keyCode === 9) {
                 loginBtn.click();
             }
         });
@@ -447,14 +446,14 @@ line-height: 43px;"></div>
 <script>
     $(function () {
         $.get("/getFileListByAdminWithKind.do", function (result) {
-            if (result.status != 0) {
+            if (result.status !== 0) {
                 return;
             }
             var fileList = $(".gd-main-right-02 > .gd-main-bottom-content");
             result = result.data.list;
             $.each(result, function (index, value) {
                 var fileName = "";
-                if (value.fileName.indexOf("-") != -1) {
+                if (value.fileName.indexOf("-") !== -1) {
                     fileName = value.fileName.substring(value.fileName.indexOf("-") + 1);
                 }
                 else {
@@ -523,7 +522,7 @@ line-height: 43px;"></div>
     $(function () {
 
         $.get("/getFinishedItemList.do", function (result) {
-            if (result.status != 0) {
+            if (result.status !== 0) {
                 return;
             }
 
@@ -550,7 +549,7 @@ line-height: 43px;"></div>
 
 
 <!-- 上下滚动 -->
-<script language="javascript">
+<script>
 
     $(function () {
         //每隔1秒循环滚动

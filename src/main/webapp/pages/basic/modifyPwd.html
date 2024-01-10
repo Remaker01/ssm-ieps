@@ -119,60 +119,60 @@
     reNewPassword.focus(function () {
         $(this).on("mouseleave", function () {
             $(this).off("mouseleave");
-            if (newPassword.val() == "" || oldPassword.val() == "") {
+            if (newPassword.val() === "" || oldPassword.val() === "") {
                 return;
             }
-            if (reNewPassword.val() != "") {
-                if (oldPassword.val() == "") {
-                    $("input:lt(3)").val('');
-                    return layer.msg("请先输入原始密码！");
-                }
-
-                if (newPassword.val() == "") {
-                    $("input[name='reNewPassword']").val('');
-                    return layer.msg("请先输入新密码！");
-                }
-            }
-            if (newPassword.val() != reNewPassword.val()) {
-                $("input:gt(0)").val('');
-                return layer.msg('前后两次密码不一致，请重新输入！');
-            }
+            // if (reNewPassword.val() != "") {
+            //     if (oldPassword.val() == "") {
+            //         $("input:lt(3)").val('');
+            //         return layer.msg("请先输入原始密码！");
+            //     }
+            //
+            //     if (newPassword.val() == "") {
+            //         $("input[name='reNewPassword']").val('');
+            //         return layer.msg("请先输入新密码！");
+            //     }
+            // }
+            // if (newPassword.val() != reNewPassword.val()) {
+            //     $("input:gt(0)").val('');
+            //     return layer.msg('前后两次密码不一致，请重新输入！');
+            // }
             if (newPassword.val() == reNewPassword.val()) {
                 reUpdate.removeClass("layui-btn-disabled").on("click", reUpdatePwd);
             }
         });
     });
-//    reNewPassword.focus(function () {
-//        reNewPassword.mouseleave(function () {
-//            if (newPassword.val() == "" || oldPassword.val() == "") {
-//                return;
-//            }
-//            if (reNewPassword.val() != "") {
-//                if (oldPassword.val() == "") {
-//                    $("input:lt(3)").val('');
-//                    return layer.msg("请先输入原始密码！");
-//                }
-//
-//                if (newPassword.val() == "") {
-//                    $("input[name='reNewPassword']").val('');
-//                    return layer.msg("请先输入新密码！");
-//                }
-//            }
-//            if (newPassword.val() != reNewPassword.val()) {
-//                $("input:gt(0)").val('');
-//                return layer.msg('前后两次密码不一致，请重新输入！');
-//            }
-//            if (newPassword.val() == reNewPassword.val()) {
-//                reUpdate.removeAttribute("disabled", "disabled").on("click", reUpdatePwd);
-//            }
-//        });
-//    });
+   reNewPassword.focus(function () {
+       reNewPassword.mouseleave(function () {
+           if (newPassword.val() == "" || oldPassword.val() == "") {
+               return;
+           }
+           // if (reNewPassword.val() != "") {
+           //     if (oldPassword.val() == "") {
+           //         $("input:lt(3)").val('');
+           //         return layer.msg("请先输入原始密码！");
+           //     }
+           //
+           //     if (newPassword.val() == "") {
+           //         $("input[name='reNewPassword']").val('');
+           //         return layer.msg("请先输入新密码！");
+           //     }
+           // }
+           // if (newPassword.val() != reNewPassword.val()) {
+           //     $("input:gt(0)").val('');
+           //     return layer.msg('前后两次密码不一致，请重新输入！');
+           // }
+           if (newPassword.val() === reNewPassword.val()) {
+               reUpdate.removeAttribute("disabled", "disabled").on("click", reUpdatePwd);
+           }
+       });
+   });
 
 </script>
 
 <script>
     function checkUserPwdWithUserNum() {
-        if ($("input[name='oldPassword']").val() == "" || $("input[name='oldPassword']").val() == null) {
+        if ($("input[name='oldPassword']").val() === "" || $("input[name='oldPassword']").val() == null) {
             return layer.msg("原始密码不能为空！", {icon: 2});
         }
 
@@ -182,7 +182,7 @@
         };
 
         $.get("/checkUserPwdWithUserNum.do", param, function (result) {
-            if (result.status != 0) {
+            if (result.status !== 0) {
                 $("input[name='oldPassword']").val("");
                 return layer.msg(result.msg, {icon: 2});
             }
@@ -201,7 +201,7 @@
         };
 
         $.post("/modifyPwd.do", param, function (result) {
-            if (result.status != 0) {
+            if (result.status !== 0) {
                 return layer.msg(result.msg, {icon: 2});
             }
             layer.msg(result.msg, {icon: 1});

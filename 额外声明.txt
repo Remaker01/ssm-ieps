@@ -1,0 +1,3 @@
+﻿这是我从github上clone下来并修改的系统，依照个人喜好对代码进行了一些修改。
+原始项目地址https://github.com/jiawuliang/ssm-ieps
+原则上就不发pull request了

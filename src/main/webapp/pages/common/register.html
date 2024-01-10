@@ -4,8 +4,7 @@
 <head>
     <meta charset="utf-8">
     <title>大学生创新创业项目管理注册页</title>
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" media="screen" href="../../static/css/background.css">
     <link rel="stylesheet" type="text/css" href="../../static/layui/css/layui.css"/>
     <link rel="stylesheet" media="screen" href="../../static/css/substep.css"/>
@@ -30,12 +29,11 @@
                 <input type="text" name="userName" lay-verify="userName" placeholder="UserName" class="layui-input"/>
             </div>
             <div class="layui-form-item">
-                <input type="password" name="userPwd" autocomplete="off" lay-verify="userPwd" placeholder="Password" class="layui-input"
-                       disabled="disabled"/>
+                <input type="password" name="userPwd" autocomplete="off" lay-verify="userPwd" placeholder="Password" class="layui-input"/>
             </div>
             <div class="layui-form-item">
                 <input type="password" name="rePassword" autocomplete="off" lay-verify="userPwd" placeholder="Confirm Password"
-                       class="layui-input" disabled="disabled"/>
+                       class="layui-input"/>
             </div>
 
             <div class="layui-form-item">
@@ -216,7 +214,6 @@
             console.log(data.value); //得到被选中的值
             if (data.value != "") {
                 $("input[name='submit']").removeAttr("disabled").on("click", submitUser).css("background-color", "#27AE60");
-                return;
             }
         });
 
@@ -272,25 +269,24 @@
                 }
                 userNum.parent().append("<i class='layui-icon' style='float: right; margin-top: -30px; margin-right: 5px'>&#xe605;</i>");
                 userPwd.removeAttr("disabled");
-                return;
             });
         });
     });
 
     // 用户密码
     userPwd.focus(function () {
-        userPwd.mouseleave(function () {
-            if (userNum.val() == "") {
-                layer.msg("请先填写账号！");
-                userPwd.val("");
-                return;
-            }
-            if (userPwd.val() == "") {
-                layer.msg("请填写密码！");
-                return;
-            }
-            rePassword.removeAttr("disabled");
-        })
+        // userPwd.mouseleave(function () {
+        //     if (userNum.val() == "") {
+        //         layer.msg("请先填写账号！");
+        //         userPwd.val("");
+        //         return;
+        //     }
+        //     if (userPwd.val() == "") {
+        //         layer.msg("请填写密码！");
+        //         return;
+        //     }
+        //     rePassword.removeAttr("disabled");
+        // })
     });
 
     // 确认密码
@@ -298,20 +294,20 @@
         rePassword.mouseleave(function () {
             userPwd.siblings().remove();
             rePassword.siblings().remove();
-            if (userNum.val() == "") {
-                layer.msg("请先填写账号！");
-                userPwd.val("");
-                return;
-            }
-            if (userPwd.val() == "") {
-                layer.msg("请填写密码！");
-                return;
-            }
-            if (rePassword.val() == "") {
-                layer.msg("请再次输入密码！");
-                return;
-            }
-            if (userPwd.val() != rePassword.val()) {
+            // if (userNum.val() == "") {
+            //     layer.msg("请先填写账号！");
+            //     userPwd.val("");
+            //     return;
+            // }
+            // if (userPwd.val() == "") {
+            //     layer.msg("请填写密码！");
+            //     return;
+            // }
+            // if (rePassword.val() == "") {
+            //     layer.msg("请再次输入密码！");
+            //     return;
+            // }
+            if (userPwd.val() !== rePassword.val()) {
                 layer.msg("前后两次密码不一致，请重新填写！");
                 userPwd.val("");
                 rePassword.val("");
@@ -339,6 +335,7 @@
             photoNum.siblings().remove();
             if (!is_mobile(photoNum.val())) {
                 photoNum.parent().append("<i class='layui-icon' style='float: right; margin-top: -30px; margin-right: 5px'>&#x1006;</i>");
+                $(".secondNext").removeAttr("disabled").css("background-color", "#27AE60");
                 return;
             }
             photoNum.parent().append("<i class='layui-icon' style='float: right; margin-top: -30px; margin-right: 5px'>&#xe605;</i>");
@@ -383,7 +380,7 @@
 
     // 验证手机号
     function is_mobile(mobile) {
-        if (mobile == "") {
+        if (mobile.length === 0) {
             return false;
         } else {
             if (!/^0{0,1}(13[0-9]|15[0-9]|18[0-9]|14[0-9])[0-9]{8}$/.test(mobile)) {
@@ -394,7 +391,7 @@
     }
     // 验证email的合法性
     function is_email(email) {
-        if (email == "") {
+        if (email.length === 0) {
             return false;
         } else {
             if (!/^[\w\-\.]+@[\w\-\.]+(\.\w+)+$/.test(email)) {

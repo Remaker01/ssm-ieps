@@ -111,7 +111,4 @@
         </property>
     </bean>
 
-    <!--&lt;!&ndash; 加载其他配置文件 &ndash;&gt;-->
-    <!--<import resource="applicationContext-redis.xml"/>-->
-
 </beans>

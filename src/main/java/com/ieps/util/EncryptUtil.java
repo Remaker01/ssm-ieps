@@ -146,8 +146,8 @@ public class EncryptUtil {
     /**
      * 将二进制转换成16进制
      */
-    public static String parseByte2HexStr(byte buf[]) {
-        StringBuffer sb = new StringBuffer();
+    public static String parseByte2HexStr(byte[] buf) {
+        StringBuilder sb = new StringBuilder(buf.length);
         for (int i = 0; i < buf.length; i++) {
             String hex = Integer.toHexString(buf[i] & 0xFF);
             if (hex.length() == 1) {
