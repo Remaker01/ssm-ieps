@@ -142,9 +142,9 @@
             //我们既支持上述函数式的方式，也支持下述数组的形式
             //数组的两个值分别代表：[正则匹配、匹配不符时的提示文字]
             ,
-            password: [
-                /^[\S]{6,12}$/, '密码必须6到12位，且不能出现空格'
-            ]
+            password: function (value) {
+                return validatePasswordPolicy(value);
+            }
         });
     });
 </script>
@@ -300,6 +300,13 @@
                 reNewPassword.val("");
                 return;
             }
+            const passwordPolicyMessage = validatePasswordPolicy(newPassword.val());
+            if (passwordPolicyMessage) {
+                layer.msg(passwordPolicyMessage);
+                newPassword.val("");
+                reNewPassword.val("");
+                return;
+            }
             if (newPassword.val() != reNewPassword.val()) {
                 layer.msg("前后两次密码不一致，请重新输入！");
                 newPassword.val("");
@@ -317,6 +324,12 @@
 <!-- 提交按钮   -->
 <script>
     $("input[name='submit']").click(function () {
+        const passwordPolicyMessage = validatePasswordPolicy(newPassword.val());
+        if (passwordPolicyMessage) {
+            layer.msg(passwordPolicyMessage);
+            return;
+        }
+
         const param = {
             userNum: userNum.val(),
             userPwd: newPassword.val()
@@ -359,6 +372,26 @@
             }
         }
         return true;
+    }
+
+    function validatePasswordPolicy(password) {
+        if (/\s/.test(password) || password.length < 8 || password.length > 30) {
+            return "密码需为8-30位，且至少包含数字、大写字母、小写字母、特殊符号中的2类，且不能包含空格！";
+        }
+        let categoryCount = 0;
+        if (/[0-9]/.test(password)) {
+            categoryCount++;
+        }
+        if (/[A-Z]/.test(password)) {
+            categoryCount++;
+        }
+        if (/[a-z]/.test(password)) {
+            categoryCount++;
+        }
+        if (/[^A-Za-z0-9]/.test(password)) {
+            categoryCount++;
+        }
+        return categoryCount >= 2 ? null : "密码需为8-30位，且至少包含数字、大写字母、小写字母、特殊符号中的2类，且不能包含空格！";
     }
 
     function goRegister() {

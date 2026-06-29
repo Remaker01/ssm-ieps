@@ -7,7 +7,7 @@ import com.ieps.mapper.UserRoleMapper;
 import com.ieps.pojo.User;
 import com.ieps.pojo.UserInfo;
 import com.ieps.pojo.UserRole;
-import com.ieps.util.EncryptUtil;
+import com.ieps.util.PasswordUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -27,19 +27,34 @@ public class UserService {
     private UserRoleMapper userRoleMapper;
     
     public ServerResponse login(String userNum, String userPwd) {
-        User user = userMapper.login(userNum, EncryptUtil.AESencode(userPwd, "123456"));
-        
-        System.out.println(user);
-
-        if (user == null) {
+        User storedUser = userMapper.selectByUserNum(userNum);
+        if (storedUser == null) {
             return ServerResponse.createByErrorMessage("登录失败，请重新登录！");
         }
-    
-        if (user.getUserStatus() == 0) {
+        
+        if (storedUser.getUserStatus() == 0) {
             return ServerResponse.createByErrorMessage("对不起，该账号目前已经被锁定，请联系管理员激活！");
         }
-
-        return ServerResponse.createBySuccess("登录成功，请尽情享用！", user);
+        
+        if (!PasswordUtil.isPasswordHash(storedUser.getUserPwd())) {
+            return ServerResponse.createByErrorMessage("密码策略已升级，请先重置密码后再登录！");
+        }
+        
+        if (!PasswordUtil.matches(userPwd, storedUser.getUserPwd())) {
+            return ServerResponse.createByErrorMessage("登录失败，请重新登录！");
+        }
+        
+        Integer roleId = userMapper.selectRoleIdByUserNum(userNum);
+        if (roleId == null) {
+            return ServerResponse.createByErrorMessage("登录失败，请联系管理员检查角色配置！");
+        }
+        
+        User loginUser = new User();
+        loginUser.setUserNum(storedUser.getUserNum());
+        loginUser.setUserStatus(storedUser.getUserStatus());
+        loginUser.setRoleId(roleId);
+        
+        return ServerResponse.createBySuccess("登录成功，请尽情享用！", loginUser);
     }
     
     public ServerResponse<User> getMenu(String userNum) {
@@ -55,13 +70,17 @@ public class UserService {
         if (!user.getUserPwd().equals(user.getRePassword())) {
             return ServerResponse.createByErrorMessage("前后两次密码不一致，请重新输入！");
         }
+
+        String passwordPolicyError = PasswordUtil.validatePasswordPolicy(user.getUserPwd());
+        if (passwordPolicyError != null) {
+            return ServerResponse.createByErrorMessage(passwordPolicyError);
+        }
         
         if (userMapper.selectByUserNum(user.getUserNum()) != null) {
             return ServerResponse.createByErrorMessage("账号已注册，请重新输入！");
         }
         
-        // 使用AES加密算法经行加密
-        user.setUserPwd(EncryptUtil.AESencode(user.getUserPwd(), "123456"));
+        user.setUserPwd(PasswordUtil.hashPassword(user.getUserPwd()));
         
         int result = userMapper.insertSelective(user);
         if (result < 1) {
@@ -85,8 +104,16 @@ public class UserService {
     }
     
     public ServerResponse checkUserPwdWithUserNum(String userNum, String userPwd) {
+        User user = userMapper.selectByUserNum(userNum);
+        if (user == null) {
+            return ServerResponse.createByErrorMessage("用户名与密码不匹配,请重新输入！");
+        }
         
-        if (userMapper.selectUserPwdWithUserNum(userNum, EncryptUtil.AESencode(userPwd, "123456")) <= 0) {
+        if (!PasswordUtil.isPasswordHash(user.getUserPwd())) {
+            return ServerResponse.createByErrorMessage("密码策略已升级，请先重置密码后再继续！");
+        }
+        
+        if (!PasswordUtil.matches(userPwd, user.getUserPwd())) {
             return ServerResponse.createByErrorMessage("用户名与密码不匹配,请重新输入！");
         }
         
@@ -99,8 +126,13 @@ public class UserService {
         if (user == null) {
             return ServerResponse.createByErrorMessage("用户不存在，请重新填写！");
         }
+
+        String passwordPolicyError = PasswordUtil.validatePasswordPolicy(userPwd);
+        if (passwordPolicyError != null) {
+            return ServerResponse.createByErrorMessage(passwordPolicyError);
+        }
         
-        if (userMapper.updatePwd(userNum, EncryptUtil.AESencode(userPwd, "123456")) < 1) {
+        if (userMapper.updatePwd(userNum, PasswordUtil.hashPassword(userPwd)) < 1) {
             return ServerResponse.createByErrorMessage("重置密码失败，请重新填写！");
         }
         
@@ -108,21 +140,29 @@ public class UserService {
     }
     
     public ServerResponse modifyPwd(User user) {
-        // 使用AES加密算法经行加密
-        user.setUserPwd(EncryptUtil.AESencode(user.getUserPwd(), "123456"));
-        user.setNewPassword(EncryptUtil.AESencode(user.getNewPassword(), "123456"));
-        user.setRePassword(EncryptUtil.AESencode(user.getRePassword(), "123456"));
-    
-        User checkUser = userMapper.checkUser(user.getUserNum(), user.getUserPwd());
-        if (checkUser == null) {
+        User storedUser = userMapper.selectByUserNum(user.getUserNum());
+        if (storedUser == null) {
+            return ServerResponse.createByErrorMessage("账号与旧密码不匹配，请重新填写！");
+        }
+        
+        if (!PasswordUtil.isPasswordHash(storedUser.getUserPwd())) {
+            return ServerResponse.createByErrorMessage("密码策略已升级，请先重置密码后再修改密码！");
+        }
+        
+        if (!PasswordUtil.matches(user.getUserPwd(), storedUser.getUserPwd())) {
             return ServerResponse.createByErrorMessage("账号与旧密码不匹配，请重新填写！");
         }
         
         if (!user.getNewPassword().equals(user.getRePassword())) {
             return ServerResponse.createByErrorMessage("前后两次密码不一致，请重新填写！");
         }
+
+        String passwordPolicyError = PasswordUtil.validatePasswordPolicy(user.getNewPassword());
+        if (passwordPolicyError != null) {
+            return ServerResponse.createByErrorMessage(passwordPolicyError);
+        }
         
-        if (userMapper.updatePwd(user.getUserNum(), user.getNewPassword()) < 1) {
+        if (userMapper.updatePwd(user.getUserNum(), PasswordUtil.hashPassword(user.getNewPassword())) < 1) {
             return ServerResponse.createByErrorMessage("修改密码失败，请重新填写！");
         }
         
@@ -139,11 +179,7 @@ public class UserService {
     }
     
     public ServerResponse getUserPwdWithUserNum(String userNum) {
-        User user = userMapper.selectByUserNum(userNum);
-        
-        user.setUserPwd(EncryptUtil.AESdecode(user.getUserPwd(), "123456"));
-        
-        return ServerResponse.createBySuccess(user);
+        return ServerResponse.createByErrorMessage("出于安全考虑，系统不再提供密码读取接口。");
     }
     
     

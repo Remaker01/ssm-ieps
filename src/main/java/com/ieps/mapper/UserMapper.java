@@ -33,6 +33,8 @@ public interface UserMapper {
     /** 查找菜单 */
     User selectMenu(String userNum);
     
+    Integer selectRoleIdByUserNum(@Param("userNum") String userNum);
+    
     /** 根据学号或者教师号，查找用户是否已注册或存在 */
     User selectByUserNum(String userNum);
     

@@ -205,9 +205,9 @@
             }
             //我们既支持上述函数式的方式，也支持下述数组的形式
             //数组的两个值分别代表：[正则匹配、匹配不符时的提示文字]
-            , userPwd: [
-                /^[\S]{6,12}$/, '密码必须6到12位，且不能出现空格'
-            ]
+            , userPwd: function (value) {
+                return validatePasswordPolicy(value);
+            }
         });
 
         form.on('select(roleCheckBox)', function(data){
@@ -313,6 +313,13 @@
                 rePassword.val("");
                 return;
             }
+            const passwordPolicyMessage = validatePasswordPolicy(userPwd.val());
+            if (passwordPolicyMessage) {
+                layer.msg(passwordPolicyMessage);
+                userPwd.val("");
+                rePassword.val("");
+                return;
+            }
             userPwd.parent().append("<i class='layui-icon' style='float: right; margin-top: -30px; margin-right: 5px'>&#xe605;</i>");
             rePassword.parent().append("<i class='layui-icon' style='float: right; margin-top: -30px; margin-right: 5px'>&#xe605;</i>");
             $(".firstNext").removeAttr("disabled").css("background-color", "#27AE60");
@@ -348,6 +355,11 @@
 
 <script>
     function submitUser() {
+        const passwordPolicyMessage = validatePasswordPolicy(userPwd.val());
+        if (passwordPolicyMessage) {
+            return layer.msg(passwordPolicyMessage);
+        }
+
         const param = {
             userNum: userNum.val(),
             userName: userName.val(),
@@ -399,6 +411,26 @@
             }
         }
         return true;
+    }
+
+    function validatePasswordPolicy(password) {
+        if (/\s/.test(password) || password.length < 8 || password.length > 30) {
+            return "密码需为8-30位，且至少包含数字、大写字母、小写字母、特殊符号中的2类，且不能包含空格！";
+        }
+        let categoryCount = 0;
+        if (/[0-9]/.test(password)) {
+            categoryCount++;
+        }
+        if (/[A-Z]/.test(password)) {
+            categoryCount++;
+        }
+        if (/[a-z]/.test(password)) {
+            categoryCount++;
+        }
+        if (/[^A-Za-z0-9]/.test(password)) {
+            categoryCount++;
+        }
+        return categoryCount >= 2 ? null : "密码需为8-30位，且至少包含数字、大写字母、小写字母、特殊符号中的2类，且不能包含空格！";
     }
 
     function goForgetPwd() {

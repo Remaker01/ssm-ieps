@@ -33,7 +33,7 @@ public class Const {
     public final static int ROLEID_STU = 200001;
     
     // 统一注册密码/重置密码
-    public final static String UNIFORM_USERPWD = "123456";
+    public final static String UNIFORM_USERPWD = "Ieps@123";
     
     // 统一注册状态
     public final static int UNIFORM_STATUS = 1;

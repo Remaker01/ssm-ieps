@@ -139,6 +139,13 @@
             //     return layer.msg('前后两次密码不一致，请重新输入！');
             // }
             if (newPassword.val() == reNewPassword.val()) {
+                const passwordPolicyMessage = validatePasswordPolicy(newPassword.val());
+                if (passwordPolicyMessage) {
+                    layer.msg(passwordPolicyMessage);
+                    newPassword.val('');
+                    reNewPassword.val('');
+                    return;
+                }
                 reUpdate.removeClass("layui-btn-disabled").on("click", reUpdatePwd);
             }
         });
@@ -164,6 +171,13 @@
            //     return layer.msg('前后两次密码不一致，请重新输入！');
            // }
            if (newPassword.val() === reNewPassword.val()) {
+               const passwordPolicyMessage = validatePasswordPolicy(newPassword.val());
+               if (passwordPolicyMessage) {
+                   layer.msg(passwordPolicyMessage);
+                   newPassword.val('');
+                   reNewPassword.val('');
+                   return;
+               }
                reUpdate.removeAttribute("disabled", "disabled").on("click", reUpdatePwd);
            }
        });
@@ -182,7 +196,7 @@
             userPwd: $("input[name='oldPassword']").val()
         };
 
-        $.get("/checkUserPwdWithUserNum.do", param, function (result) {
+        $.post("/checkUserPwdWithUserNum.do", param, function (result) {
             if (result.status !== 0) {
                 $("input[name='oldPassword']").val("");
                 return layer.msg(result.msg, {icon: 2});
@@ -194,6 +208,11 @@
     }
 
     function reUpdatePwd() {
+        const passwordPolicyMessage = validatePasswordPolicy(newPassword.val());
+        if (passwordPolicyMessage) {
+            return layer.msg(passwordPolicyMessage, {icon: 2});
+        }
+
         const param = {
             userNum: userNumAdmin,
             userPwd: oldPassword.val(),
@@ -220,6 +239,26 @@
                 $(parent).attr('location', '/goHome.do');
             }, 1000);
         })
+    }
+
+    function validatePasswordPolicy(password) {
+        if (/\s/.test(password) || password.length < 8 || password.length > 30) {
+            return "密码需为8-30位，且至少包含数字、大写字母、小写字母、特殊符号中的2类，且不能包含空格！";
+        }
+        let categoryCount = 0;
+        if (/[0-9]/.test(password)) {
+            categoryCount++;
+        }
+        if (/[A-Z]/.test(password)) {
+            categoryCount++;
+        }
+        if (/[a-z]/.test(password)) {
+            categoryCount++;
+        }
+        if (/[^A-Za-z0-9]/.test(password)) {
+            categoryCount++;
+        }
+        return categoryCount >= 2 ? null : "密码需为8-30位，且至少包含数字、大写字母、小写字母、特殊符号中的2类，且不能包含空格！";
     }
 </script>
 

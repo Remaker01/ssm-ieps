@@ -152,9 +152,17 @@
     </select>
 
     <select id="selectByUserNum" parameterType="string" resultType="User">
-        SELECT user_num AS userNum, user_pwd AS userPwd
+        SELECT user_num AS userNum, user_pwd AS userPwd, user_status AS userStatus
         FROM ieps_user
         WHERE user_num=#{userNum}
+    </select>
+    
+    <select id="selectRoleIdByUserNum" parameterType="string" resultType="int">
+        SELECT role_id
+        FROM ieps_user_role
+        WHERE user_num=#{userNum}
+        ORDER BY role_id
+        LIMIT 1
     </select>
 
     <select id="selectUserPwdWithUserNum" parameterType="string" resultType="int">

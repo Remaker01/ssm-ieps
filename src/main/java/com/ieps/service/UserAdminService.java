@@ -15,7 +15,7 @@ import com.ieps.pojo.Role;
 import com.ieps.pojo.User;
 import com.ieps.pojo.UserInfo;
 import com.ieps.pojo.UserRole;
-import com.ieps.util.EncryptUtil;
+import com.ieps.util.PasswordUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -166,7 +166,7 @@ public class UserAdminService {
         
         User user = new User();
         user.setUserNum(userAdminDto.getUserNum());
-        user.setUserPwd(EncryptUtil.AESencode(Const.UNIFORM_USERPWD, "123456"));
+        user.setUserPwd(PasswordUtil.hashPassword(Const.UNIFORM_USERPWD));
         user.setUserStatus(Const.UNIFORM_STATUS);
         
         UserInfo userInfo = new UserInfo();
@@ -255,7 +255,7 @@ public class UserAdminService {
             
             User user = new User();
             user.setUserNum(userNums[i]);
-            user.setUserPwd(EncryptUtil.AESencode(Const.UNIFORM_USERPWD, "123456"));
+            user.setUserPwd(PasswordUtil.hashPassword(Const.UNIFORM_USERPWD));
             user.setUserStatus(Const.UNIFORM_STATUS);
             
             UserInfo userInfo = new UserInfo();

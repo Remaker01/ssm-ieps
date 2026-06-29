@@ -296,29 +296,25 @@
         }
         // 解锁
         $("body").on("click", "#unlock", function () {
-            if ($(this).siblings(".admin-header-lock-input").val() == '') {
+            const currentBtn = $(this);
+            const currentInput = currentBtn.siblings(".admin-header-lock-input");
+            if (currentInput.val() == '') {
                 layer.msg("请输入解锁密码！");
-                $(this).siblings(".admin-header-lock-input").focus();
+                currentInput.focus();
             } else {
-                let userPwd = '123456';
-
-                $.ajaxSettings.async = false;
-                $.get("/getUserPwdWithUserNum.do", {userNum: userNumAdmin}, function (result) {
-                    console.log(result);
-                    if (result.status != 0) {
+                $.post("/checkUserPwdWithUserNum.do", {
+                    userNum: userNumAdmin,
+                    userPwd: currentInput.val()
+                }, function (result) {
+                    if (result.status !== 0) {
+                        layer.msg(result.msg || "密码错误，请重新输入！");
+                        currentInput.val('').focus();
                         return;
                     }
-                    userPwd = result.data.userPwd;
-                });
-                $.ajaxSettings.async = true;
-                if ($(this).siblings(".admin-header-lock-input").val() == userPwd) {
                     window.sessionStorage.setItem("lockcms", false);
-                    $(this).siblings(".admin-header-lock-input").val('');
+                    currentInput.val('');
                     layer.closeAll("page");
-                } else {
-                    layer.msg("密码错误，请重新输入！");
-                    $(this).siblings(".admin-header-lock-input").val('').focus();
-                }
+                });
             }
         });
         $(document).on('keydown', function () {
@@ -334,4 +330,3 @@
 </body>
 
 </html>
-

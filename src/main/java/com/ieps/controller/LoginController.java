@@ -30,6 +30,15 @@ public class LoginController {
     private RolePermService rolePermService;
     
     /**
+     * 根路径默认跳转到登录页
+     * @return
+     */
+    @RequestMapping("/")
+    public String root() {
+        return "redirect:/goLogin.do";
+    }
+
+    /**
      * 通过userNum和userPwd登录系统
      * @param userNum
      * @param userPwd
@@ -95,10 +104,18 @@ public class LoginController {
      * @param userPwd
      * @return
      */
-    @RequestMapping(value = "/checkUserPwdWithUserNum.do", method = RequestMethod.GET)
+    @RequestMapping(value = "/checkUserPwdWithUserNum.do", method = RequestMethod.POST)
     @ResponseBody
-    public ServerResponse checkUserPwdWithUserNum(String userNum, String userPwd) {
+    public ServerResponse checkUserPwdWithUserNum(String userNum, String userPwd, HttpSession session) {
+        User activeUser = (User) session.getAttribute("activeUser");
+        if (activeUser == null) {
+            return ServerResponse.createByErrorMessage("登录状态已失效，请重新登录后再试！");
+        }
         
+        if (!activeUser.getUserNum().equals(userNum)) {
+            return ServerResponse.createByErrorMessage("安全检查不通过，当前仅允许校验自己的密码！");
+        }
+    
         return userService.checkUserPwdWithUserNum(userNum, userPwd);
     }
     
