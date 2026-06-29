@@ -127,6 +127,73 @@ ssm-ieps/
 
 ---
 
+## 编码规则
+
+### Java 编码规范
+
+- **Java 版本**: 11，使用 `var` 局部变量类型推断时需确保可读性
+- **命名风格**:
+  - 类名: `PascalCase`（如 `UserAdminService`）
+  - 方法名/变量名: `camelCase`（如 `getUserList`）
+  - 常量: `UPPER_SNAKE_CASE`（如 `ROLEID_COLLEGE`）
+  - Mapper XML 中的 `id`: 与 Mapper 接口方法名完全一致
+- **缩进**: 4 空格（非 Tab）
+- **编码**: UTF-8
+- **注解风格**: 使用 `@Autowired` 字段注入（项目中统一风格，不要混用构造器注入）
+
+### 代码组织规则
+
+1. **类内部顺序**: 静态字段 → 实例字段 → 构造器 → 静态方法 → 实例方法（按逻辑分组）
+2. **每个文件一个顶层类**，内部类除外
+3. **禁止使用 `System.out.println`** → 使用 SLF4J Logger（`private static final Logger logger = LoggerFactory.getLogger(Xxx.class)`）
+4. **禁止直接使用 `com.sun.*` 内部 API**（Java 11 模块化后不再可见）
+5. **魔法字符串/数字** → 提取到 `Const.java` 或枚举类
+
+### 分层规范
+
+**Controller 层**:
+- 使用 `@Controller` + `@ResponseBody` 注解（而非 `@RestController`）
+- 方法返回 `ServerResponse<T>` 统一格式
+- 通过 `HttpSession` 获取用户信息：`(User) session.getAttribute("activeUser")`
+- 分页参数命名：`page`（页码）、`limit`（每页条数），带 `@RequestParam(defaultValue=...)`
+
+**Service 层**:
+- 具体类（无接口），标注 `@Service`
+- 直接 `@Autowired` 注入 Mapper
+- 不跨 Service 互相调用（同类方法直接调用）
+
+**Mapper 层**:
+- 接口方法名与 XML 中 `<select>/<insert>/<update>/<delete>` 的 `id` 一一对应
+- 参数使用 `@Param` 注解（多个参数时）
+- XML 文件放在 `src/main/resources/mappers/` 目录
+- 实体类使用 `resultMap` 或 `resultType` 映射（`resultType` 优先）
+
+### 路由规范
+
+- 所有 URL 以 `.do` 结尾：如 `/login.do`、`/getUserList.do`
+- `GET` → 查询操作，`POST` → 数据变更操作
+- URL 命名采用 camelCase：`/getItemListByUserNum.do`
+
+### 数据校验
+
+- 前端使用 Layui 表单验证
+- 后端在 Service 层校验业务逻辑
+- 不做参数级 `@Valid` 校验（项目未引入 Spring Validation Starter）
+
+### 异常处理
+
+- 业务异常直接返回 `ServerResponse.createByErrorMessage("描述")`
+- 不抛出 `CustomException`（定义为自定义异常但未实际使用）
+- 不全局捕获异常（无 `@ControllerAdvice`）
+
+### Git 提交规范
+
+- 提交信息格式: `<type>: <描述>`
+- type: `feat` / `fix` / `refactor` / `docs` / `chore` / `style`
+- 描述使用中文，简洁明了
+
+---
+
 ## 构建与运行
 
 ```bash
