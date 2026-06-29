@@ -3,6 +3,7 @@ package com.ieps.util;
 /**
  * Created by ljw
  */
+@Deprecated(forRemoval = true)
 public class ZipUtils {
     
     // // 目录标识判断符

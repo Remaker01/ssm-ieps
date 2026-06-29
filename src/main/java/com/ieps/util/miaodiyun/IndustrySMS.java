@@ -8,6 +8,7 @@ import java.net.URLEncoder;
  * @Description: 验证码通知短信接口
  *
  */
+@Deprecated(forRemoval = true)
 public class IndustrySMS {
 	private static String operation = "/industrySMS/sendSMS";
 

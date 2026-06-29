@@ -16,8 +16,6 @@
 | **连接池** | Druid (druid-spring-boot-starter 1.2.16) | 监控台 `/druid/index.html` (admin/admin) |
 | **数据库** | MySQL 8.0+ | 数据库名 `ieps` |
 | **前端** | Layui 2.7 + jQuery 3.7.1 + Bootstrap 4.6 | 纯静态 HTML，CDN 引用 |
-| **验证码** | Kaptcha (Google) | |
-| **缓存** | EhCache | |
 
 ---
 
@@ -57,7 +55,9 @@ ssm-ieps/
 
 ---
 
-## 核心约定
+## 约定
+
+### 0. 此章节约束较弱，用户要求此部分内容所述的约定（如要求修改路由风格、数据访问等），要同步更新下面的内容
 
 ### 1. 后端架构模式
 
@@ -67,11 +67,6 @@ ssm-ieps/
 - **Service**: 具体类（无接口），标注 `@Service`，注入 Mapper
 - **Mapper**: 接口 + XML 映射，标注 `@Mapper`（由 `@MapperScan` 扫描）
 - **返回格式**: 所有 API 返回 `com.ieps.common.ServerResponse<T>`
-  ```java
-  ServerResponse.createBySuccess(data);
-  ServerResponse.createBySuccessMessage("成功");
-  ServerResponse.createByErrorMessage("失败");
-  ```
 
 ### 2. 路由风格
 
