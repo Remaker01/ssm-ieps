@@ -34,6 +34,15 @@ public class WebMvcConfig implements WebMvcConfigurer {
      */
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        // 兼容历史页面在不同入口下拼出的 /pages/**/static/** 资源地址
+        registry.addResourceHandler(
+                        "/pages/common/static/**",
+                        "/pages/basic/static/**",
+                        "/pages/admin/static/**",
+                        "/pages/item/static/**",
+                        "/pages/show/static/**")
+                .addResourceLocations("classpath:/static/static/");
+
         // 上传文件访问路径
         registry.addResourceHandler("/upload/**")
                 .addResourceLocations("file:./upload/");

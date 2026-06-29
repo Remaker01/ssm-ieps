@@ -1,10 +1,7 @@
 var $, tab, skyconsWeather;
 
-var userImg = getUserImg();
-var userName = getUserName();
-
 layui.config({
-    base: "static/js/module/menu/"
+    base: "/static/js/module/menu/"
 }).use(['bodyTab', 'form', 'element', 'layer', 'jquery'], function () {
     var form = layui.form,
         layer = layui.layer,
@@ -140,7 +137,7 @@ layui.config({
         window.sessionStorage.removeItem("curmenu");
         layer.msg(message);
         setTimeout(function () {
-            $(window).attr('location', '/goHome.do');
+            $(window).attr('location', '/home');
         }, 1000);
     }
 
@@ -232,7 +229,7 @@ layui.config({
             var menu = JSON.parse(window.sessionStorage.getItem("menu"));
             $("#top_tabs li").each(function () {
                 if ($(this).attr("lay-id") != '' && !$(this).hasClass("layui-this")) {
-                    element.tabDelete("bodyTab", $(this).attr("lay-id")).init();
+                    element.tabDelete("bodyTab", $(this).attr("lay-id"));
                     //此处将当前窗口重新获取放入session，避免一个个删除来回循环造成的不必要工作量
                     for (var i = 0; i < menu.length; i++) {
                         if ($("#top_tabs li.layui-this cite").text() == menu[i].perName) {
@@ -245,7 +242,7 @@ layui.config({
         } else if ($("#top_tabs li.layui-this cite").text() == "后台首页" && $("#top_tabs li").length > 1) {
             $("#top_tabs li").each(function () {
                 if ($(this).attr("lay-id") != '' && !$(this).hasClass("layui-this")) {
-                    element.tabDelete("bodyTab", $(this).attr("lay-id")).init();
+                    element.tabDelete("bodyTab", $(this).attr("lay-id"));
                     window.sessionStorage.removeItem("menu");
                     menu = [];
                     window.sessionStorage.removeItem("curmenu");
@@ -263,7 +260,7 @@ layui.config({
         if ($("#top_tabs li").length > 1) {
             $("#top_tabs li").each(function () {
                 if ($(this).attr("lay-id") != '') {
-                    element.tabDelete("bodyTab", $(this).attr("lay-id")).init();
+                    element.tabDelete("bodyTab", $(this).attr("lay-id"));
                     window.sessionStorage.removeItem("menu");
                     menu = [];
                     window.sessionStorage.removeItem("curmenu");
@@ -281,4 +278,3 @@ layui.config({
 function addTab(_this) {
     tab.tabAdd(_this);
 }
-

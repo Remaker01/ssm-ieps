@@ -21,7 +21,7 @@ layui.define(["element", "jquery"], function (exports) {
             var _this = this;
             // 加载菜单
             $(".navBar").html(navBar(getMenu())).height($(window).height() - 245);
-            element.init(); //初始化页面元素
+            element.render("nav"); // 初始化左侧导航
             $(window).resize(function () {
                 $(".navBar").height($(window).height() - 245);
             })
@@ -231,7 +231,7 @@ layui.define(["element", "jquery"], function (exports) {
                 }
             }
         }
-        element.tabChange(tabFilter, $(this).attr("lay-id")).init();
+        element.tabChange(tabFilter, $(this).attr("lay-id"));
         // new Tab().tabMove();
     });
 
@@ -258,7 +258,7 @@ layui.define(["element", "jquery"], function (exports) {
         }
         menu.splice((liIndex - 1), 1);
         window.sessionStorage.setItem("menu", JSON.stringify(menu));
-        element.tabDelete("bodyTab", $(this).parent("li").attr("lay-id")).init();
+        element.tabDelete("bodyTab", $(this).parent("li").attr("lay-id"));
         new Tab().tabMove();
     });
 

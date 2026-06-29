@@ -11,14 +11,21 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="format-detection" content="telephone=no">
 
-    <link rel="icon" href="../favicon.ico">
+    <link rel="icon" href="/favicon.ico">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/layui@2.7/dist/css/layui.css" media="all"/>
     <link rel="stylesheet" href="//at.alicdn.com/t/font_tnyc012u2rlwstt9.css" media="all"/>
-    <link rel="stylesheet" href="../../static/css/main.css" media="all"/>
+    <link rel="stylesheet" href="/static/css/main.css?v=20260629" media="all"/>
 
     <style>
         .closeBox .layui-nav-child dd.layui-this a {
             background-color: #fff;
+        }
+
+        .weather-text {
+            color: #fff;
+            font-size: 14px;
+            line-height: 35px;
+            white-space: nowrap;
         }
     </style>
 
@@ -35,42 +42,7 @@
             <a href="javascript:;" class="iconfont hideMenu icon-menu1"></a>
             <!-- 天气信息 -->
             <div class="weather" pc>
-                <div id="tp-weather-widget"></div>
-                <script>(function (T, h, i, n, k, P, a, g, e) {
-                    g = function () {
-                        P = h.createElement(i);
-                        a = h.getElementsByTagName(i)[0];
-                        P.src = k;
-                        P.charset = "utf-8";
-                        P.async = 1;
-                        a.parentNode.insertBefore(P, a)
-                    };
-                    T["ThinkPageWeatherWidgetObject"] = n;
-                    T[n] || (T[n] = function () {
-                        (T[n].q = T[n].q || []).push(arguments)
-                    });
-                    T[n].l = +new Date();
-                    if (T.attachEvent) {
-                        T.attachEvent("onload", g)
-                    } else {
-                        T.addEventListener("load", g, false)
-                    }
-                }(window, document, "script", "tpwidget", "//widget.seniverse.com/widget/chameleon.js"))</script>
-                <script>tpwidget("init", {
-                    "flavor": "slim",
-                    "location": "WX4FBXXFKE4F",
-                    "geolocation": "enabled",
-                    "language": "zh-chs",
-                    "unit": "c",
-                    "theme": "chameleon",
-                    "container": "tp-weather-widget",
-                    "bubble": "disabled",
-                    "alarmType": "badge",
-                    "color": "#FFFFFF",
-                    "uid": "U9EC08A15F",
-                    "hash": "039da28f5581f4bcb5c799fb4cdfb673"
-                });
-                tpwidget("show");</script>
+                <div id="topStatusText" class="weather-text">欢迎使用 IEPS 管理平台</div>
             </div>
             <!-- 顶部右侧菜单 -->
             <ul class="layui-nav top_menu">
@@ -82,7 +54,8 @@
                 <!--</li>-->
                 <li class="layui-nav-item" pc>
                     <a href="javascript:;">
-                        <img src="" class="layui-circle custom-img" width="35" height="35">
+                        <img src="/static/images/default.jpg" class="layui-circle custom-img" width="35" height="35"
+                             onerror="this.src='/static/images/default.jpg'">
                         <cite class="userName"></cite>
                     </a>
                     <dl class="layui-nav-child">
@@ -106,7 +79,8 @@
     <!--class="layui-side layui-bg-black"-->
     <div class="layui-side" style="background-color: #053a71;">
         <div class="user-photo">
-            <a class="img" title="更换头像"><img src="" class="custom-img"/></a>
+            <a class="img" title="更换头像"><img src="/static/images/default.jpg" class="custom-img"
+                                               onerror="this.src='/static/images/default.jpg'"/></a>
             <p>你好！<span class="userName"></span>, 欢迎登录</p>
             <p class="uploadError"></p>
         </div>
@@ -151,17 +125,30 @@
 
 <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
 <!-- 获取url参数 -->
-<script src="../../static/js/getParam.js"></script>
+<script src="/static/js/getParam.js?v=20260629"></script>
 
 <!-- 中英互译js  -->
 <!--<script src="../../static/js/language.js"></script>-->
 
 <!-- 加密和解密 -->
-<script src="../../static/js/module/encrypt/aes.js"></script>
-<script src="../../static/js/module/encrypt/customAesEncrypt.js"></script>
+<script src="/static/js/module/encrypt/aes.js?v=20260629"></script>
+<script src="/static/js/module/encrypt/customAesEncrypt.js?v=20260629"></script>
 
 <!-- 图片和姓名自动更改 -->
 <script>
+    (function () {
+        const now = new Date();
+        const dayNames = ["周日", "周一", "周二", "周三", "周四", "周五", "周六"];
+        const parts = [
+            now.getFullYear() + "年" + String(now.getMonth() + 1).padStart(2, "0") + "月" + String(now.getDate()).padStart(2, "0") + "日",
+            dayNames[now.getDay()]
+        ];
+        const topStatusText = document.getElementById("topStatusText");
+        if (topStatusText) {
+            topStatusText.textContent = "欢迎使用 IEPS 管理平台 · " + parts.join(" ");
+        }
+    }());
+
     console.log($.Request("userNum"));
     console.log($.Request("roleId"));
 
@@ -172,7 +159,19 @@
         roleId: roleIdAdmin
     };
 
-    let userImg, userName, dataJson;
+    var userImg = "/static/images/default.jpg";
+    var userName = "";
+    var dataJson;
+
+    function resolveUserImg(userImgPath) {
+        if (!userImgPath) {
+            return "/static/images/default.jpg";
+        }
+        if (/^(https?:)?\/\//.test(userImgPath) || userImgPath.indexOf("/") === 0) {
+            return userImgPath;
+        }
+        return "/" + userImgPath.replace(/^\/+/, "");
+    }
 
     function getMenu() {
         $.ajaxSettings.async = false;
@@ -204,11 +203,11 @@
             }
             result = result.data;
 
-            userImg = result.userImg;
-            userName = result.userName;
+            userImg = resolveUserImg(result.userImg);
+            userName = result.userName || "";
 
-            $(".custom-img").attr("src", result.userImg);
-            $(".userName").text(result.userName);
+            $(".custom-img").attr("src", userImg);
+            $(".userName").text(userName);
         });
     });
 </script>
@@ -221,8 +220,9 @@
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/layui@2.7/dist/layui.js"></script>
-<script src="../../static/js/module/menu/getMenu.js"></script>
-<script src="../../static/js/module/menu/index.js"></script>
+<script src="/static/js/module/menu/getMenu.js?v=20260629"></script>
+<script src="/static/js/module/menu/bodyTab.js?v=20260629"></script>
+<script src="/static/js/module/menu/index.js?v=20260629"></script>
 
 <!-- 更换头像 -->
 <script>
