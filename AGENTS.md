@@ -70,7 +70,9 @@ ssm-ieps/
 
 ### 2. 路由风格
 
-- 全部使用 `.do` 后缀：`@RequestMapping("/login.do")`
+- 页面路由优先使用语义化无后缀地址：如 `/`、`/home`、`/login`、`/index`
+- API 路由优先使用无 `.do` 地址：如 `@RequestMapping("/login")`
+- 历史 `.do` 路由保留为兼容别名，新增或修改功能时优先使用无后缀地址
 - 方法类型：`GET` 查询 / `POST` 操作
 - 视图跳转：返回字符串，由 `InternalResourceViewResolver` 解析为 `/pages/{name}.html`
 
@@ -165,9 +167,11 @@ ssm-ieps/
 
 ### 路由规范
 
-- 所有 URL 以 `.do` 结尾：如 `/login.do`、`/getUserList.do`
+- 页面 URL 优先使用语义化无后缀地址：如 `/`、`/login`、`/register`、`/items/detail`
+- API URL 优先使用无后缀 camelCase：如 `/login`、`/getUserListByUserNum`
+- 旧 `.do` 地址作为兼容路由保留，避免一次性切断旧页面和书签
 - `GET` → 查询操作，`POST` → 数据变更操作
-- URL 命名采用 camelCase：`/getItemListByUserNum.do`
+- URL 命名采用 camelCase 或语义化短路径；页面入口优先使用名词路径，数据接口保持项目既有命名风格
 
 ### 数据校验
 

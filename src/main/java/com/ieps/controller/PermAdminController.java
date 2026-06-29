@@ -23,7 +23,7 @@ public class PermAdminController {
     @Autowired
     private PermAdminService permAdminService;
     
-    @RequestMapping("/getPermListWithCondition.do")
+    @RequestMapping({"/getPermListWithCondition", "/getPermListWithCondition.do"})
     @ResponseBody
     public ServerResponse<List<Perm>> getPermListWithCondition(@RequestParam(value = "page", defaultValue = "1") int page,
                                                                @RequestParam(value = "limit", defaultValue = "5") int limit, HttpSession session,
@@ -45,7 +45,7 @@ public class PermAdminController {
      * @param session
      * @return
      */
-    @RequestMapping("/getPermWithCondition.do")
+    @RequestMapping({"/getPermWithCondition", "/getPermWithCondition.do"})
     @ResponseBody
     public ServerResponse getPermWithCondition(HttpSession session) {
         
@@ -65,7 +65,7 @@ public class PermAdminController {
      * @param perm
      * @return
      */
-    @RequestMapping("/removePermById.do")
+    @RequestMapping({"/removePermById", "/removePermById.do"})
     @ResponseBody
     public ServerResponse<List<Perm>> removePermById(@RequestParam("userNum") String userNum, @RequestParam("roleId") int roleId,
                                                      HttpSession session, Perm perm) {
@@ -82,7 +82,7 @@ public class PermAdminController {
      * 获取所有的菜单
      * @return
      */
-    @RequestMapping("/getAllMenu.do")
+    @RequestMapping({"/getAllMenu", "/getAllMenu.do"})
     @ResponseBody
     public ServerResponse<List<Perm>> getAllMenu() {
         
@@ -102,7 +102,7 @@ public class PermAdminController {
      * @param permId
      * @return
      */
-    @RequestMapping("/getPermByPermId.do")
+    @RequestMapping({"/getPermByPermId", "/getPermByPermId.do"})
     @ResponseBody
     public ServerResponse<Perm> getPermByPermId(@RequestParam("userNum") String userNum, @RequestParam("roleId") int roleId,
                                                     HttpSession session, Integer permId) {
@@ -123,7 +123,7 @@ public class PermAdminController {
      * @param perm
      * @return
      */
-    @RequestMapping("/modifyPemrById.do")
+    @RequestMapping({"/modifyPemrById", "/modifyPemrById.do"})
     @ResponseBody
     public ServerResponse modifyPemrById(@RequestParam("userNum") String userNum, @RequestParam("roleId") int roleId,
                                                 HttpSession session, Perm perm) {
@@ -144,7 +144,7 @@ public class PermAdminController {
      * @param perm
      * @return
      */
-    @RequestMapping("/addPerm.do")
+    @RequestMapping({"/addPerm", "/addPerm.do"})
     @ResponseBody
     public ServerResponse addPerm(@RequestParam("userNum") String userNum, @RequestParam("roleId") int roleId,
                                                HttpSession session, Perm perm) {
@@ -165,7 +165,7 @@ public class PermAdminController {
      * @param permIds
      * @return
      */
-    @RequestMapping("/batchRemovePerm.do")
+    @RequestMapping({"/batchRemovePerm", "/batchRemovePerm.do"})
     @ResponseBody
     public ServerResponse batchRemovePerm(@RequestParam("userNum") String userNum, @RequestParam("roleId") int roleId,
                                   HttpSession session, Integer[] permIds) {
@@ -186,7 +186,7 @@ public class PermAdminController {
      * @param roleAdminId
      * @return
      */
-    @RequestMapping(value = "/addRolePerm.do", method = RequestMethod.POST)
+    @RequestMapping(value = {"/addRolePerm", "/addRolePerm.do"}, method = RequestMethod.POST)
     @ResponseBody
     public ServerResponse addRolePerm(Integer[] permIds, Integer roleId, String userNum, int roleAdminId) {
         
@@ -209,7 +209,7 @@ public class PermAdminController {
      * @param userAdminNum
      * @return
      */
-    @RequestMapping(value = "/addRolePermWithUserNum.do", method = RequestMethod.POST)
+    @RequestMapping(value = {"/addRolePermWithUserNum", "/addRolePermWithUserNum.do"}, method = RequestMethod.POST)
     @ResponseBody
     public ServerResponse addRolePermWithUserNum(Integer[] permIds, Integer roleId, String userNum, String userAdminNum) {
         

@@ -336,14 +336,14 @@
         };
         console.log(param.userNum + "   " + param.userPwd)
 
-        $.post("/forgetPwd.do", param, function (result) {
+        $.post("/forget-password", param, function (result) {
             if (result.status != 0) {
                 layer.msg(result.msg);
                 return;
             }
             layer.msg(result.msg);
             setTimeout(function () {
-                $(window).attr('location', '/goHome.do');
+                $(window).attr('location', '/');
             }, 1000);
         })
     });
@@ -397,14 +397,14 @@
     function goRegister() {
         layer.msg("正在跳转到注册页面，请稍候！");
         setTimeout(function () {
-            $(window).attr('location', 'goRegister.do');
+            $(window).attr('location', '/register');
         }, 2000);
     }
 
     function goLogin() {
         layer.msg("正在跳转到登录页面，请稍候！");
         setTimeout(function () {
-            $(window).attr('location', 'goLogin.do');
+            $(window).attr('location', '/login');
         }, 2000);
     }
 </script>

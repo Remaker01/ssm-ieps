@@ -26,7 +26,7 @@ public class UserAdminController {
     @Autowired
     private UserAdminService userAdminService;
     
-    @RequestMapping("/getUserAdminList.do")
+    @RequestMapping({"/getUserAdminList", "/getUserAdminList.do"})
     @ResponseBody
     public ServerResponse<List<Inform>> getUserAdminList(@RequestParam(value = "page", defaultValue = "1") int page,
                                                          @RequestParam(value = "limit", defaultValue = "5") int limit, HttpSession session,
@@ -51,7 +51,7 @@ public class UserAdminController {
      * @param session
      * @return
      */
-    @RequestMapping("/searchUserAdminListWithCondition.do")
+    @RequestMapping({"/searchUserAdminListWithCondition", "/searchUserAdminListWithCondition.do"})
     @ResponseBody
     public ServerResponse<List<Inform>> searchUserAdminListWithCondition(@RequestParam(value = "page", defaultValue = "1") int page,
                                                                          @RequestParam(value = "limit", defaultValue = "5") int limit,
@@ -75,7 +75,7 @@ public class UserAdminController {
      * @param sex
      * @return
      */
-    @RequestMapping("/modifySexWithUserNum.do")
+    @RequestMapping({"/modifySexWithUserNum", "/modifySexWithUserNum.do"})
     @ResponseBody
     public ServerResponse modifySexWithUserNum(@RequestParam("userNum") String userNum, HttpSession session,
                                                @RequestParam("roleId") int roleId, @RequestParam("sex") Integer sex) {
@@ -101,7 +101,7 @@ public class UserAdminController {
      * @param status
      * @return
      */
-    @RequestMapping("/modifyStatusWithUserNum.do")
+    @RequestMapping({"/modifyStatusWithUserNum", "/modifyStatusWithUserNum.do"})
     @ResponseBody
     public ServerResponse modifyStatusWithUserNum(@RequestParam("userNum") String userNum, HttpSession session,
                                                   @RequestParam("roleId") int roleId, @RequestParam("status") Integer status) {
@@ -126,7 +126,7 @@ public class UserAdminController {
      * @param session
      * @return
      */
-    @RequestMapping(value = "/modifyUserByUserNum.do", method = RequestMethod.POST)
+    @RequestMapping(value = {"/modifyUserByUserNum", "/modifyUserByUserNum.do"}, method = RequestMethod.POST)
     @ResponseBody
     public ServerResponse modifyUserByUserNum(UserInfo userInfo, int roleId, HttpSession session) {
         
@@ -150,7 +150,7 @@ public class UserAdminController {
      * @param roleId
      * @return
      */
-    @RequestMapping("/removeUserByUserNum.do")
+    @RequestMapping({"/removeUserByUserNum", "/removeUserByUserNum.do"})
     @ResponseBody
     public ServerResponse removeUserByUserNum(String userNum, HttpSession session, int roleId) {
         
@@ -174,7 +174,7 @@ public class UserAdminController {
      * @param session
      * @return
      */
-    @RequestMapping("/addUserAdmin.do")
+    @RequestMapping({"/addUserAdmin", "/addUserAdmin.do"})
     @ResponseBody
     public ServerResponse addUserAdmin(UserAdminDto userAdminDto, int roleId, int adminRoleId, HttpSession session) {
         
@@ -201,7 +201,7 @@ public class UserAdminController {
      * @param session
      * @return
      */
-    @RequestMapping("/batchRemoveUser.do")
+    @RequestMapping({"/batchRemoveUser", "/batchRemoveUser.do"})
     @ResponseBody
     public ServerResponse batchRemoveUser(@RequestParam("userNums") String[] userNums, int roleId, HttpSession session) {
         
@@ -223,7 +223,7 @@ public class UserAdminController {
      * @param session
      * @return
      */
-    @RequestMapping("/getUserInfoByUserName.do")
+    @RequestMapping({"/getUserInfoByUserName", "/getUserInfoByUserName.do"})
     @ResponseBody
     public ServerResponse getUserInfoByUserName(@RequestParam("userName") String userName, HttpSession session) {
         
@@ -241,7 +241,7 @@ public class UserAdminController {
      * @param session
      * @return
      */
-    @RequestMapping("/getAllRoleIdWithRoleIdByAdmin.do")
+    @RequestMapping({"/getAllRoleIdWithRoleIdByAdmin", "/getAllRoleIdWithRoleIdByAdmin.do"})
     @ResponseBody
     public ServerResponse getAllRoleIdWithRoleIdByAdmin(Integer roleId, HttpSession session) {
         
@@ -261,7 +261,7 @@ public class UserAdminController {
      * @param session
      * @return
      */
-    @RequestMapping("/batchAddUser.do")
+    @RequestMapping({"/batchAddUser", "/batchAddUser.do"})
     @ResponseBody
     public ServerResponse batchAddUser(UserAdminDto userAdminDto, @RequestParam("roleId") Integer roleId,
                                        @RequestParam("roleIdAdmin") int roleIdAdmin, HttpSession session) {

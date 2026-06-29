@@ -176,7 +176,7 @@
 
     function getMenu() {
         $.ajaxSettings.async = false;
-        $.post("/getMenu.do", param, function (result) {
+        $.post("/getMenu", param, function (result) {
             if (result.status != 0) {
                 return layer.msg(result.msg, {icon: 2});
             }
@@ -302,7 +302,7 @@
                 layer.msg("请输入解锁密码！");
                 currentInput.focus();
             } else {
-                $.post("/checkUserPwdWithUserNum.do", {
+                $.post("/checkUserPwdWithUserNum", {
                     userNum: userNumAdmin,
                     userPwd: currentInput.val()
                 }, function (result) {

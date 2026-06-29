@@ -377,7 +377,7 @@
         }; 
 
         console.log(param);
-        $.post("/register.do", param, function (result) {
+        $.post("/register", param, function (result) {
             if (result.status != 0) {
                 return layer.msg(result.msg);
             }
@@ -385,7 +385,7 @@
             layer.msg(result.msg);
 
             setTimeout(function () {
-                $(window).attr("location", "/goHome.do");
+                $(window).attr("location", "/");
             }, 2000);
         });
     }
@@ -436,14 +436,14 @@
     function goForgetPwd() {
         layer.msg("正在跳转到忘记密码页面，请稍候！");
         setTimeout(function () {
-            $(window).attr('location', '/goForgetPwd.do');
+            $(window).attr('location', '/forget-password');
         }, 2000);
     }
 
     function goHome() {
         layer.msg("正在跳转到登录页面，请稍候！");
         setTimeout(function () {
-            $(window).attr('location', '/goHome.do');
+            $(window).attr('location', '/');
         }, 2000);
     }
 </script>

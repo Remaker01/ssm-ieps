@@ -31,7 +31,7 @@ public class RoleAdminController {
      * @param roleAdminId
      * @return
      */
-    @RequestMapping("/getRoleListByAdmin.do")
+    @RequestMapping({"/getRoleListByAdmin", "/getRoleListByAdmin.do"})
     @ResponseBody
     public ServerResponse getRoleListByAdmin(@RequestParam(value = "page", defaultValue = "1") int page, Role role,
                                              @RequestParam(value = "limit", defaultValue = "10") int limit, HttpSession session,
@@ -54,7 +54,7 @@ public class RoleAdminController {
      * @param session
      * @return
      */
-    @RequestMapping("/batchRemoveRole.do")
+    @RequestMapping({"/batchRemoveRole", "/batchRemoveRole.do"})
     @ResponseBody
     public ServerResponse batchRemoveRole(int[] roleIds, String userNum, int roleAdminId, HttpSession session) {
         
@@ -77,7 +77,7 @@ public class RoleAdminController {
      * @param session
      * @return
      */
-    @RequestMapping("/removeRoleByRoleId.do")
+    @RequestMapping({"/removeRoleByRoleId", "/removeRoleByRoleId.do"})
     @ResponseBody
     public ServerResponse removeRoleByRoleId(int roleId, String userNum, int roleAdminId, HttpSession session) {
         

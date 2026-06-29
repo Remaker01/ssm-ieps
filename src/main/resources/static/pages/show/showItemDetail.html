@@ -61,7 +61,7 @@
     <div class="gd-main">
         <div class="gd-nav">
 					<span style="font-size: 20px;"><img src="../../static/images/home/list_book.gif" width="20" height="16">您所在的位置：<a
-                            href="/goHome.do" style="color: #8798ff; font-size: 20px;">首页</a>&nbsp;>>&nbsp;项目详情</span>
+                            href="/" style="color: #8798ff; font-size: 20px;">首页</a>&nbsp;>>&nbsp;项目详情</span>
         </div>
 
         <table class="table table-hover table-bordered">
@@ -85,7 +85,7 @@
 
         const tbody = $("#tbody");
 
-        $.get("/getItemDetailWithItemNum.do", {itemNum: $.Request("itemNum")}, function (result) {
+        $.get("/getItemDetailWithItemNum", {itemNum: $.Request("itemNum")}, function (result) {
             console.log(result);
             if (result.status != 0) {
                 return;
@@ -111,7 +111,7 @@
 
 
             $.ajaxSettings.async = false;
-            $.get("/getUserInfoWithItemNum.do", {itemNum: $.Request("itemNum")}, function (userInfo) {
+            $.get("/getUserInfoWithItemNum", {itemNum: $.Request("itemNum")}, function (userInfo) {
                 console.log(userInfo);
                 if (userInfo.status != 0) {
                     return;

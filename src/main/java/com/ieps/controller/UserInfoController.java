@@ -25,19 +25,19 @@ public class UserInfoController {
     @Autowired
     private UserInfoService userInfoService;
     
-    @RequestMapping("/checkVerifyNum.do")
+    @RequestMapping({"/checkVerifyNum", "/checkVerifyNum.do"})
     @ResponseBody
     public ServerResponse checkVerifyNum(String userNum, String verifyNum) {
         return userInfoService.checkVerifyNum(userNum, verifyNum);
     }
     
-    @RequestMapping("/getVerifyCode.do")
+    @RequestMapping({"/getVerifyCode", "/getVerifyCode.do"})
     @ResponseBody
     public ServerResponse<String> getVerifyCode(String verifyNum) {
         return userInfoService.getVerifyCode(verifyNum);
     }
     
-    @RequestMapping("/getUserInfo.do")
+    @RequestMapping({"/getUserInfo", "/getUserInfo.do"})
     @ResponseBody
     public ServerResponse<UserInfo> getUserInfo(String userNum, HttpSession session) {
         User user = (User) session.getAttribute("activeUser");
@@ -49,7 +49,7 @@ public class UserInfoController {
         return userInfoService.findByUserNum(userNum);
     }
     
-    @RequestMapping(value = "/modifyUserInfo.do", method = RequestMethod.POST)
+    @RequestMapping(value = {"/modifyUserInfo", "/modifyUserInfo.do"}, method = RequestMethod.POST)
     @ResponseBody
     public ServerResponse modifyUserInfo(UserInfo userInfo, HttpSession session) {
         User user = (User) session.getAttribute("activeUser");
@@ -62,7 +62,7 @@ public class UserInfoController {
     }
     
     
-    @RequestMapping(value = "/changeUserImg.do", method = RequestMethod.POST)
+    @RequestMapping(value = {"/changeUserImg", "/changeUserImg.do"}, method = RequestMethod.POST)
     @ResponseBody
     public ServerResponse changeUserImg(@RequestParam("file") MultipartFile file, String userNum,
                                         HttpServletRequest request, HttpSession session) {
@@ -109,7 +109,7 @@ public class UserInfoController {
     }
     
     
-    @RequestMapping(value = "/getUserInfoWithItemNum.do", method = RequestMethod.GET)
+    @RequestMapping(value = {"/getUserInfoWithItemNum", "/getUserInfoWithItemNum.do"}, method = RequestMethod.GET)
     @ResponseBody
     public ServerResponse getUserInfoWithItemNum(String itemNum, HttpSession session) {
         User user = (User) session.getAttribute("activeUser");

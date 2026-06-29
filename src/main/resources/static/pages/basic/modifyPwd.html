@@ -196,7 +196,7 @@
             userPwd: $("input[name='oldPassword']").val()
         };
 
-        $.post("/checkUserPwdWithUserNum.do", param, function (result) {
+        $.post("/checkUserPwdWithUserNum", param, function (result) {
             if (result.status !== 0) {
                 $("input[name='oldPassword']").val("");
                 return layer.msg(result.msg, {icon: 2});
@@ -220,7 +220,7 @@
             rePassword: reNewPassword.val()
         };
 
-        $.post("/modifyPwd.do", param, function (result) {
+        $.post("/modifyPwd", param, function (result) {
             if (result.status !== 0) {
                 return layer.msg(result.msg, {icon: 2});
             }
@@ -236,7 +236,7 @@
             window.sessionStorage.removeItem("curmenu");
 
             setTimeout(function () {
-                $(parent).attr('location', '/goHome.do');
+                $(parent).attr('location', '/');
             }, 1000);
         })
     }

@@ -46,7 +46,7 @@ public class FileAdminController {
      * @param roleId
      * @return
      */
-    @RequestMapping("/getFileListByUserNum.do")
+    @RequestMapping({"/getFileListByUserNum", "/getFileListByUserNum.do"})
     @ResponseBody
     public ServerResponse getFileListByUserNum(@RequestParam(value = "page", defaultValue = "1") int page, FileHub fileHub,
                                                @RequestParam(value = "limit", defaultValue = "5") int limit, HttpSession session,
@@ -72,7 +72,7 @@ public class FileAdminController {
      * @param fileName
      * @return
      */
-    @RequestMapping("/removeFileById.do")
+    @RequestMapping({"/removeFileById", "/removeFileById.do"})
     @ResponseBody
     public ServerResponse removeFileById(@RequestParam("userNum") String userNum, HttpSession session, HttpServletRequest request,
                                          @RequestParam("id") Integer id, @RequestParam("userNumAdmin") String userNumAdmin,
@@ -100,7 +100,7 @@ public class FileAdminController {
      * @param fileNames
      * @return
      */
-    @RequestMapping("/batchRemoveFile.do")
+    @RequestMapping({"/batchRemoveFile", "/batchRemoveFile.do"})
     @ResponseBody
     public ServerResponse batchRemoveFile(@RequestParam("userNum") String userNumAdmin, HttpSession session, HttpServletRequest request,
                                           @RequestParam("userNums") String[] userNums, @RequestParam("ids") Integer[] ids,
@@ -128,7 +128,7 @@ public class FileAdminController {
      * @param fileKind
      * @return
      */
-    @RequestMapping(value = "/batchUploadFile.do", method = RequestMethod.POST)
+    @RequestMapping(value = {"/batchUploadFile", "/batchUploadFile.do"}, method = RequestMethod.POST)
     @ResponseBody
     public ServerResponse batchUploadFile(@RequestParam("files") MultipartFile[] files, String userNum, String itemNum, HttpSession session,
                                           HttpServletRequest request, int fileKind) {
@@ -162,7 +162,7 @@ public class FileAdminController {
      * @return
      * @throws Exception
      */
-    @RequestMapping(value = "/batchCkeditorUploadFile.do", method = RequestMethod.POST)
+    @RequestMapping(value = {"/batchCkeditorUploadFile", "/batchCkeditorUploadFile.do"}, method = RequestMethod.POST)
     @ResponseBody
     public CkeditorUploadFileDto batchCkeditorUploadFile(@RequestParam("upload") MultipartFile[] files, String userNum, String itemNum, HttpSession session,
                                           HttpServletRequest request, Integer fileKind) throws Exception  {
@@ -201,7 +201,7 @@ public class FileAdminController {
      * @param request
      * @param response
      */
-    @RequestMapping(value = "/downloadFile.do", method = RequestMethod.GET)
+    @RequestMapping(value = {"/downloadFile", "/downloadFile.do"}, method = RequestMethod.GET)
     @ResponseBody
     public void downloadFile(String fileName, HttpServletRequest request, HttpServletResponse response) {
         // request.getServletContext()得到的是ServletContext对象，
@@ -241,7 +241,7 @@ public class FileAdminController {
      * @param response
      * @return
      */
-    @RequestMapping(value = "/previewFile.do", method = RequestMethod.GET)
+    @RequestMapping(value = {"/previewFile", "/previewFile.do"}, method = RequestMethod.GET)
     @ResponseBody
     public ServerResponse previewFile(String fileName, HttpServletRequest request, HttpServletResponse response) {
     
@@ -307,7 +307,7 @@ public class FileAdminController {
      * @param roleId
      * @return
      */
-    @RequestMapping(value = "/modifyFileKindWithUserNum.do", method = RequestMethod.GET)
+    @RequestMapping(value = {"/modifyFileKindWithUserNum", "/modifyFileKindWithUserNum.do"}, method = RequestMethod.GET)
     @ResponseBody
     public ServerResponse modifyFileKindWithUserNum(FileHub fileHub, @RequestParam("userNumAdmin") String userNumAdmin,
                                                     HttpSession session, @RequestParam("roleId") int roleId) {
@@ -331,7 +331,7 @@ public class FileAdminController {
      * @param updateTime
      * @return
      */
-    @RequestMapping(value = "/getFileListByAdminWithKind.do", method = RequestMethod.GET)
+    @RequestMapping(value = {"/getFileListByAdminWithKind", "/getFileListByAdminWithKind.do"}, method = RequestMethod.GET)
     @ResponseBody
     public ServerResponse getFileListByAdminWithKind(@RequestParam(value = "pageNum",defaultValue = "1") int pageNum,
                                                      @RequestParam(value = "pageSize",defaultValue = "8") int pageSize,
@@ -346,7 +346,7 @@ public class FileAdminController {
      * @param response
      * @return
      */
-    @RequestMapping(value = "/downloadFileWithItemNum.do", method = RequestMethod.GET)
+    @RequestMapping(value = {"/downloadFileWithItemNum", "/downloadFileWithItemNum.do"}, method = RequestMethod.GET)
     @ResponseBody
     public ServerResponse downloadFileWithItemNum(@RequestParam("itemNum") String itemNum, HttpServletRequest request,
                                                   HttpServletResponse response) {
@@ -400,7 +400,7 @@ public class FileAdminController {
      * @param response
      * @return
      */
-    @RequestMapping(value = "/onekeyDownloadFile.do", method = RequestMethod.POST)
+    @RequestMapping(value = {"/onekeyDownloadFile", "/onekeyDownloadFile.do"}, method = RequestMethod.POST)
     @ResponseBody
     public ServerResponse onekeyDownloadFile(@RequestParam("userNum") String userNum, @RequestParam("roleId") int roleId,
                                              HttpServletRequest request, String[] fileNames, HttpServletResponse response) {

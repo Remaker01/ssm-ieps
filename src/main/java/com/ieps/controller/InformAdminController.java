@@ -32,7 +32,7 @@ public class InformAdminController {
      * @param userNum
      * @return
      */
-    @RequestMapping("/getInformByUserNum.do")
+    @RequestMapping({"/getInformByUserNum", "/getInformByUserNum.do"})
     @ResponseBody
     public ServerResponse<List<Inform>> getInformByUserNum(String userNum) {
         return informService.getInformByUserNum(userNum);
@@ -47,7 +47,7 @@ public class InformAdminController {
      * @param roleId
      * @return
      */
-    @RequestMapping("/getAllInformList.do")
+    @RequestMapping({"/getAllInformList", "/getAllInformList.do"})
     @ResponseBody
     public ServerResponse<List<Inform>> getAllInformList(@RequestParam(value = "page",defaultValue = "1") int page,
                                  @RequestParam(value = "limit",defaultValue = "10") int limit, HttpSession session,
@@ -73,7 +73,7 @@ public class InformAdminController {
      * @param inform
      * @return
      */
-    @RequestMapping("/searchInformListWithCondition.do")
+    @RequestMapping({"/searchInformListWithCondition", "/searchInformListWithCondition.do"})
     @ResponseBody
     public ServerResponse<List<Inform>> searchInformListWithCondition(@RequestParam(value = "page", defaultValue = "1") int page,
                                                          @RequestParam(value = "limit", defaultValue = "5") int limit, HttpSession session,
@@ -97,7 +97,7 @@ public class InformAdminController {
      * @param session
      * @return
      */
-    @RequestMapping(value = "/removeInformById.do", method = RequestMethod.GET)
+    @RequestMapping(value = {"/removeInformById", "/removeInformById.do"}, method = RequestMethod.GET)
     @ResponseBody
     public ServerResponse removeInformById(@RequestParam("userNum") String userNum, @RequestParam("id") Integer id,
                                            @RequestParam("roleId") Integer roleId, HttpSession session) {
@@ -118,7 +118,7 @@ public class InformAdminController {
      * @param session
      * @return
      */
-    @RequestMapping(value = "/modifyInformById.do", method = RequestMethod.POST)
+    @RequestMapping(value = {"/modifyInformById", "/modifyInformById.do"}, method = RequestMethod.POST)
     @ResponseBody
     public ServerResponse modifyInformById(@RequestParam("userNum") String userNum, Inform inform,
                                            HttpSession session) {
@@ -140,7 +140,7 @@ public class InformAdminController {
      * @param session
      * @return
      */
-    @RequestMapping(value = "/addInform.do", method = RequestMethod.POST)
+    @RequestMapping(value = {"/addInform", "/addInform.do"}, method = RequestMethod.POST)
     @ResponseBody
     public ServerResponse addInform(@RequestParam("userNum") String userNum, @RequestParam("roleId") Integer roleId,
                                     Inform inform, HttpSession session) {
@@ -166,7 +166,7 @@ public class InformAdminController {
      * @param session
      * @return
      */
-    @RequestMapping("/batchRemoveInform.do")
+    @RequestMapping({"/batchRemoveInform", "/batchRemoveInform.do"})
     @ResponseBody
     public ServerResponse batchRemoveInform(@RequestParam("ids") Integer[] ids, @RequestParam("roleId") Integer roleId,
                                             @RequestParam("userNum") String userNum, HttpSession session) {
@@ -189,7 +189,7 @@ public class InformAdminController {
      * @param pubdate
      * @return
      */
-    @RequestMapping(value = "/getInformListByAdminWithUserNum.do", method = RequestMethod.GET)
+    @RequestMapping(value = {"/getInformListByAdminWithUserNum", "/getInformListByAdminWithUserNum.do"}, method = RequestMethod.GET)
     @ResponseBody
     public ServerResponse getInformListByAdminWithUserNum(@RequestParam(value = "pageNum",defaultValue = "1") int pageNum,
                                                           @RequestParam(value = "pageSize",defaultValue = "7") int pageSize,
@@ -202,7 +202,7 @@ public class InformAdminController {
      * @param id
      * @return
      */
-    @RequestMapping(value = "/goInformListWithHead.do", method = RequestMethod.GET)
+    @RequestMapping(value = {"/goInformListWithHead", "/goInformListWithHead.do"}, method = RequestMethod.GET)
     @ResponseBody
     public ServerResponse goInformListWithHead(Integer id) {
         return informService.getInformListByAdminWithHead(id);
@@ -213,7 +213,7 @@ public class InformAdminController {
      * @param id
      * @return
      */
-    @RequestMapping(value = "/getInformDetailById.do", method = RequestMethod.GET)
+    @RequestMapping(value = {"/getInformDetailById", "/getInformDetailById.do"}, method = RequestMethod.GET)
     @ResponseBody
     public ServerResponse getInformDetailById(Integer id) {
         return informService.getInformDetailById(id);

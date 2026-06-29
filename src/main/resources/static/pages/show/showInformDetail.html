@@ -79,7 +79,7 @@
         <div class="gd-nav">
             <span style="font-size: 20px;">
                 <img src="../../static/images/home/list_book.gif" width="20" height="16">您所在的位置:
-                <a href="/goHome.do" style="color: #8798ff; font-size: 20px;">首页</a>&nbsp;>>&nbsp;通知公告
+                <a href="/" style="color: #8798ff; font-size: 20px;">首页</a>&nbsp;>>&nbsp;通知公告
             </span>
         </div>
         <div class="gd-content">
@@ -99,7 +99,7 @@
         const param = {
             id: $.Request("id")
         };
-        $.get("/getInformDetailById.do", param, function (result) {
+        $.get("/getInformDetailById", param, function (result) {
             if (result.status != 0) {
                 return;
             }

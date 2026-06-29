@@ -21,7 +21,7 @@ public class ShowAdminController {
      * @param itemDate
      * @return
      */
-    @RequestMapping("/getAcademyStuSex.do")
+    @RequestMapping({"/getAcademyStuSex", "/getAcademyStuSex.do"})
     @ResponseBody
     public ServerResponse getAcademyStuSex(String itemDate) {
     
@@ -32,7 +32,7 @@ public class ShowAdminController {
      * 每年的参赛项目数量
      * @return
      */
-    @RequestMapping("/getItemsWithYear.do")
+    @RequestMapping({"/getItemsWithYear", "/getItemsWithYear.do"})
     @ResponseBody
     public ServerResponse getItemsWithYear() {
         

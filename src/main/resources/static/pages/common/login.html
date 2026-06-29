@@ -102,7 +102,7 @@ const userNum = $('.userNum').val();
                 const load = layer.load();
 
 				$.ajax({
-                    url: "/login.do",
+                    url: "/login",
                     data: data,
                     type: "post",
                     beforeSend: function(){
@@ -124,7 +124,7 @@ const userNum = $('.userNum').val();
                         } else{
                             layer.msg(result.msg);
                             setTimeout(function(){
-                                $(window).attr('location','goIndex.do?userNum=' + userNum);
+                                $(window).attr('location', '/index?userNum=' + userNum);
                                 //登录返回，跳转首页
                             },1000);
                         }
@@ -167,7 +167,7 @@ const userNum = $('.userNum').val();
 
             setTimeout(function(){
                 //登录返回，跳转首页
-                $(window).attr('location','goRegister.do');
+                $(window).attr('location', '/register');
             },1000);
         }
 
@@ -176,7 +176,7 @@ const userNum = $('.userNum').val();
 
 			setTimeout(function(){
 				//登录返回，跳转首页
-				$(window).attr('location','goForgetPwd.do');
+				$(window).attr('location', '/forget-password');
 			},1000);
     	}
 	</script>

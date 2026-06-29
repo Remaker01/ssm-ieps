@@ -24,6 +24,13 @@ public class RolePerm implements Serializable{
 
     private Date updateTime;
 
+    public RolePerm() {
+    }
+
+    public RolePerm(Integer id, Integer roleId, Integer permId, Date createTime, Date updateTime) {
+        this(id, roleId, permId, null, createTime, updateTime);
+    }
+
     public Integer getId() {
         return id;
     }

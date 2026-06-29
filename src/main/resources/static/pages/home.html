@@ -249,7 +249,7 @@
                         通知公告
                     </div>
                     <div class="gd-main-right-more">
-                        <a href="/goShowInformMore.do">
+                        <a href="/informs">
                             <img src="../static/images/home/more.gif" height="39px" width="50px"/>
                         </a>
                     </div>
@@ -263,7 +263,7 @@
                         历届项目
                     </div>
                     <div class="gd-main-right-more">
-                        <a href="/goShowItemMore.do">
+                        <a href="/items">
                             <img src="../static/images/home/more.gif" height="39px" width="50px"/>
                         </a>
                     </div>
@@ -326,7 +326,7 @@ line-height: 43px;"></div>
                         下载专区
                     </div>
                     <div class="gd-main-right-more">
-                        <a href="/goShowDownLoadMore.do">
+                        <a href="/downloads">
                             <img src="../static/images/home/more.gif" height="39px" width="50px"/>
                         </a>
                     </div>
@@ -394,7 +394,7 @@ line-height: 43px;"></div>
                 userPwd: userPwd.val()
             };
 
-            $.post("/login.do", param, function (result) {
+            $.post("/login", param, function (result) {
                 console.log(result);
                 if (result.status != 0) {
                     return layer.msg(result.msg, {icon: 2});
@@ -402,7 +402,7 @@ line-height: 43px;"></div>
                 layer.msg(result.msg, {icon: 1});
 
                 setTimeout(function () {
-                    $(window).attr('location', '/goIndex.do?userNum=' + encrypt(result.data.userNum, "abcd1234abcd1234") + '&roleId=' + encrypt(result.data.roleId, "abcd1234abcd1234"));
+                    $(window).attr('location', '/index?userNum=' + encrypt(result.data.userNum, "abcd1234abcd1234") + '&roleId=' + encrypt(result.data.roleId, "abcd1234abcd1234"));
 //                    $(window).attr('location', '/goIndex.do?userNum=' + result.data.userNum + '&roleId=' + result.data.roleId);
                 }, 1000);
             })
@@ -414,7 +414,7 @@ line-height: 43px;"></div>
 <!-- 重要通知公告  -->
 <script>
     $(function () {
-        $.get("/getInformListByAdminWithUserNum.do", function (result) {
+        $.get("/getInformListByAdminWithUserNum", function (result) {
             if (result.status != 0) {
                 return;
             }
@@ -427,7 +427,7 @@ line-height: 43px;"></div>
 
                 const $a = $("<a></a>");
                 const $span = $("<span></span>");
-                $a.prop("href", "/goShowInformDetail.do?id=" + value.id).prop("title", value.head).text(value.head);
+                $a.prop("href", "/informs/detail?id=" + value.id).prop("title", value.head).text(value.head);
 
 
                 $span.text(value.pubdate);
@@ -445,7 +445,7 @@ line-height: 43px;"></div>
 <!-- 常用下载模板脚本 -->
 <script>
     $(function () {
-        $.get("/getFileListByAdminWithKind.do", function (result) {
+        $.get("/getFileListByAdminWithKind", function (result) {
             if (result.status !== 0) {
                 return;
             }
@@ -509,7 +509,7 @@ line-height: 43px;"></div>
             open_page(url, param);
 
         }, function (index) {
-            window.location.href = "/downloadFile.do?fileName=" + fileName;
+            window.location.href = "/downloadFile?fileName=" + fileName;
             layer.close(index);
         });
 
@@ -521,7 +521,7 @@ line-height: 43px;"></div>
 <script>
     $(function () {
 
-        $.get("/getFinishedItemList.do", function (result) {
+        $.get("/getFinishedItemList", function (result) {
             if (result.status !== 0) {
                 return;
             }
@@ -535,7 +535,7 @@ line-height: 43px;"></div>
                 const rightDesc = $("<div class='right-desc'></div>");
                 const $span = $("<span></span>");
 
-                leftContent.append($a.prop("title", item.itemName).prop("href", "/goShowItemDetail.do?itemNum=" + item.itemNum)
+                leftContent.append($a.prop("title", item.itemName).prop("href", "/items/detail?itemNum=" + item.itemNum)
                     .text(item.itemName));
                 rightDesc.append($span.text(item.updateTime));
 
@@ -594,7 +594,7 @@ line-height: 43px;"></div>
         layer.msg("正在为你跳转到注册页面，请等待！", {icon: -1});
         setTimeout(function () {
             //登录返回，跳转首页
-            $(window).attr('location', 'goRegister.do');
+            $(window).attr('location', '/register');
         }, 1000);
     }
 
@@ -602,7 +602,7 @@ line-height: 43px;"></div>
         layer.msg("正在为你跳转到重置密码页面，请等待！", {icon: -1});
         setTimeout(function () {
             //登录返回，跳转首页
-            $(window).attr('location', 'goForgetPwd.do');
+            $(window).attr('location', '/forget-password');
         }, 1000);
     }
 </script>
@@ -610,4 +610,3 @@ line-height: 43px;"></div>
 
 </body>
 </html>
-

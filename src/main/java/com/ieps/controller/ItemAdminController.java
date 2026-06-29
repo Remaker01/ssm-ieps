@@ -39,7 +39,7 @@ public class ItemAdminController {
      * @param itemStatusFF
      * @return
      */
-    @RequestMapping("/getItemListByUserNum.do")
+    @RequestMapping({"/getItemListByUserNum", "/getItemListByUserNum.do"})
     @ResponseBody
     public ServerResponse getItemListByUserNum(@RequestParam(value = "page", defaultValue = "1") int page, ItemAdminDto itemAdminDto,
                                                @RequestParam(value = "limit", defaultValue = "10") int limit, HttpSession session,
@@ -84,7 +84,7 @@ public class ItemAdminController {
      * @param roleId
      * @return
      */
-    @RequestMapping("/getItemListByUserNumAndItemStatus.do")
+    @RequestMapping({"/getItemListByUserNumAndItemStatus", "/getItemListByUserNumAndItemStatus.do"})
     @ResponseBody
     public ServerResponse getItemListByUserNumAndItemStatus(@RequestParam(value = "page", defaultValue = "1") int page, ItemAdminDto itemAdminDto,
                                                @RequestParam(value = "limit", defaultValue = "5") int limit, HttpSession session,
@@ -107,7 +107,7 @@ public class ItemAdminController {
      * @param itemNum
      * @return
      */
-    @RequestMapping("/removeItemById.do")
+    @RequestMapping({"/removeItemById", "/removeItemById.do"})
     @ResponseBody
     public ServerResponse removeItemById(@RequestParam("userNum") String userNum, @RequestParam("roleId") int roleId,
                                          HttpSession session, String itemNum) {
@@ -129,7 +129,7 @@ public class ItemAdminController {
      * @param itemNums
      * @return
      */
-    @RequestMapping("/batchRemoveItem.do")
+    @RequestMapping({"/batchRemoveItem", "/batchRemoveItem.do"})
     @ResponseBody
     public ServerResponse batchRemoveItem(@RequestParam("userNum") String userNum, @RequestParam("roleId") int roleId,
                                           HttpSession session, String[] itemNums) {
@@ -152,7 +152,7 @@ public class ItemAdminController {
      * @param itemlevel
      * @return
      */
-    @RequestMapping("/modifyItemLevelByItemNum.do")
+    @RequestMapping({"/modifyItemLevelByItemNum", "/modifyItemLevelByItemNum.do"})
     @ResponseBody
     public ServerResponse modifyItemLevelByItemNum(@RequestParam("userNum") String userNum, @RequestParam("roleId") int roleId,
                                           HttpSession session, String itemNum, @RequestParam("itemLevel") int itemlevel) {
@@ -177,7 +177,7 @@ public class ItemAdminController {
      * @param itemType
      * @return
      */
-    @RequestMapping("/modifyItemTypeByItemNum.do")
+    @RequestMapping({"/modifyItemTypeByItemNum", "/modifyItemTypeByItemNum.do"})
     @ResponseBody
     public ServerResponse modifyItemTypeByItemNum(@RequestParam("userNum") String userNum, @RequestParam("roleId") int roleId,
                                                    HttpSession session, String itemNum, @RequestParam("itemType") int itemType) {
@@ -200,7 +200,7 @@ public class ItemAdminController {
      * @param itemStatus
      * @return
      */
-    @RequestMapping("/modifyItemStatusByItemNum.do")
+    @RequestMapping({"/modifyItemStatusByItemNum", "/modifyItemStatusByItemNum.do"})
     @ResponseBody
     public ServerResponse modifyItemStatusByItemNum(@RequestParam("userNum") String userNum, @RequestParam("roleId") int roleId,
                                                   HttpSession session, String itemNum, @RequestParam("itemStatus") int itemStatus) {
@@ -222,7 +222,7 @@ public class ItemAdminController {
      * @param itemAdminDto
      * @return
      */
-    @RequestMapping("/modifyItemByItemNum.do")
+    @RequestMapping({"/modifyItemByItemNum", "/modifyItemByItemNum.do"})
     @ResponseBody
     public ServerResponse modifyItemByItemNum(@RequestParam("userNum") String userNum, @RequestParam("roleId") int roleId,
                                                     HttpSession session, ItemAdminDto itemAdminDto) {
@@ -245,7 +245,7 @@ public class ItemAdminController {
      * @param itemType
      * @return
      */
-    @RequestMapping("/onekeyModifyItemTypeWithItemNums.do")
+    @RequestMapping({"/onekeyModifyItemTypeWithItemNums", "/onekeyModifyItemTypeWithItemNums.do"})
     @ResponseBody
     public ServerResponse onekeyModifyItemTypeWithItemNums(@RequestParam("userNum") String userNum, @RequestParam("roleId") int roleId,
                                               HttpSession session, String[] itemNums, int itemType) {
@@ -268,7 +268,7 @@ public class ItemAdminController {
      * @param itemStatus
      * @return
      */
-    @RequestMapping("/onekeyModifyItemStatusWithItemNums.do")
+    @RequestMapping({"/onekeyModifyItemStatusWithItemNums", "/onekeyModifyItemStatusWithItemNums.do"})
     @ResponseBody
     public ServerResponse onekeyModifyItemStatusWithItemNums(@RequestParam("userNum") String userNum, @RequestParam("roleId") int roleId,
                                                            HttpSession session, String[] itemNums, Integer itemStatus) {
@@ -291,7 +291,7 @@ public class ItemAdminController {
      * @param itemLevel
      * @return
      */
-    @RequestMapping("/onekeyModifyItemLevelWithItemNums.do")
+    @RequestMapping({"/onekeyModifyItemLevelWithItemNums", "/onekeyModifyItemLevelWithItemNums.do"})
     @ResponseBody
     public ServerResponse onekeyModifyItemLevelWithItemNums(@RequestParam("userNum") String userNum, @RequestParam("roleId") int roleId,
                                                            HttpSession session, String[] itemNums, int itemLevel) {
@@ -315,7 +315,7 @@ public class ItemAdminController {
      * @param itemAdminDto
      * @return
      */
-    @RequestMapping("/addItemAndUserInfo.do")
+    @RequestMapping({"/addItemAndUserInfo", "/addItemAndUserInfo.do"})
     @ResponseBody
     public ServerResponse addItemAndUserInfo(@RequestParam("userNum") String userNum, @RequestParam("roleId") int roleId, HttpSession session,
                                              @RequestParam("userNums") String[] userNums, @RequestParam("userNames") String[] userNames, ItemAdminDto itemAdminDto) {
@@ -336,7 +336,7 @@ public class ItemAdminController {
      * @param session
      * @return
      */
-    @RequestMapping("/getReviewLeaderByRoleIdAndUserNum.do")
+    @RequestMapping({"/getReviewLeaderByRoleIdAndUserNum", "/getReviewLeaderByRoleIdAndUserNum.do"})
     @ResponseBody
     public ServerResponse getReviewLeaderByRoleIdAndUserNum(@RequestParam("userNum") String userNum, @RequestParam("roleId") int roleId, HttpSession session) {
         
@@ -360,7 +360,7 @@ public class ItemAdminController {
      * @param session
      * @return
      */
-    @RequestMapping("/chooseUserItemWithLeader.do")
+    @RequestMapping({"/chooseUserItemWithLeader", "/chooseUserItemWithLeader.do"})
     @ResponseBody
     public ServerResponse chooseUserItemWithLeader(@RequestParam("userNumAdmin") String userNumAdmin, @RequestParam("roleId") int roleId,
                                                    @RequestParam("userNum") String userNum, @RequestParam("userName") String userName,
@@ -377,7 +377,7 @@ public class ItemAdminController {
     }
     
     
-    @RequestMapping(value = "/batchAddReviewTeam.do", method = RequestMethod.POST)
+    @RequestMapping(value = {"/batchAddReviewTeam", "/batchAddReviewTeam.do"}, method = RequestMethod.POST)
     @ResponseBody
     public ServerResponse batchAddReviewTeam(@RequestParam("userNumAdmin") String userNumAdmin, @RequestParam("roleId") int roleId,
                                              @RequestParam("userNum") String userNum, @RequestParam("userName") String userName,
@@ -399,7 +399,7 @@ public class ItemAdminController {
      * @param session
      * @return
      */
-    @RequestMapping("/addReviewByExport.do")
+    @RequestMapping({"/addReviewByExport", "/addReviewByExport.do"})
     @ResponseBody
     public ServerResponse addReviewByExport(@RequestParam("roleId") int roleId, Review review, HttpSession session) {
         
@@ -424,7 +424,7 @@ public class ItemAdminController {
      * @param itemDate
      * @return
      */
-    @RequestMapping("/getFinishedItemList.do")
+    @RequestMapping({"/getFinishedItemList", "/getFinishedItemList.do"})
     @ResponseBody
     public ServerResponse getFinishedItemList(@RequestParam(value = "pageNum",defaultValue = "1") int pageNum,
                                               @RequestParam(value = "pageSize",defaultValue = "10") int pageSize,
@@ -438,7 +438,7 @@ public class ItemAdminController {
      * @param userNum
      * @return
      */
-    @RequestMapping("/checkIsReviewWithItemNumAndUserNum.do")
+    @RequestMapping({"/checkIsReviewWithItemNumAndUserNum", "/checkIsReviewWithItemNumAndUserNum.do"})
     @ResponseBody
     public ServerResponse checkIsReviewWithItemNumAndUserNum(String itemNum, String userNum, int reviewLevel) {
         return itemAdminService.checkIsReviewWithItemNum(itemNum, userNum, reviewLevel);
@@ -449,7 +449,7 @@ public class ItemAdminController {
      * @param itemNum
      * @return
      */
-    @RequestMapping("/getItemStatusWithItemNum.do")
+    @RequestMapping({"/getItemStatusWithItemNum", "/getItemStatusWithItemNum.do"})
     @ResponseBody
     public ServerResponse getItemStatusWithItemNum(String itemNum) {
         return itemAdminService.getItemStatusWithItemNum(itemNum);
@@ -459,7 +459,7 @@ public class ItemAdminController {
      * 获取历届项目年份
      * @return
      */
-    @RequestMapping("/getItemDate.do")
+    @RequestMapping({"/getItemDate", "/getItemDate.do"})
     @ResponseBody
     public ServerResponse getItemDate() {
         return itemAdminService.getItemDate();
@@ -470,14 +470,14 @@ public class ItemAdminController {
      * @param itemNum
      * @return
      */
-    @RequestMapping("/getItemDetailWithItemNum.do")
+    @RequestMapping({"/getItemDetailWithItemNum", "/getItemDetailWithItemNum.do"})
     @ResponseBody
     public ServerResponse getItemDetailWithItemNum(String itemNum) {
         return itemAdminService.getItemDetailWithItemId(itemNum);
     }
     
     
-    @RequestMapping("/removeUserItemWithReview.do")
+    @RequestMapping({"/removeUserItemWithReview", "/removeUserItemWithReview.do"})
     @ResponseBody
     public ServerResponse removeUserItemWithReview(String itemNum, int roleId) {
     

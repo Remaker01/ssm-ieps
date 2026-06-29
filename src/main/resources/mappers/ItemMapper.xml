@@ -188,11 +188,11 @@
         ON ii.item_num = iii.item_num
         LEFT JOIN
         (
-        SELECT sum(review_score) AS academyScore, irC.collegeScore, irC.governScore, item_num AS itemNum
+        SELECT sum(review_score) AS academyScore, MAX(irC.collegeScore) AS collegeScore, MAX(irC.governScore) AS governScore, ir.item_num AS itemNum
         FROM ieps_review ir
         LEFT JOIN
         (
-        SELECT sum(review_score) AS collegeScore, irG.governScore, item_num AS itemNum
+        SELECT sum(review_score) AS collegeScore, MAX(irG.governScore) AS governScore, ir.item_num AS itemNum
         FROM ieps_review ir
         LEFT JOIN
         (
@@ -270,11 +270,11 @@
         ON ii.item_num = iii.item_num
         LEFT JOIN
         (
-        SELECT sum(review_score) AS academyScore, irC.collegeScore, irC.governScore, item_num AS itemNum
+        SELECT sum(review_score) AS academyScore, MAX(irC.collegeScore) AS collegeScore, MAX(irC.governScore) AS governScore, ir.item_num AS itemNum
         FROM ieps_review ir
         LEFT JOIN
         (
-        SELECT sum(review_score) AS collegeScore, irG.governScore, item_num AS itemNum
+        SELECT sum(review_score) AS collegeScore, MAX(irG.governScore) AS governScore, ir.item_num AS itemNum
         FROM ieps_review ir
         LEFT JOIN
         (
@@ -364,11 +364,11 @@
         ON ii.item_num = iii.item_num
         LEFT JOIN
         (
-        SELECT sum(review_score) AS academyScore, irC.collegeScore, irC.governScore, item_num AS itemNum
+        SELECT sum(review_score) AS academyScore, MAX(irC.collegeScore) AS collegeScore, MAX(irC.governScore) AS governScore, ir.item_num AS itemNum
         FROM ieps_review ir
         LEFT JOIN
         (
-        SELECT sum(review_score) AS collegeScore, irG.governScore, item_num AS itemNum
+        SELECT sum(review_score) AS collegeScore, MAX(irG.governScore) AS governScore, ir.item_num AS itemNum
         FROM ieps_review ir
         LEFT JOIN
         (
@@ -452,11 +452,11 @@
         ON ii.item_num = iii.item_num
         LEFT JOIN
         (
-        SELECT sum(review_score) AS academyScore, irC.collegeScore, irC.governScore, item_num AS itemNum
+        SELECT sum(review_score) AS academyScore, MAX(irC.collegeScore) AS collegeScore, MAX(irC.governScore) AS governScore, ir.item_num AS itemNum
         FROM ieps_review ir
         LEFT JOIN
         (
-        SELECT sum(review_score) AS collegeScore, irG.governScore, item_num AS itemNum
+        SELECT sum(review_score) AS collegeScore, MAX(irG.governScore) AS governScore, ir.item_num AS itemNum
         FROM ieps_review ir
         LEFT JOIN
         (
@@ -534,11 +534,11 @@
         ON ii.item_num = iii.item_num
         LEFT JOIN
         (
-        SELECT sum(review_score) AS academyScore, irC.collegeScore, irC.governScore, item_num AS itemNum
+        SELECT sum(review_score) AS academyScore, MAX(irC.collegeScore) AS collegeScore, MAX(irC.governScore) AS governScore, ir.item_num AS itemNum
         FROM ieps_review ir
         LEFT JOIN
         (
-        SELECT sum(review_score) AS collegeScore, irG.governScore, item_num AS itemNum
+        SELECT sum(review_score) AS collegeScore, MAX(irG.governScore) AS governScore, ir.item_num AS itemNum
         FROM ieps_review ir
         LEFT JOIN
         (
@@ -610,12 +610,12 @@
         ON ii.item_num = iii.item_num
         LEFT JOIN
         (
-        SELECT sum(review_score) AS academyScore, irC.collegeScore, irC.governScore, item_num AS itemNum, review_level
+        SELECT sum(review_score) AS academyScore, MAX(irC.collegeScore) AS collegeScore, MAX(irC.governScore) AS governScore, ir.item_num AS itemNum, ir.review_level
         AS reviewLevel
         FROM ieps_review ir
         LEFT JOIN
         (
-        SELECT sum(review_score) AS collegeScore, irG.governScore, item_num AS itemNum, review_level AS reviewLevel
+        SELECT sum(review_score) AS collegeScore, MAX(irG.governScore) AS governScore, ir.item_num AS itemNum, ir.review_level AS reviewLevel
         FROM ieps_review ir
         LEFT JOIN
         (
@@ -675,12 +675,12 @@
         ON ii.item_num = iii.item_num
         LEFT JOIN
         (
-        SELECT sum(review_score) AS academyScore, irC.collegeScore, irC.governScore, item_num AS itemNum, review_level
+        SELECT sum(review_score) AS academyScore, MAX(irC.collegeScore) AS collegeScore, MAX(irC.governScore) AS governScore, ir.item_num AS itemNum, ir.review_level
         AS reviewLevel
         FROM ieps_review ir
         LEFT JOIN
         (
-        SELECT sum(review_score) AS collegeScore, irG.governScore, item_num AS itemNum, review_level AS reviewLevel
+        SELECT sum(review_score) AS collegeScore, MAX(irG.governScore) AS governScore, ir.item_num AS itemNum, ir.review_level AS reviewLevel
         FROM ieps_review ir
         LEFT JOIN
         (
@@ -751,12 +751,12 @@
         ON ii.item_num = iii.item_num
         LEFT JOIN
         (
-        SELECT sum(review_score) AS academyScore, irC.collegeScore, irC.governScore, item_num AS itemNum, review_level
+        SELECT sum(review_score) AS academyScore, MAX(irC.collegeScore) AS collegeScore, MAX(irC.governScore) AS governScore, ir.item_num AS itemNum, ir.review_level
         AS reviewLevel
         FROM ieps_review ir
         LEFT JOIN
         (
-        SELECT sum(review_score) AS collegeScore, irG.governScore, item_num AS itemNum, review_level AS reviewLevel
+        SELECT sum(review_score) AS collegeScore, MAX(irG.governScore) AS governScore, ir.item_num AS itemNum, ir.review_level AS reviewLevel
         FROM ieps_review ir
         LEFT JOIN
         (
@@ -821,12 +821,12 @@
         ON ii.item_num = iii.item_num
         LEFT JOIN
         (
-        SELECT sum(review_score) AS academyScore, irC.collegeScore, irC.governScore, item_num AS itemNum, review_level
+        SELECT sum(review_score) AS academyScore, MAX(irC.collegeScore) AS collegeScore, MAX(irC.governScore) AS governScore, ir.item_num AS itemNum, ir.review_level
         AS reviewLevel
         FROM ieps_review ir
         LEFT JOIN
         (
-        SELECT sum(review_score) AS collegeScore, irG.governScore, item_num AS itemNum, review_level AS reviewLevel
+        SELECT sum(review_score) AS collegeScore, MAX(irG.governScore) AS governScore, ir.item_num AS itemNum, ir.review_level AS reviewLevel
         FROM ieps_review ir
         LEFT JOIN
         (
@@ -887,12 +887,12 @@
         ON ii.item_num = iii.item_num
         LEFT JOIN
         (
-        SELECT sum(review_score) AS academyScore, irC.collegeScore, irC.governScore, item_num AS itemNum, review_level
+        SELECT sum(review_score) AS academyScore, MAX(irC.collegeScore) AS collegeScore, MAX(irC.governScore) AS governScore, ir.item_num AS itemNum, ir.review_level
         AS reviewLevel
         FROM ieps_review ir
         LEFT JOIN
         (
-        SELECT sum(review_score) AS collegeScore, irG.governScore, item_num AS itemNum, review_level AS reviewLevel
+        SELECT sum(review_score) AS collegeScore, MAX(irG.governScore) AS governScore, ir.item_num AS itemNum, ir.review_level AS reviewLevel
         FROM ieps_review ir
         LEFT JOIN
         (
@@ -1034,9 +1034,10 @@
     </select>
 
     <select id="selectItemsWithYear" resultType="Item">
-        SELECT COUNT(item_num) AS itemNum, item_date AS itemDate
+        SELECT COUNT(item_num) AS itemNum, MIN(item_date) AS itemDate
         FROM ieps_item
         GROUP BY YEAR(item_date)
+        ORDER BY YEAR(item_date)
     </select>
 
     <select id="selectStuUserInfoWithAcademy" resultType="UserAdminDto">

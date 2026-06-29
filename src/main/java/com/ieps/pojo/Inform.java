@@ -42,6 +42,23 @@ public class Inform implements Serializable {
     
     private Date updateTime;
 
+    public Inform() {
+    }
+
+    public Inform(Integer id, String head, String publisher, Integer roleId, String subject, String content,
+                  String files, Date pubdate, Date createTime, Date updateTime) {
+        this.id = id;
+        this.head = head;
+        this.publisher = publisher;
+        this.roleId = roleId;
+        this.subject = subject;
+        this.content = content;
+        this.files = files;
+        this.pubdate = pubdate;
+        this.createTime = createTime;
+        this.updateTime = updateTime;
+    }
+
     public Integer getId() {
         return id;
     }

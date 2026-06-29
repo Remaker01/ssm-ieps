@@ -30,12 +30,12 @@ public class LoginController {
     private RolePermService rolePermService;
     
     /**
-     * 根路径默认跳转到登录页
+     * 根路径默认进入公开首页
      * @return
      */
-    @RequestMapping("/")
+    @RequestMapping(value = {"/", "/home", "/goHome.do"}, method = RequestMethod.GET)
     public String root() {
-        return "redirect:/goLogin.do";
+        return "home";
     }
 
     /**
@@ -45,7 +45,7 @@ public class LoginController {
      * @param session
      * @return
      */
-    @RequestMapping(value = "/login.do", method = RequestMethod.POST)
+    @RequestMapping(value = {"/login", "/login.do"}, method = RequestMethod.POST)
     @ResponseBody
     public ServerResponse login(String userNum, String userPwd, HttpSession session) {
    
@@ -65,7 +65,7 @@ public class LoginController {
      * @param session
      * @return
      */
-    @RequestMapping(value = "/getMenu.do", method = RequestMethod.POST)
+    @RequestMapping(value = {"/getMenu", "/getMenu.do"}, method = RequestMethod.POST)
     @ResponseBody
     public ServerResponse getMenu(String userNum, Integer roleId, HttpSession session) {
         User user = (User) session.getAttribute("activeUser");
@@ -92,7 +92,7 @@ public class LoginController {
      * @param roleId
      * @return
      */
-    @RequestMapping(value = "/register.do", method = RequestMethod.POST)
+    @RequestMapping(value = {"/register", "/register.do"}, method = RequestMethod.POST)
     @ResponseBody
     public ServerResponse register(User user, UserInfo userInfo, int roleId) {
         return userService.register(user, userInfo, roleId);
@@ -104,7 +104,7 @@ public class LoginController {
      * @param userPwd
      * @return
      */
-    @RequestMapping(value = "/checkUserPwdWithUserNum.do", method = RequestMethod.POST)
+    @RequestMapping(value = {"/checkUserPwdWithUserNum", "/checkUserPwdWithUserNum.do"}, method = RequestMethod.POST)
     @ResponseBody
     public ServerResponse checkUserPwdWithUserNum(String userNum, String userPwd, HttpSession session) {
         User activeUser = (User) session.getAttribute("activeUser");
@@ -123,25 +123,16 @@ public class LoginController {
      * 退出系统
      * @return
      */
-    @RequestMapping(value = "/logout.do", method = RequestMethod.GET)
+    @RequestMapping(value = {"/logout", "/logout.do"}, method = RequestMethod.GET)
     public String logout() {
-        return "common/login";
+        return "redirect:/login";
     }
-    
-    /**
-     * 返回前端首页
-     * @return
-     */
-    @RequestMapping("/goHome.do")
-    public String goHome() {
-        return "home";
-    }
-    
+
     /**
      * 进入系统首页
      * @return
      */
-    @RequestMapping("/goIndex.do")
+    @RequestMapping(value = {"/index", "/goIndex.do"}, method = RequestMethod.GET)
     public String goIndex() {
         return "common/index";
     }
@@ -150,7 +141,7 @@ public class LoginController {
      * 登录页面
      * @return
      */
-    @RequestMapping("/goLogin.do")
+    @RequestMapping(value = {"/login", "/goLogin.do"}, method = RequestMethod.GET)
     public String goLogin() {
         return "common/login";
     }
@@ -159,7 +150,7 @@ public class LoginController {
      * 注册页面
      * @return
      */
-    @RequestMapping("/goRegister.do")
+    @RequestMapping(value = {"/register", "/goRegister.do"}, method = RequestMethod.GET)
     public String goRegister() {
         return "common/register";
     }
@@ -168,39 +159,34 @@ public class LoginController {
      * 忘记密码页面
      * @return
      */
-    @RequestMapping("/goForgetPwd.do")
+    @RequestMapping(value = {"/forget-password", "/goForgetPwd.do"}, method = RequestMethod.GET)
     public String goForgotPwd() {
         return "common/forgetPwd";
     }
     //            首页
     // 重要通知详情
-    @RequestMapping(value = "/goShowInformDetail.do", method = RequestMethod.GET)
+    @RequestMapping(value = {"/informs/detail", "/goShowInformDetail.do", "/goShowInfoemDetail.do"}, method = RequestMethod.GET)
     public String goShowInformDetail() {
         return "show/showInformDetail";
     }
     
     // 重要通知详情
-    @RequestMapping(value = "/goShowInformMore.do", method = RequestMethod.GET)
+    @RequestMapping(value = {"/informs", "/goShowInformMore.do"}, method = RequestMethod.GET)
     public String goShowInformMore() {
         return "show/showInformMore";
     }
-    
-    @RequestMapping(value = "/goShowInfoemDetail.do", method = RequestMethod.GET)
-    public String goShowInfoemDetail() {
-        return "show/showInformDetail";
-    }
-    
-    @RequestMapping(value = "/goShowItemMore.do", method = RequestMethod.GET)
+
+    @RequestMapping(value = {"/items", "/goShowItemMore.do"}, method = RequestMethod.GET)
     public String goShowItemMore() {
         return "show/showItemMore";
     }
     
-    @RequestMapping(value = "/goShowItemDetail.do", method = RequestMethod.GET)
+    @RequestMapping(value = {"/items/detail", "/goShowItemDetail.do"}, method = RequestMethod.GET)
     public String goShowItemDetail() {
         return "show/showItemDetail";
     }
     
-    @RequestMapping(value = "/goShowDownLoadMore.do", method = RequestMethod.GET)
+    @RequestMapping(value = {"/downloads", "/goShowDownLoadMore.do"}, method = RequestMethod.GET)
     public String goShowDownLoadMore() {
         return "show/showDownLoadMore";
     }

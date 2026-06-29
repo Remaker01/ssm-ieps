@@ -30,7 +30,7 @@ public class ReviewAdminController {
      * @param userNum
      * @return
      */
-    @RequestMapping("/getAllReviewWithItemNum.do")
+    @RequestMapping({"/getAllReviewWithItemNum", "/getAllReviewWithItemNum.do"})
     @ResponseBody
     public ServerResponse getAllReviewWithItemNum(@RequestParam(value = "page", defaultValue = "1") int page, String itemNum,
                                                   @RequestParam(value = "limit", defaultValue = "10") int limit, HttpSession session,
@@ -50,7 +50,7 @@ public class ReviewAdminController {
     
     
     
-    @RequestMapping("/checkReview.do")
+    @RequestMapping({"/checkReview", "/checkReview.do"})
     @ResponseBody
     public ServerResponse checkReview(ReviewAdminDto reviewAdminDto, HttpSession session) {
         

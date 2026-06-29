@@ -104,7 +104,7 @@
     <div class="gd-main">
         <div class="gd-nav">
 					<span style="font-size: 20px;"><img src="../../static/images/home/list_book.gif" width="20" height="16">您所在的位置:<a
-                            href="/goHome.do" style="color: #8798ff; font-size: 20px;">首页</a>&nbsp;>>&nbsp;通知公告</span>
+                            href="/" style="color: #8798ff; font-size: 20px;">首页</a>&nbsp;>>&nbsp;通知公告</span>
         </div>
         <div class="gd-content">
             <div class="gd-content-search">
@@ -152,7 +152,7 @@
         };
 
         const contentMain = $("div.gd-content-main");
-        $.get("/getInformListByAdminWithUserNum.do", pageParam, function (result) {
+        $.get("/getInformListByAdminWithUserNum", pageParam, function (result) {
             if (result.status != 0) {
                 return;
             }
@@ -164,7 +164,7 @@
                 const informList = $("<div class='info_list'></div>");
                 const informLt = $("<div class='info_lt'></div>");
                 const $a = $("<a style='font-size: 16px;'></a>");
-                $a.prop("href", "/goShowInformDetail.do?id=" + value.id).prop("title", value.head).text(value.head);
+                $a.prop("href", "/informs/detail?id=" + value.id).prop("title", value.head).text(value.head);
                 const informDt = $("<div class='info_dt'></div>");
                 informDt.text(value.pubdate);
 
