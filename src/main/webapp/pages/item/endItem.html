@@ -8,7 +8,7 @@
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
 
-    <link rel="stylesheet" type="text/css" href="../../static/layui/css/layui.css"/>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/layui@2.7/dist/css/layui.css"/>
 
     <link rel="stylesheet" type="text/css" href="../../static/font-awesome-4.7.0/css/font-awesome.css">
 
@@ -670,26 +670,22 @@
     </div>
 </div>
 
-<script src="../../static/layui/layui.js"></script>
-<script src="../../static/js/jquery-1.9.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/layui@2.7/dist/layui.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
 <script src="../../static/js/getParam.js"></script>
 
 <!-- 加密和解密 -->
 <script src="../../static/js/module/encrypt/aes.js"></script>
 <script src="../../static/js/module/encrypt/customAesEncrypt.js"></script>
+<!-- ======== 共享工具函数：从独立 JS 文件加载 ======== -->
+<script src="../../static/js/itemUtils.js"></script>
 
 <!-- 用户名和角色解密  -->
 <script>
-    var userNumAdmin = decrypt(getUrlParam("userNum"), "abcd1234abcd1234");
-    var roleIdAdmin = decrypt(getUrlParam("roleId"), "abcd1234abcd1234");
+    const userNumAdmin = decrypt(getUrlParam("userNum"), "abcd1234abcd1234");
+    const roleIdAdmin = decrypt(getUrlParam("roleId"), "abcd1234abcd1234");
 
-    // 获取传参的值
-    function getUrlParam(name) {
-        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i"); //构造一个含有目标参数的正则表达式对象
-        var r = window.parent.location.search.substr(1).match(reg);  //匹配目标参数
-        if (r != null) return encodeURI(r[2]);
-        return null; //返回参数值
-    }
+    // getUrlParam 定义在 itemUtils.js 中
 </script>
 
 <!-- 头工具栏endItem-apply -->
@@ -793,136 +789,26 @@
 
 <!-- 申请单的流水号 -->
 <script>
-    function getFormatDate() {
-        var nowDate = new Date();
-        var year = nowDate.getFullYear();
-        var month = nowDate.getMonth() + 1 < 10 ? "0" + (nowDate.getMonth() + 1) : nowDate.getMonth() + 1;
-//        var date = nowDate.getDate() < 10 ? "0" + nowDate.getDate() : nowDate.getDate();
-//        var hour = nowDate.getHours() < 10 ? "0" + nowDate.getHours() : nowDate.getHours();
-//        var minute = nowDate.getMinutes() < 10 ? "0" + nowDate.getMinutes() : nowDate.getMinutes();
-//        var second = nowDate.getSeconds() < 10 ? "0" + nowDate.getSeconds() : nowDate.getSeconds();
-
-//        return year + "-" + month + "-" + date + " " + hour + ":" + minute + ":" + second;
-        return year + "" + month;
-    }
-
-    // 长度 + 进制
-    function uuid(len, radix) {
-
-        var chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'.split('');
-
-        var uuid = [], i;
-        radix = radix || chars.length;
-
-        if (len) {
-            // Compact form
-            for (i = 0; i < len; i++) uuid[i] = chars[0 | Math.random() * radix];
-        } else {
-            // rfc4122, version 4 form
-            var r;
-            // rfc4122 requires these characters
-            uuid[8] = uuid[13] = uuid[18] = uuid[23] = '-';
-            uuid[14] = '4';
-            // Fill in random data.  At i==19 set the high bits of clock sequence as
-            // per rfc4122, sec. 4.1.5
-            for (i = 0; i < 36; i++) {
-                if (!uuid[i]) {
-                    r = 0 | Math.random() * 16;
-                    uuid[i] = chars[(i == 19) ? (r & 0x3) | 0x8 : r];
-                }
-            }
-        }
-        return uuid.join('');
-    }
-
-    var applyItemNum = getFormatDate() + uuid(8, 10);
-
-    function addItemMemory() {
-        var tbody = $("#tbody");
-        var tr = $("<tr></tr>");
-        var tdName = $("<td></td>");
-        var tdNameInput = $("<input type='text' name='leaderMemoryName' class='layui-input' placeholder='请输入成员姓名'/>");
-        tdName.append(tdNameInput);
-        var tdNum = $("<td></td>");
-        var tdNumInput = $("<input type='text' name='leaderMemoryNum' class='layui-input' placeholder='请输入成员学号'/>");
-        tdNum.append(tdNumInput);
-        var tdAction = $("<td></td>");
-        var tdActionModify = $("<a></a>");
-        var tdActionDel = $("<a></a>");
-        tdActionModify.addClass("modify");
-        tdActionModify.text(" 修改 ");
-        tdActionDel.addClass("remove");
-        tdActionDel.text(" 删除 ");
-
-        tbody.append(tr.append(tdName).append(tdNum)
-            .append(tdAction.append(tdActionModify).append(tdActionDel)));
-    }
+    const applyItemNum = getFormatDate() + uuid(8, 10);
 
     $("#endItem-apply").on("click", ".modify", modifyInfo);
     $("#endItem-apply").on("click", ".remove", removeInfo);
 
-    function modifyInfo() {
-        $(this).parent().siblings("td").each(function ()//找同类元素td
-        {
-            var is_text = $(this).find("input:text");//判断单元格下是否含有文本框
-            if (!is_text.length) {
-                $(this).html("<input type='text'  class='layui-input' value=' " + $(this).text() + " '/>");
-            }
-            else
-                $(this).html(is_text.val());
-        })
-    }
-
-    function removeInfo() {
-        $(this).parent().parent().remove();
-    }
-
-
 </script>
 
+<!-- ======== 共享常量映射表：从独立 JS 文件加载 ======== -->
+<script src="../../static/js/itemConstants.js"></script>
 <!-- 项目级别模板脚本-->
 <script id="itemLevelTpl" type="text/html">
     <select name="itemLevel" id="{{ d.itemNum }}" lay-filter="itemLevel">
-        {{# if (d.itemLevel === 1) { }}
-        <option value="1" selected="selected">无</option>
-        <option value="2">校级</option>
-        <option value="3">省区级</option>
-        <option value="4">国家级</option>
-        {{# } else if (d.itemLevel === 2) { }}
-        <option value="1">无</option>
-        <option value="2" selected="selected">校级</option>
-        <option value="3">省区级</option>
-        <option value="4">国家级</option>
-        {{# } else if (d.itemLevel === 3) { }}
-        <option value="1">无</option>
-        <option value="2">校级</option>
-        <option value="3" selected="selected">省区级</option>
-        <option value="4">国家级</option>
-        {{# } else if (d.itemLevel === 4) { }}
-        <option value="1">无</option>
-        <option value="2">校级</option>
-        <option value="3">省区级</option>
-        <option value="4" selected="selected">国家级</option>
-        {{# } }}
+        {{# return renderOptions(ITEM_LEVEL_MAP, d.itemLevel); }}
     </select>
 </script>
 
 <!-- 项目类型模板脚本-->
 <script id="itemTypeTpl" type="text/html">
     <select name="itemType" id="{{ d.itemNum }}" lay-filter="itemType">
-        {{# if (d.itemType === 1) { }}
-        <option value="1" selected="selected">创新训练</option>
-        <option value="2">创业训练</option>
-        <option value="3">创业实践</option>
-        {{# } else if (d.itemType === 2) { }}
-        <option value="1">创新训练</option>
-        <option value="2" selected="selected">创业训练</option>
-        <option value="3">创业实践</option>
-        {{# } else if (d.itemType === 3) { }}
-        <option value="1">创新训练</option>
-        <option value="2">创业训练</option>
-        <option value="3" selected="selected">创业实践</option>
-        {{# } }}
+        {{# return renderOptions(ITEM_TYPE_MAP, d.itemType); }}
     </select>
 </script>
 
@@ -930,97 +816,7 @@
 <!-- 项目状态：1：申请中；2：立项评审；3：已立项；4：立项失败；5：中期检查; 6: 待结题；7：结题评审；8：结题成功；9：结题失败-->
 <script id="itemStatusTpl" type="text/html">
     <select name="itemStatus" id="{{ d.itemNum }}" lay-filter="itemStatus">
-        {{# if (d.itemStatus === 1) { }}
-        <option value="1" selected="selected">申请中</option>
-        <option value="2">立项评审</option>
-        <option value="3">已立项</option>
-        <option value="4">立项失败</option>
-        <option value="5">中期检查</option>
-        <option value="6">待结题</option>
-        <option value="7">结题评审</option>
-        <option value="8">结题成功</option>
-        <option value="9">结题失败</option>
-        {{# } else if (d.itemStatus === 2) { }}
-        <option value="1">申请中</option>
-        <option value="2" selected="selected">立项评审</option>
-        <option value="3">已立项</option>
-        <option value="4">立项失败</option>
-        <option value="5">中期检查</option>
-        <option value="6">待结题</option>
-        <option value="7">结题评审</option>
-        <option value="8">结题成功</option>
-        <option value="9">结题失败</option>
-        {{# } else if (d.itemStatus === 3) { }}
-        <option value="1">申请中</option>
-        <option value="2">立项评审</option>
-        <option value="3" selected="selected">已立项</option>
-        <option value="4">立项失败</option>
-        <option value="5">中期检查</option>
-        <option value="6">待结题</option>
-        <option value="7">结题评审</option>
-        <option value="8">结题成功</option>
-        <option value="9">结题失败</option>
-        {{# } else if (d.itemStatus === 4) { }}
-        <option value="1">申请中</option>
-        <option value="2">立项评审</option>
-        <option value="3">已立项</option>
-        <option value="4" selected="selected">立项失败</option>
-        <option value="5">中期检查</option>
-        <option value="6">待结题</option>
-        <option value="7">结题评审</option>
-        <option value="8">结题成功</option>
-        <option value="9">结题失败</option>
-        {{# } else if (d.itemStatus === 5) { }}
-        <option value="1">申请中</option>
-        <option value="2">立项评审</option>
-        <option value="3">已立项</option>
-        <option value="4">立项失败</option>
-        <option value="5" selected="selected">中期检查</option>
-        <option value="6">待结题</option>
-        <option value="7">结题评审</option>
-        <option value="8">结题成功</option>
-        <option value="9">结题失败</option>
-        {{# } else if (d.itemStatus === 6) { }}
-        <option value="1">申请中</option>
-        <option value="2">立项评审</option>
-        <option value="3">已立项</option>
-        <option value="4">立项失败</option>
-        <option value="5">中期检查</option>
-        <option value="6" selected="selected">待结题</option>
-        <option value="7">结题评审</option>
-        <option value="8">结题成功</option>
-        <option value="9">结题失败</option>
-        {{# } else if (d.itemStatus === 7) { }}
-        <option value="1">申请中</option>
-        <option value="2">立项评审</option>
-        <option value="3">已立项</option>
-        <option value="4">立项失败</option>
-        <option value="5">中期检查</option>
-        <option value="6">待结题</option>
-        <option value="7" selected="selected">结题评审</option>
-        <option value="8">结题成功</option>
-        <option value="9">结题失败</option>
-        {{# } else if (d.itemStatus === 8) { }}
-        <option value="1">申请中</option>
-        <option value="2">立项评审</option>
-        <option value="3">已立项</option>
-        <option value="4">立项失败</option>
-        <option value="5">中期检查</option>
-        <option value="6">待结题</option>
-        <option value="7">结题评审</option>
-        <option value="8" selected="selected">结题成功</option>
-        <option value="9">结题失败</option>
-        {{# } else if (d.itemStatus === 9) { }}
-        <option value="1">申请中</option>
-        <option value="2">立项评审</option>
-        <option value="3">已立项</option>
-        <option value="4">立项失败</option>
-        <option value="5">中期检查</option>
-        <option value="6">待结题</option>
-        <option value="7">结题评审</option>
-        <option value="8">结题成功</option>
-        <option value="9" selected="selected">结题失败</option>
-        {{# } }}
+        {{# return renderOptions(ITEM_STATUS_MAP, d.itemStatus); }}
     </select>
 </script>
 
@@ -1057,13 +853,13 @@
     });
 
     layui.use(['form', 'layer', 'table', 'laytpl', 'laydate', 'upload', 'element'], function () {
-        var form = layui.form;
-        var layer = layui.layer;
-        var table = layui.table;
-        var laytpl = layui.laytpl;
-        var laydate = layui.laydate;
-        var upload = layui.upload;
-        var element = layui.element;
+        const form = layui.form;
+        const layer = layui.layer;
+        const table = layui.table;
+        const laytpl = layui.laytpl;
+        const laydate = layui.laydate;
+        const upload = layui.upload;
+        const element = layui.element;
 
         <!--选择历届项目年份-->
         $.get("/getItemDate.do", function (result) {
@@ -1197,8 +993,8 @@
 
         // 评审结果头工具栏事件
         table.on('toolbar(reviewProcess)', function (obj) {
-            var checkStatus = table.checkStatus(obj.config.id);
-            var data = checkStatus.data;
+            const checkStatus = table.checkStatus(obj.config.id);
+            const data = checkStatus.data;
             console.log(data);
 
             switch (obj.event) {
@@ -1208,7 +1004,7 @@
                         return layer.msg("亲，你还没有选择任何的项目呢!");
                     }
 
-                    var fileNames = new Array();
+                    const fileNames = [];
 
                     $.each(data, function (index, item) {
                         fileNames[index] = item.fileName;
@@ -1236,11 +1032,12 @@
 
         // 主表头工具栏事件
         table.on('toolbar(endItem-table)', function (obj) {
-            var checkStatus = table.checkStatus(obj.config.id);
-            var data = checkStatus.data;
+            const checkStatus = table.checkStatus(obj.config.id);
+            const data = checkStatus.data;
             console.log(data);
 
-            var itemNums = new Array();
+            let itemNums = [];
+            let isFlag;
 
             switch (obj.event) {
                 case 'onekeyModify-Type':
@@ -1249,9 +1046,9 @@
                         return layer.msg("亲，你还没有选择任何的项目呢!", {icon: 2});
                     }
 
-                    var isFlag = false;
-                    for (var i = 0; i < data.length; i++) {
-                        for (var j = i + 1; j < data.length; j++) {
+                    isFlag = false;
+                    for (let i = 0; i < data.length; i++) {
+                        for (let j = i + 1; j < data.length; j++) {
                             if (data[i].itemType != data[j].itemType) {
                                 isFlag = true;
                             }
@@ -1280,7 +1077,7 @@
                                 itemNums[index] = value.itemNum;
                             });
                             console.log(itemNums);
-                            var itemType = $("#onekeyModify-Type input[name=itemType]:checked").val();
+                            const itemType = $("#onekeyModify-Type input[name=itemType]:checked").val();
                             console.log(itemType);
 
                             $.ajax({
@@ -1313,9 +1110,9 @@
 
                     console.log(data);
 
-                    var isFlag = false;
-                    for (var i = 0; i < data.length; i++) {
-                        for (var j = i + 1; j < data.length; j++) {
+                    isFlag = false;
+                    for (let i = 0; i < data.length; i++) {
+                        for (let j = i + 1; j < data.length; j++) {
                             if (data[i].itemStatus != data[j].itemStatus) {
                                 isFlag = true;
                             }
@@ -1326,7 +1123,7 @@
                         return layer.msg("对不起，你选择的项目中，项目状态不一致，请按关键词搜索后，再一键修改状态", {icon: 2});
                     }
 
-                    var itemStatusTmp = data[0].itemStatus;
+                    const itemStatusTmp = data[0].itemStatus;
 
                     layer.open({
                         type: 1,
@@ -1345,7 +1142,7 @@
                             $.each(data, function (index, value) {
                                 itemNums[index] = value.itemNum;
                             });
-                            var itemStatus = $("#onekeyModify-Status select[name='itemStatus'] > option:selected").val();
+const itemStatus = $("#onekeyModify-Status select[name='itemStatus'] > option:selected").val();
 
                             if (itemStatusTmp > itemStatus) {
                                 return layer.msg("对不起,项目的流程不能后退,请重新选择!", {icon: 2});
@@ -1395,9 +1192,9 @@
                         return layer.msg("亲，你还没有选择任何的项目呢!", {icon: 2});
                     }
 
-                    var isFlag = false;
-                    for (var i = 0; i < data.length; i++) {
-                        for (var j = i + 1; j < data.length; j++) {
+                    isFlag = false;
+                    for (let i = 0; i < data.length; i++) {
+                        for (let j = i + 1; j < data.length; j++) {
                             if (data[i].itemLevel != data[j].itemLevel) {
                                 isFlag = true;
                             }
@@ -1408,7 +1205,7 @@
                         return layer.msg("对不起，你所选择的项目中，项目的级别不一致。请按关键词搜索后，再一键修改级别", {icon: 2});
                     }
 
-                    var itemLevelTmp = data[0].itemLevel;
+                    const itemLevelTmp = data[0].itemLevel;
 
                     layer.open({
                         type: 1,
@@ -1428,7 +1225,7 @@
                                 itemNums[index] = value.itemNum;
                             });
                             console.log(itemNums);
-                            var itemLevel = $("#onekeyModify-Level select[name='itemLevel'] > option:selected").val();
+                            const itemLevel = $("#onekeyModify-Level select[name='itemLevel'] > option:selected").val();
                             console.log(itemLevel);
 
                             if (itemLevelTmp > itemLevel) {
@@ -1467,9 +1264,9 @@
                         return layer.msg("亲，你还没有选择任何的项目呢!", {icon: 2});
                     }
 
-                    var isFlag = false;
-                    for (var i = 0; i < data.length; i++) {
-                        for (var j = i + 1; j < data.length; j++) {
+                    isFlag = false;
+                    for (let i = 0; i < data.length; i++) {
+                        for (let j = i + 1; j < data.length; j++) {
                             if (data[i].itemStatus != data[j].itemStatus) {
                                 isFlag = true;
                             }
@@ -1487,7 +1284,7 @@
                     var itemStatus = data[0].itemStatus;
                     console.log("itemStatus：" + itemStatus);
 
-                    <!-- 项目状态：1：申请中；2：立项评审；3：已立项；4：立项失败；5：中期检查; 6: 待结题；7：结题评审；8：结题成功；9：结题失败-->
+                    //项目状态：1：申请中；2：立项评审；3：已立项；4：立项失败；5：中期检查; 6: 待结题；7：结题评审；8：结题成功；9：结题失败-->
                     // 学校管理员指派校内专家组长评审
                     if (roleIdAdmin == "200006") {
 
@@ -1529,7 +1326,7 @@
                                 }
 
 
-                                var itemNums = new Array();
+                                var itemNums = [];
 
                                 $.each(data, function(index, value) {
                                     itemNums.push(value.itemNum);
@@ -1611,7 +1408,7 @@
                                 }
                                 itemStatus += 1;
 
-                                var itemNums = new Array();
+                                var itemNums = [];
                                 $.each(data, function(index, value) {
                                     itemNums.push(value.itemNum);
                                 });
@@ -1687,20 +1484,20 @@
 
                             ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-                            var set = getTableContent();
+                            const set = getTableContent();
 
-                            var userNums = new Array();
-                            var userNames = new Array();
+                            const userNums = [];
+                            const userNames = [];
 
-                            var indexNum = 0;
-                            var indexName = 0;
+                            let indexNum = 0;
+                            let indexName = 0;
 
                             console.log(applyItemNum + "   applyItemNum");
 
-                            var userNumTmp = userNumAdmin;
-                            var roleIdTmp = roleIdAdmin;
+                            const userNumTmp = userNumAdmin;
+                            const roleIdTmp = roleIdAdmin;
 
-                            var isFlag = false;
+                            let isFlag = false;
 
                             $.each(set, function (index, item) {
                                 $.each(item, function (i, j) {
@@ -1775,7 +1572,7 @@
                         return layer.msg("对不起，目前项目正在流程之中，不能删除！");
                     }
 
-                    var itemNums = new Array();
+                    itemNums = [];
                     layer.confirm('真的删除选中行吗？', function (index) {
                         $.each(data, function (index, value) {
                             itemNums[index] = value.itemNum;
@@ -1807,14 +1604,14 @@
 
         // 主表监听每一行的工具事件
         table.on('tool(endItem-table)', function (obj) {
-            var data = obj.data;
+            const data = obj.data;
 
             console.log(data);
 
             if (obj.event === 'edit') {
 
-                var collegeFunds = data.collegeFunds;
-                var governFunds = data.governFunds;
+                let collegeFunds = data.collegeFunds;
+                let governFunds = data.governFunds;
 
                 layer.open({
                     type: 1,
@@ -1886,7 +1683,7 @@
 
                 var itemStatus = data.itemStatus;
 
-                <!-- 项目状态：1：申请中；2：立项评审；3：已立项；4：立项失败；5：中期检查; 6: 待结题；7：结题评审；8：结题成功；9：结题失败-->
+                //项目状态：1：申请中；2：立项评审；3：已立项；4：立项失败；5：中期检查; 6: 待结题；7：结题评审；8：结题成功；9：结题失败-->
                 // 学校管理员指派校内专家组长评审
                 if (roleIdAdmin == "200006") {
 
@@ -2060,63 +1857,12 @@
                         $("#endItem-detail input[name='itemNum']").val(data.itemNum);
                         $("#endItem-detail input[name='itemName']").val(data.itemName);
 
-                        // 项目级别转换
-                        // 项目级别：1: 立项失败；2：校级；3：省区级；4：国家级
-                        if (data.itemLevel == 1) {
-                            $("#endItem-detail input[name='itemLevel']").val("无");
-                        }
-                        else if (data.itemLevel == 2) {
-                            $("#endItem-detail input[name='itemLevel']").val("校级");
-                        }
-                        else if (data.itemLevel == 3) {
-                            $("#endItem-detail input[name='itemLevel']").val("省区级");
-                        }
-                        else if (data.itemLevel == 4) {
-                            $("#endItem-detail input[name='itemLevel']").val("国家级");
-                        }
-
-                        // 项目类型转换
-                        // 项目类型：1：创新训练；2：创业训练；3：创业实践
-                        if (data.itemType == 1) {
-                            $("#endItem-detail input[name='itemType']").val("创新训练");
-                        }
-                        else if (data.itemType == 2) {
-                            $("#endItem-detail input[name='itemType']").val("创业训练");
-                        }
-                        else if (data.itemType == 3) {
-                            $("#endItem-detail input[name='itemType']").val("创业实践");
-                        }
-
-                        // 项目状态转换
-//
-                        <!-- 项目状态：1：申请中；2：立项评审；3：已立项；4：立项失败；5：中期检查; 6: 待结题；7：结题评审；8：结题成功；9：结题失败-->
-                        if (data.itemStatus == 1) {
-                            $("#endItem-detail input[name='itemStatus']").val("申请中");
-                        }
-                        else if (data.itemStatus == 2) {
-                            $("#endItem-detail input[name='itemStatus']").val("立项评审");
-                        }
-                        else if (data.itemStatus == 3) {
-                            $("#endItem-detail input[name='itemStatus']").val("已立项");
-                        }
-                        else if (data.itemStatus == 4) {
-                            $("#endItem-detail input[name='itemStatus']").val("立项失败");
-                        }
-                        else if (data.itemStatus == 5) {
-                            $("#endItem-detail input[name='itemStatus']").val("中期检查");
-                        }
-                        else if (data.itemStatus == 6) {
-                            $("#endItem-detail input[name='itemStatus']").val("待结题");
-                        }
-                        else if (data.itemStatus == 7) {
-                            $("#endItem-detail input[name='itemStatus']").val("结题评审");
-                        }
-                        else if (data.itemStatus == 8) {
-                            $("#endItem-detail input[name='itemStatus']").val("结题成功");
-                        }
-                        else if (data.itemStatus == 9) {
-                            $("#endItem-detail input[name='itemStatus']").val("结题失败");
-                        }
+                        // 项目级别转换（使用常量映射表）
+                        $("#endItem-detail input[name='itemLevel']").val(ITEM_LEVEL_MAP[data.itemLevel] || "无");
+                        // 项目类型转换（使用常量映射表）
+                        $("#endItem-detail input[name='itemType']").val(ITEM_TYPE_MAP[data.itemType] || "");
+                        // 项目状态转换（使用常量映射表）
+                        $("#endItem-detail input[name='itemStatus']").val(ITEM_STATUS_MAP[data.itemStatus] || "");
 
                         $("#endItem-detail input[name='leaderName']").val(data.leaderName);
                         $("#endItem-detail input[name='tutorName']").val(data.tutorName);
@@ -2135,7 +1881,7 @@
             }
             else if (obj.event === 'uploadFile') {
 
-                var itemNum = data.itemNum;
+                const itemNum = data.itemNum;
                 console.log(itemNum + "   itemNum");
 
                 // 上传文件按钮事件
@@ -2152,8 +1898,8 @@
                     moveType: 1,
                     btn: ['确定', '取消'],
                     success: function () {
-                        var uploadListView = $('#uploadBodyList');
-                        var uploadListIns = upload.render({
+                        const uploadListView = $('#uploadBodyList');
+                        const uploadListIns = upload.render({
                             elem: '#uploadList',
                             url: '/batchUploadFile.do',
                             accept: 'file',
@@ -2250,21 +1996,12 @@
                 });
             }
             else if (obj.event === 'review') {
-                <!-- 项目状态：1：申请中；2：立项评审；3：已立项；4：立项失败；5：中期检查; 6: 待结题；7：结题评审；8：结题成功；9：结题失败-->
-                var itemNum = data.itemNum;
+                //项目状态：1：申请中；2：立项评审；3：已立项；4：立项失败；5：中期检查; 6: 待结题；7：结题评审；8：结题成功；9：结题失败-->
+                const itemNum = data.itemNum;
 
-                var itemStatus = data.itemStatus;
+                const itemStatus = data.itemStatus;
 
-                var reviewLevel = 1;
-                if (itemStatus == 2) {
-                    reviewLevel = 1;
-                }
-                else if (itemStatus == 5) {
-                    reviewLevel = 2;
-                }
-                else if (itemStatus == 7) {
-                    reviewLevel = 3;
-                }
+                const reviewLevel = {2: 1, 5: 2, 7: 3}[itemStatus] || 1;
 
                 var itemNumParam = {
                     reviewLevel: reviewLevel,
@@ -2301,16 +2038,9 @@
                                     field: 'files',
                                     bindAction: '#reviewListAction',
                                     before: function () {
-                                        var fileKind = 3;
-                                        if ("立项评审" == $("#endItem-review input[name='itemStatus']").val()) {
-                                            fileKind = 3;
-                                        }
-                                        else if ("中期检查" == $("#endItem-review input[name='itemStatus']").val()) {
-                                            fileKind = 4;
-                                        }
-                                        else if ("结题评审" == $("#endItem-review input[name='itemStatus']").val()) {
-                                            fileKind = 5;
-                                        }
+                                        // fileKind映射：itemStatus 2→3(立项评审), 5→4(中期检查), 7→5(结题评审)
+                                        var fileKindMap = {2: 3, 5: 4, 7: 5};
+                                        var fileKind = fileKindMap[data.itemStatus] || 3;
 
                                         this.data = {
                                             "fileKind": fileKind,
@@ -2379,48 +2109,10 @@
 
                                 // 项目级别转换
                                 // 项目级别：1: 立项失败；2：校级；3：省区级；4：国家级
-                                if (data.itemLevel == 1) {
-                                    $("#endItem-review input[name='itemLevel']").val("无");
-                                }
-                                else if (data.itemLevel == 2) {
-                                    $("#endItem-review input[name='itemLevel']").val("校级");
-                                }
-                                else if (data.itemLevel == 3) {
-                                    $("#endItem-review input[name='itemLevel']").val("省区级");
-                                }
-                                else if (data.itemLevel == 4) {
-                                    $("#endItem-review input[name='itemLevel']").val("国家级");
-                                }
-
-                                // 项目状态转换
-                                <!-- 项目状态：1：申请中；2：立项评审；3：已立项；4：立项失败；5：中期检查; 6: 待结题；7：结题评审；8：结题成功；9：结题失败-->
-                                if (data.itemStatus == 1) {
-                                    $("#endItem-review input[name='itemStatus']").val("申请中");
-                                }
-                                else if (data.itemStatus == 2) {
-                                    $("#endItem-review input[name='itemStatus']").val("立项评审");
-                                }
-                                else if (data.itemStatus == 3) {
-                                    $("#endItem-review input[name='itemStatus']").val("已立项");
-                                }
-                                else if (data.itemStatus == 4) {
-                                    $("#endItem-review input[name='itemStatus']").val("立项失败");
-                                }
-                                else if (data.itemStatus == 5) {
-                                    $("#endItem-review input[name='itemStatus']").val("中期检查");
-                                }
-                                else if (data.itemStatus == 6) {
-                                    $("#endItem-review input[name='itemStatus']").val("待结题");
-                                }
-                                else if (data.itemStatus == 7) {
-                                    $("#endItem-review input[name='itemStatus']").val("结题评审");
-                                }
-                                else if (data.itemStatus == 8) {
-                                    $("#endItem-review input[name='itemStatus']").val("结题成功");
-                                }
-                                else if (data.itemStatus == 9) {
-                                    $("#endItem-review input[name='itemStatus']").val("结题失败");
-                                }
+                                // 项目级别转换（使用常量映射表）
+                                $("#endItem-review input[name='itemLevel']").val(ITEM_LEVEL_MAP[data.itemLevel] || "无");
+                                // 项目状态转换（使用常量映射表）
+                                $("#endItem-review input[name='itemStatus']").val(ITEM_STATUS_MAP[data.itemStatus] || "");
 
                                 $("#endItem-review input[name='leaderName']").val(data.leaderName);
                                 $("#endItem-review input[name='tutorName']").val(data.tutorName);
@@ -2566,20 +2258,8 @@
             var value = data.value;
             var itemNum = data.elem.id;
 
-            // 级别：1: 无；2：校级；3：省区级；4：国家级
-            var itemLevel = "校级";
-            if (value == 1) {
-                itemLevel = "无";
-            }
-            else if (value == 2) {
-                itemLevel = "校级";
-            }
-            else if (value == 3) {
-                itemLevel = "省区级";
-            }
-            else if (value == 4) {
-                itemLevel = "国家级";
-            }
+            // 级别：1: 无；2：校级；3：省区级；4：国家级（使用常量映射表）
+            var itemLevel = ITEM_LEVEL_MAP[value] || "无";
 
             layer.confirm('真的修改当前行编号为：' + itemNum + '的项目级别为：' + itemLevel + '吗？', {
                 btn: ['确定', '取消']
@@ -2614,17 +2294,8 @@
             var itemNum = data.elem.id;
             console.log(itemNum);
 
-            // 项目类型：1：创新训练；2：创业训练；3：创业实践
-            var itemType = "创新训练";
-            if (value == 1) {
-                itemType = "创业训练";
-            }
-            else if (value == 2) {
-                itemType = "创业训练";
-            }
-            else if (value == 3) {
-                itemType = "创业实践";
-            }
+            // 项目类型：1：创新训练；2：创业训练；3：创业实践（使用常量映射表）
+            var itemType = ITEM_TYPE_MAP[value] || "创新训练";
 
             layer.confirm('真的修改当前行编号为：' + itemNum + '的项目类型为：' + itemType + '吗？', {
                 btn: ['确定', '取消']
@@ -2640,7 +2311,7 @@
                         return layer.msg(result.msg, {icon: 2});
                     }
                     layer.msg(result.msg, {icon: 1});
-                    setTimetout(function () {
+                    setTimeout(function () {
                         window.location.reload();
                     }, 3000);
                 });
@@ -2701,35 +2372,8 @@
                 }
             }
 
-            <!-- 项目状态：1：申请中；2：立项评审；3：已立项；4：立项失败；5：中期检查; 6: 待结题；7：结题评审；8：结题成功；9：结题失败-->
-            var itemStatus = "申请中";
-            if (value == 1) {
-                itemStatus = "申请中";
-            }
-            else if (value == 2) {
-                itemStatus = "立项评审";
-            }
-            else if (value == 3) {
-                itemStatus = "已立项";
-            }
-            else if (value == 4) {
-                itemStatus = "立项失败";
-            }
-            else if (value == 5) {
-                itemStatus = "中期检查";
-            }
-            else if (value == 6) {
-                itemStatus = "待结题";
-            }
-            else if (value == 7) {
-                itemStatus = "结题评审";
-            }
-            else if (value == 8) {
-                itemStatus = "结题成功";
-            }
-            else if (value == 9) {
-                itemStatus = "结题失败";
-            }
+            // 项目状态转换（使用常量映射表）
+            var itemStatus = ITEM_STATUS_MAP[value] || "申请中";
 
             console.log(value);
 
@@ -2760,7 +2404,7 @@
                             }
                         });
 
-                        setTimetout(function () {
+                        setTimeout(function () {
                             window.location.reload();
                         }, 3000);
 
@@ -2773,8 +2417,8 @@
         });
 
         // 搜索功能
-        var searchKeyWord = $("input[name='searchKeyWord']");
-        var searchBtn = $("input[name='searchBtn']");
+const searchKeyWord = $("input[name='searchKeyWord']");
+        const searchBtn = $("input[name='searchBtn']");
 
         searchKeyWord.bind("keydown", function (event) {
             if (event.keyCode == 13 || event.keyCode == 9) {
@@ -2783,61 +2427,10 @@
         });
 
         searchBtn.click(function () {
-            var searchItemLevel = -2;
-            // 项目级别转换
-            if (searchKeyWord.val() == "无") {
-                searchItemLevel = 1;
-            }
-            else if (searchKeyWord.val() == "校级") {
-                searchItemLevel = 2;
-            }
-            else if (searchKeyWord.val() == "省区级") {
-                searchItemLevel = 3;
-            }
-            else if (searchKeyWord.val() == "国家级") {
-                searchItemLevel = 4;
-            }
-
-            var searchItemType = -2;
-            // 项目类型：1：创新训练；2：创业训练；3：创业实践
-            if (searchKeyWord.val() == "创新训练") {
-                searchItemType = 1;
-            }
-            else if (searchKeyWord.val() == "创业训练") {
-                searchItemType = 2;
-            } else if (searchKeyWord.val() == "创业实践") {
-                searchItemType = 3;
-            }
-
-            var searchItemStatus = -2;
-            <!-- 项目状态：1：申请中；2：立项评审；3：已立项；4：立项失败；5：中期检查; 6: 待结题；7：结题评审；8：结题成功；9：结题失败-->
-            if (searchKeyWord.val() == "申请中") {
-                searchItemStatus = 1;
-            }
-            else if (searchKeyWord.val() == "立项评审") {
-                searchItemStatus = 2;
-            }
-            else if (searchKeyWord.val() == "已立项") {
-                searchItemStatus = 3;
-            }
-            else if (searchKeyWord.val() == "立项失败") {
-                searchItemStatus = 4;
-            }
-            else if (searchKeyWord.val() == "中期检查") {
-                searchItemStatus = 5;
-            }
-            else if (searchKeyWord.val() == "待结题") {
-                searchItemStatus = 6;
-            }
-            else if (searchKeyWord.val() == "结题评审") {
-                searchItemStatus = 7;
-            }
-            else if (searchKeyWord.val() == "结题成功") {
-                searchItemStatus = 8;
-            }
-            else if (searchKeyWord.val() == "结题失败") {
-                searchItemStatus = 9;
-            }
+            // 使用反向映射表转换搜索关键词（-2 表示不搜索此项）
+            var searchItemLevel = ITEM_LEVEL_REVERSE[searchKeyWord.val()] || -2;
+            var searchItemType = ITEM_TYPE_REVERSE[searchKeyWord.val()] || -2;
+            var searchItemStatus = ITEM_STATUS_REVERSE[searchKeyWord.val()] || -2;
 
             //执行重载
             tableIns.reload({
@@ -2869,61 +2462,6 @@
 
 <!-- 方法集合  -->
 <script>
-
-    // 在线预览文件
-    function chooseFileMethod(fileName) {
-        // 模拟form表单提交来打开一个新的页面
-        function open_page(url, param) {
-            var form = '<form action="' + url + '"  target="_blank"  id="windowOpen" style="display:none">';
-            for (var key in param) {
-                form += '<input name="' + key + '" value="' + param[key] + '"/>';
-            }
-            form += '</form>';
-            $('body').append(form);
-            $('#windowOpen').submit();
-            $('#windowOpen').remove();
-        }
-
-        layer.confirm('你是需要预览文件还是下载文件呢？', {
-            btn: ['预览', '下载'] //按钮
-        }, function (index) {
-            var url = '';
-            var param = {a: 1};
-
-            $.ajaxSettings.async = false;   //关闭异步
-            $.get("/previewFile.do", {fileName: fileName}, function (result) {
-                if (result.status != 0) {
-                    return layer.msg(result.msg, {icon: 2});
-                }
-                layer.msg(result.msg, {icon: 1});
-                url = result.data;
-            });
-            $.ajaxSettings.async = true;    //改为异步请求
-            layer.close(index);
-            open_page(url, param);
-
-        }, function (index) {
-            window.location.href = "/downloadFile.do?fileName=" + fileName;
-            layer.close(index);
-        });
-    }
-
-    // 插入项目成员信息
-    function getTableContent() {
-        var set = [];
-        $('#tbody').each(function (index) {
-            var table = [];
-            $(this).find('tr').each(function () {
-                var row = [];
-                $(this).find('th,td:lt(2)').each(function () {
-                    row.push($(this).text().trim());
-                });
-                table.push(row);
-            });
-            set.push(table);
-        });
-        return set;
-    }
 
     // 用户信息
     function getUserInfoByUserNum(userName) {
@@ -2961,7 +2499,6 @@
         });
     }
 </script>
-
 
 </body>
 </html>

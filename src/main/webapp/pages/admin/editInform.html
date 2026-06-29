@@ -1,3 +1,5 @@
+<!DOCTYPE html>
+<html lang="en">
 <head>
     <title>大学生创新创业项目管理系统 - 编辑通知公告</title>
     <meta charset="UTF-8">
@@ -6,7 +8,7 @@
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
 
-    <link rel="stylesheet" type="text/css" href="../../static/layui/css/layui.css"/>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/layui@2.7/dist/css/layui.css"/>
 
     <style>
         .layui-layer-btn {
@@ -70,8 +72,8 @@
 </div>
 
 
-<script src="../../static/layui/layui.js"></script>
-<script src="../../static/js/jquery-1.9.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/layui@2.7/dist/layui.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
 <script src="../../static/js/getParam.js"></script>
 
 <script src="../../static/ckeditor/ckeditor.js"></script>
@@ -83,7 +85,7 @@
         $('input[type="text"]').attr("autocomplete", "off");
     });
 
-    var obj = CKEDITOR.replace('editInformTextArea');
+    const obj = CKEDITOR.replace('editInformTextArea');
     
     $(function () {
         $.get("/getInformDetailById.do", {id: getUrlParam("id")}, function (result) {
@@ -102,10 +104,10 @@
 
         console.log(obj.getData());
 
-        var head = $("input[name='head-edit']").val();
-        var content = obj.getData();
+        const head = $("input[name='head-edit']").val();
+        const content = obj.getData();
 
-        var param = {
+        const param = {
             id: getUrlParam("id"),
             head: head,
             content: content,
@@ -121,7 +123,7 @@
             layer.msg(result.msg, {icon: 1});
             //当你在iframe页面关闭自身时
             setTimeout(function () {
-                var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+                const index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
                 parent.layer.close(index); //再执行关闭
             }, 3000);
         });
@@ -132,12 +134,13 @@
 <script>
     // 获取当前页面传参的值
     function getUrlParam(name) {
-        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i"); //构造一个含有目标参数的正则表达式对象
-        var r = window.location.search.substr(1).match(reg);  //匹配目标参数
+        const reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i"); //构造一个含有目标参数的正则表达式对象
+        const r = window.location.search.substr(1).match(reg);  //匹配目标参数
         if (r != null) return encodeURI(r[2]);
         return null; //返回参数值
     }
 </script>
 
 </body>
+</html>
 </html>

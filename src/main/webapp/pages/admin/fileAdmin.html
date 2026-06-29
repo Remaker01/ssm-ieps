@@ -8,7 +8,7 @@
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
 
-    <link rel="stylesheet" type="text/css" href="../../static/layui/css/layui.css"/>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/layui@2.7/dist/css/layui.css"/>
 
 </head>
 
@@ -52,8 +52,8 @@
 </div>
 
 
-<script src="../../static/layui/layui.js"></script>
-<script src="../../static/js/jquery-1.9.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/layui@2.7/dist/layui.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
 <script src="../../static/js/getParam.js"></script>
 
 <!-- 加密和解密 -->
@@ -62,13 +62,13 @@
 
 <!-- 用户名和角色解密  -->
 <script>
-    var userNumAdmin = decrypt(getUrlParam("userNum"), "abcd1234abcd1234");
-    var roleIdAdmin = decrypt(getUrlParam("roleId"), "abcd1234abcd1234");
+    const userNumAdmin = decrypt(getUrlParam("userNum"), "abcd1234abcd1234");
+    const roleIdAdmin = decrypt(getUrlParam("roleId"), "abcd1234abcd1234");
 
     // 获取传参的值
     function getUrlParam(name) {
-        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i"); //构造一个含有目标参数的正则表达式对象
-        var r = window.parent.location.search.substr(1).match(reg);  //匹配目标参数
+        const reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i"); //构造一个含有目标参数的正则表达式对象
+        const r = window.parent.location.search.substr(1).match(reg);  //匹配目标参数
         if (r != null) return encodeURI(r[2]);
         return null; //返回参数值
     }
@@ -127,16 +127,16 @@
     });
 
     layui.use(['form', 'layer', 'table', 'laytpl', 'laydate', 'upload'], function () {
-        var form = layui.form;
-        var layer = layui.layer;
-        var table = layui.table;
-        var laytpl = layui.laytpl;
-        var laydate = layui.laydate;
-        var upload = layui.upload;
+        const form = layui.form;
+        const layer = layui.layer;
+        const table = layui.table;
+        const laytpl = layui.laytpl;
+        const laydate = layui.laydate;
+        const upload = layui.upload;
 
 
         // 表格初始化重载
-        var tableIns = table.render({
+        const tableIns = table.render({
             elem: '#fileAdmin',
             url: '/getFileListByUserNum.do',
             title: '文件管理表',
@@ -211,23 +211,23 @@
 
         //监听文件类型操作
         form.on('switch(kindTpl)', function (obj) {
-            var fileKind = 0;
+            let fileKind = 0;
             if (obj.elem.checked) {
                 fileKind = 1;
             }
-            var id = this.id;
-            var userNum = this.name;
+            const id = this.id;
+            const userNum = this.name;
             console.log(id + "  id   " + userNum + "    userNum");
 
             // 开关是否开启，true或者false
-            var checked = obj.elem.checked;
+            const checked = obj.elem.checked;
 
             // 询问框
             layer.confirm('您确定将修改文件名的重要性吗？', {
                 btn: ['确定', '取消'] //按钮
             }, function (index) {
                 // 确定按钮
-                var param = {
+                const param = {
                     id: id,
                     userNum: userNum,
                     fileKind: fileKind,
@@ -256,8 +256,8 @@
 
         // 头工具栏事件
         table.on('toolbar(fileAdmin)', function (obj) {
-            var checkStatus = table.checkStatus(obj.config.id);
-            var data = checkStatus.data;
+            const checkStatus = table.checkStatus(obj.config.id);
+            const data = checkStatus.data;
             console.log(data);
 
             switch (obj.event) {
@@ -275,8 +275,8 @@
                         success: function () {
                             // 文件上传
                             // 多文件列表示例
-                            var demoListView = $('#demoList');
-                            var uploadListIns = upload.render({
+                            const demoListView = $('#demoList');
+                            const uploadListIns = upload.render({
                                 elem: '#testList',
                                 url: '/batchUploadFile.do',
                                 accept: 'file',
@@ -291,10 +291,10 @@
                                     userNum: userNumAdmin
                                 },
                                 choose: function (obj) {
-                                    var files = this.files = obj.pushFile(); //将每次选择的文件追加到文件队列
+                                    const files = this.files = obj.pushFile(); //将每次选择的文件追加到文件队列
                                     //读取本地文件
                                     obj.preview(function (index, file, result) {
-                                        var tr = $(['<tr id="upload-' + index + '">'
+                                        const tr = $(['<tr id="upload-' + index + '">'
                                             , '<td>' + file.name + '</td>'
                                             , '<td>' + (file.size / 1014).toFixed(1) + 'kb</td>'
                                             , '<td>等待上传</td>'
@@ -321,7 +321,7 @@
                                 },
                                 done: function (res, index, upload) {
                                     if (res.status == 0) { //上传成功
-                                        var tr = demoListView.find('tr#upload-' + index)
+                                        const tr = demoListView.find('tr#upload-' + index)
                                             , tds = tr.children();
                                         tds.eq(2).html('<span style="color: #5FB878;">上传成功</span>');
                                         tds.eq(3).html(''); //清空操作
@@ -330,7 +330,7 @@
                                     this.error(index, upload);
                                 },
                                 error: function (index, upload) {
-                                    var tr = demoListView.find('tr#upload-' + index)
+                                    const tr = demoListView.find('tr#upload-' + index)
                                         , tds = tr.children();
                                     tds.eq(2).html('<span style="color: #FF5722;">上传失败</span>');
                                     tds.eq(3).find('.demo-reload').removeClass('layui-hide'); //显示重传
@@ -353,9 +353,9 @@
                     if (data.length == 0) {
                         return layer.msg("亲，你还没有选择任何的项目呢!");
                     }
-                    var ids = new Array();
-                    var userNums = new Array();
-                    var fileNames = new Array();
+                    const ids = [];
+                    const userNums = [];
+                    const fileNames = [];
                     layer.confirm('真的删除选中行吗？', function (index) {
                         $.each(data, function (index, value) {
                             ids[index] = value.id;
@@ -390,10 +390,10 @@
 
         // 监听每一行的工具事件
         table.on('tool(fileAdmin)', function (obj) {
-            var data = obj.data;
+            const data = obj.data;
             if (obj.event === 'del') {
                 layer.confirm('真的删除当前文件名：' + data.fileName + '么？', function (index) {
-                    var param = {
+                    const param = {
                         id: data.id,
                         fileName: data.fileName,
                         userNum: data.userNum,
@@ -416,8 +416,8 @@
         });
 
         //  搜索功能
-        var searchKeyWord = $("input[name='searchKeyWord']");
-        var searchBtn = $("input[name='searchBtn']");
+const searchKeyWord = $("input[name='searchKeyWord']");
+    const searchBtn = $("input[name='searchBtn']");
 
         searchKeyWord.bind("keydown", function (event) {
             if (event.keyCode == 13 || event.keyCode == 9) {
@@ -426,7 +426,7 @@
         });
 
         searchBtn.click(function () {
-            var searchUserNum;
+            let searchUserNum;
             if (isNaN(parseInt(searchKeyWord.val()))) {
                 searchUserNum = -1;
             }

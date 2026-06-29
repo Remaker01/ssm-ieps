@@ -3,8 +3,8 @@
 <head>
     <meta charset="utf-8"/>
     <title>xx大学大学生创业项目管理平台</title>
-    <link rel="stylesheet" href="../static/css/bootstrap.min.css">
-    <link rel="stylesheet" href="../static/layui/css/layui.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/layui@2.7/dist/css/layui.css">
 
     <style>
         *, body {
@@ -338,9 +338,9 @@ line-height: 43px;"></div>
     </div>
 </div>
 
-<script src="../static/js/jquery-1.9.1.min.js"></script>
-<script src="../static/js/bootstrap.min.js"></script>
-<script src="../static/layui/layui.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/layui@2.7/dist/layui.js"></script>
 
 <!-- 加密和解密 -->
 <script src="../static/js/module/encrypt/aes.js"></script>
@@ -349,16 +349,16 @@ line-height: 43px;"></div>
 <!-- 自定义脚本 layer -->
 <script>
     layui.use('layer', function () {
-        var layer = layui.layer;
+        const layer = layui.layer;
     });
 </script>
 
 <!-- 登录按钮  -->
 <script>
-    var loginBtn = $("input[name='login']");
+    const loginBtn = $("input[name='login']");
 
-    var userNum = $("input[name='userNum']");
-    var userPwd = $("input[name='userPwd']");
+    const userNum = $("input[name='userNum']");
+    const userPwd = $("input[name='userPwd']");
 
     userPwd.focus(function () {
         // userPwd.mouseleave(function () {
@@ -389,7 +389,7 @@ line-height: 43px;"></div>
                 return layer.msg("密码不能为空！", {icon: 2});
             }
 
-            var param = {
+            const param = {
                 userNum: userNum.val(),
                 userPwd: userPwd.val()
             };
@@ -418,15 +418,15 @@ line-height: 43px;"></div>
             if (result.status != 0) {
                 return;
             }
-            var informList = $(".gd-main-left-01 > .gd-main-top-content");
+            const informList = $(".gd-main-left-01 > .gd-main-top-content");
             result = result.data;
             $.each(result.list, function (index, value) {
-                var gdCon = $("<div class='gd-con'></div>");
-                var leftContent = $("<div class='left-content'></div>");
-                var rightDesc = $("<div class='right-desc'></div>");
+                const gdCon = $("<div class='gd-con'></div>");
+                const leftContent = $("<div class='left-content'></div>");
+                const rightDesc = $("<div class='right-desc'></div>");
 
-                var $a = $("<a></a>");
-                var $span = $("<span></span>");
+                const $a = $("<a></a>");
+                const $span = $("<span></span>");
                 $a.prop("href", "/goShowInformDetail.do?id=" + value.id).prop("title", value.head).text(value.head);
 
 
@@ -449,10 +449,10 @@ line-height: 43px;"></div>
             if (result.status !== 0) {
                 return;
             }
-            var fileList = $(".gd-main-right-02 > .gd-main-bottom-content");
+            const fileList = $(".gd-main-right-02 > .gd-main-bottom-content");
             result = result.data.list;
             $.each(result, function (index, value) {
-                var fileName = "";
+                let fileName = "";
                 if (value.fileName.indexOf("-") !== -1) {
                     fileName = value.fileName.substring(value.fileName.indexOf("-") + 1);
                 }
@@ -460,10 +460,10 @@ line-height: 43px;"></div>
                     fileName = value.fileName;
                 }
 
-                var gdCon = $("<div class='gd-con'></div>");
-                var leftContent = $("<div class='left-content' style='width: 98%;'></div>");
+                const gdCon = $("<div class='gd-con'></div>");
+                const leftContent = $("<div class='left-content' style='width: 98%;'></div>");
 
-                var $a = $("<a></a>");
+                const $a = $("<a></a>");
                 $a.prop("href", "javascript:void(0)").prop("title", fileName).prop("name", value.fileName).text(fileName);
                 $a.on('click', chooseFileMethod);
 
@@ -475,12 +475,12 @@ line-height: 43px;"></div>
     });
 
     function chooseFileMethod() {
-        var fileName = this.name;
+        const fileName = this.name;
 
         // 模拟form表单提交来打开一个新的页面
         function open_page(url, param) {
-            var form = '<form action="' + url + '"  target="_blank"  id="windowOpen" style="display:none">';
-            for (var key in param) {
+            let form = '<form action="' + url + '"  target="_blank"  id="windowOpen" style="display:none">';
+            for (let key in param) {
                 form += '<input name="' + key + '" value="' + param[key] + '"/>';
             }
             form += '</form>';
@@ -492,8 +492,8 @@ line-height: 43px;"></div>
         layer.confirm('你是需要预览文件还是下载文件呢？', {
             btn: ['预览', '下载'] //按钮
         }, function (index) {
-            var url = '';
-            var param = {a: 1};
+            let url = '';
+            let param = {a: 1};
 
             $.ajaxSettings.async = false;   //关闭异步
             $.get("/previewFile.do", {fileName: fileName}, function (result) {
@@ -526,14 +526,14 @@ line-height: 43px;"></div>
                 return;
             }
 
-            var leftBoxMain = $(".list-unstyled");
+            const leftBoxMain = $(".list-unstyled");
 
             $.each(result.data.list, function (index, item) {
-                var gdCon = $("<li class='gd-con'></li>");
-                var leftContent = $("<div class='left-content'></div>");
-                var $a = $("<a></a>");
-                var rightDesc = $("<div class='right-desc'></div>");
-                var $span = $("<span></span>");
+                const gdCon = $("<li class='gd-con'></li>");
+                const leftContent = $("<div class='left-content'></div>");
+                const $a = $("<a></a>");
+                const rightDesc = $("<div class='right-desc'></div>");
+                const $span = $("<span></span>");
 
                 leftContent.append($a.prop("title", item.itemName).prop("href", "/goShowItemDetail.do?itemNum=" + item.itemNum)
                     .text(item.itemName));
@@ -553,7 +553,7 @@ line-height: 43px;"></div>
 
     $(function () {
         //每隔1秒循环滚动
-        var aObj = setInterval('auto()', 0);
+        let aObj = setInterval('auto()', 0);
         $(".scroll").hover(function () {
             //清除滚动
             clearInterval(aObj);

@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <title>优秀项目详情</title>
-    <link rel="stylesheet" href="../../static/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
 
     <style>
         .gd-top {
@@ -73,8 +73,8 @@
 
 </div>
 
-<script src="../../static/js/jquery-1.9.1.min.js"></script>
-<script src="../../static/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="../../static/js/getParam.js"></script>
 
 
@@ -83,7 +83,7 @@
     $(function () {
         $('input[type="text"]').attr("autocomplete", "off");
 
-        var tbody = $("#tbody");
+        const tbody = $("#tbody");
 
         $.get("/getItemDetailWithItemNum.do", {itemNum: $.Request("itemNum")}, function (result) {
             console.log(result);
@@ -91,19 +91,19 @@
                 return;
             }
 
-            var result = result.data;
+            const resultData = result.data;
 
-            var $trItemNum = $("<tr></tr>");
-            var $tdItemNumFirst = $("<td style='width: 15%; padding-left: 20px;'>项目编号</td>");
-            var $tdItemNumSecond = $("<td style='padding-left: 20px;'></td>");
+            const $trItemNum = $("<tr></tr>");
+            const $tdItemNumFirst = $("<td style='width: 15%; padding-left: 20px;'>项目编号</td>");
+            const $tdItemNumSecond = $("<td style='padding-left: 20px;'></td>");
             $tdItemNumSecond.text(result.itemNum);
             $trItemNum.append($tdItemNumFirst).append($tdItemNumSecond);
 
             tbody.append($trItemNum);
 
-            var $trItemName = $("<tr></tr>");
-            var $tdItemNameFirst = $("<td style='width: 15%; padding-left: 20px;'>项目名称</td>");
-            var $tdItemNameSecond = $("<td style='padding-left: 20px;'></td>");
+            const $trItemName = $("<tr></tr>");
+            const $tdItemNameFirst = $("<td style='width: 15%; padding-left: 20px;'>项目名称</td>");
+            const $tdItemNameSecond = $("<td style='padding-left: 20px;'></td>");
             $tdItemNameSecond.append(result.itemName);
             $trItemName.append($tdItemNameFirst).append($tdItemNameSecond);
 
@@ -118,18 +118,18 @@
                 }
 
                 $.each(userInfo.data, function (index, value) {
-                    var $divName = $("<div></div>");
-                    var $divEmail = $("<div></div>");
-                    var $divMajor = $("<div></div>");
+                    const $divName = $("<div></div>");
+                    const $divEmail = $("<div></div>");
+                    const $divMajor = $("<div></div>");
 
                     $divName.text(value.userName);
                     $divEmail.text(value.email);
 
                     // 项目负责人
                     if (value.identity == 2) {
-                        var $trLeaderName = $("<tr></tr>");
-                        var $tdLeaderNameFirst = $("<td style='width: 15%; padding-left: 20px;'>项目负责人</td>");
-                        var $tdLeaderNameSecond = $("<td style='padding-left: 20px;'></td>");
+                        const $trLeaderName = $("<tr></tr>");
+                        const $tdLeaderNameFirst = $("<td style='width: 15%; padding-left: 20px;'>项目负责人</td>");
+                        const $tdLeaderNameSecond = $("<td style='padding-left: 20px;'></td>");
 
                         $divMajor.text(value.major);
                         $tdLeaderNameSecond.append($divName).append($divMajor).append($divEmail);
@@ -139,9 +139,9 @@
                     }
                     // 项目小组成员
                     else if (value.identity == 1) {
-                        var $trTeamName = $("<tr></tr>");
-                        var $tdTeamNameFirst = $("<td style='width: 15%; padding-left: 20px;'>项目小组成员</td>");
-                        var $tdTeamNameSecond = $("<td style='padding-left: 20px;'></td>");
+                        const $trTeamName = $("<tr></tr>");
+                        const $tdTeamNameFirst = $("<td style='width: 15%; padding-left: 20px;'>项目小组成员</td>");
+                        const $tdTeamNameSecond = $("<td style='padding-left: 20px;'></td>");
 
                         $divMajor.text(value.major);
                         $tdTeamNameSecond.append($divName).append($divMajor).append($divEmail);
@@ -154,9 +154,9 @@
                     else if (value.identity == 3) {
                         // title 职称：0：学生；1：助理研究员；2：讲师；3：高级实验师；4：副教授；5：教授
 
-                        var $trTutorName = $("<tr></tr>");
-                        var $tdTutorNameFirst = $("<td style='width: 15%; padding-left: 20px;'>指导老师</td>");
-                        var $tdTutorNameSecond = $("<td style='padding-left: 20px;'></td>");
+                        const $trTutorName = $("<tr></tr>");
+                        const $tdTutorNameFirst = $("<td style='width: 15%; padding-left: 20px;'>指导老师</td>");
+                        const $tdTutorNameSecond = $("<td style='padding-left: 20px;'></td>");
 
                         if (value.title == 1) {
                             $divMajor.text("助理研究员");
@@ -184,9 +184,9 @@
             $.ajaxSettings.async = true;
 
 
-            var $trSummary = $("<tr></tr>");
-            var $tdSummaryFirst = $("<td style='width: 15%; padding-left: 20px;'>项目简介</td>");
-            var $tdSummarySecond = $("<td style='padding-left: 20px;'></td>");
+            const $trSummary = $("<tr></tr>");
+            const $tdSummaryFirst = $("<td style='width: 15%; padding-left: 20px;'>项目简介</td>");
+            const $tdSummarySecond = $("<td style='padding-left: 20px;'></td>");
             $tdSummarySecond.text(result.summary);
             $trSummary.append($tdSummaryFirst).append($tdSummarySecond);
 

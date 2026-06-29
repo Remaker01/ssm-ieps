@@ -7,7 +7,7 @@
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <link rel="stylesheet" media="screen" href="../../static/css/background.css">
-    <link rel="stylesheet" type="text/css" href="../../static/layui/css/layui.css"/>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/layui@2.7/dist/css/layui.css"/>
     <link rel="stylesheet" media="screen" href="../../static/css/substep.css"/>
     <link rel="stylesheet" href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.css">
 
@@ -108,15 +108,15 @@
 </div>
 
 <!-- 背景特效 -->
-<script type="text/javascript" src="../../static/js/particles.min.js"></script>
-<script type="text/javascript" src="../../static/js/app.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+<script src="../../static/js/app.js"></script>
 <!-- 分步注册特效 -->
-<script type="text/javascript" src="../../static/js/jquery-1.9.1.min.js"></script>
-<script type="text/javascript" src="../../static/js/verify.min.js"></script>
-<script type="text/javascript" src="../../static/js/jquery.easing.min.js"></script>
-<script type="text/javascript" src="../../static/js/script.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+<script src="../../static/js/verify.min.js"></script>
+<script src="../../static/js/jquery.easing.min.js"></script>
+<script src="../../static/js/script.js"></script>
 
-<script type="text/javascript" src="../../static/layui/layui.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/layui@2.7/dist/layui.js"></script>
 
 <!-- 自定义脚本 -->
 <!-- 引用layui的form,layer -->
@@ -126,8 +126,8 @@
     });
 
     layui.use(['form', 'layer'], function () {
-        var form = layui.form;
-        var layer = layui.layer;
+        const form = layui.form;
+        const layer = layui.layer;
 
         form.verify({
             username: function (value, item) {
@@ -151,14 +151,14 @@
 
 <!-- 变量 -->
 <script>
-    var userNum = $("input[name='userNum']");
-    var userName = $("input[name='userName']");
-    var verifyNum = $("input[name='verifyNum']");
-    var verifyCode = $("input[name='verifyCode']");
-    var newPassword = $("input[name='newPassword']");
-    var reNewPassword = $("input[name='reNewPassword']");
+    const userNum = $("input[name='userNum']");
+    const userName = $("input[name='userName']");
+    const verifyNum = $("input[name='verifyNum']");
+    const verifyCode = $("input[name='verifyCode']");
+    const newPassword = $("input[name='newPassword']");
+    const reNewPassword = $("input[name='reNewPassword']");
 
-    var backVerifyCode;
+    let backVerifyCode;
 
 </script>
 
@@ -213,7 +213,7 @@
 <script>
     verifyNum.focus(function () {
         verifyNum.mouseleave(function () {
-            var param = {
+            const param = {
                 userNum: userNum.val(),
                 verifyNum: verifyNum.val()
             };
@@ -234,12 +234,12 @@
 
 <!-- 获取手机或email验证码 -->
 <script>
-    var count = 60; //间隔函数，1秒执行
-    var InterValObj; //timer变量，控制时间
-    var curCount; //当前剩余秒数
+    let count = 60; //间隔函数，1秒执行
+    let InterValObj; //timer变量，控制时间
+    let curCount; //当前剩余秒数
     function sendMessage() {
         curCount = count;
-        var verifyNumTemp = $.trim(verifyNum.val());
+        const verifyNumTemp = $.trim(verifyNum.val());
         if (!is_mobile(verifyNumTemp) && !is_email(verifyNumTemp)) {
             layer.msg(" 请输入有效的手机号码或邮箱");
             return false;
@@ -248,7 +248,7 @@
         $(".getVerifyCode").attr("disabled", "true").val( + curCount + "秒再获取");
         InterValObj = window.setInterval(setRemainTime, 1000); //启动计时器，1秒执行一次
         // todo 向后台发送处理数据
-        var param = {
+        const param = {
             verifyNum: verifyNum.val()
         };
 
@@ -317,7 +317,7 @@
 <!-- 提交按钮   -->
 <script>
     $("input[name='submit']").click(function () {
-        var param = {
+        const param = {
             userNum: userNum.val(),
             userPwd: newPassword.val()
         };

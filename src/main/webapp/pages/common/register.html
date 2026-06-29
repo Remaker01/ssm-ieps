@@ -6,7 +6,7 @@
     <title>大学生创新创业项目管理注册页</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" media="screen" href="../../static/css/background.css">
-    <link rel="stylesheet" type="text/css" href="../../static/layui/css/layui.css"/>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/layui@2.7/dist/css/layui.css"/>
     <link rel="stylesheet" media="screen" href="../../static/css/substep.css"/>
     <link rel="stylesheet" href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.css">
 
@@ -169,14 +169,14 @@
 </div>
 
 <!-- 背景特效 -->
-<script src="../../static/js/particles.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
 <script src="../../static/js/app.js"></script>
 <!-- 分步注册特效 -->
-<script type="text/javascript" src="../../static/js/jquery-1.9.1.min.js"></script>
-<script type="text/javascript" src="../../static/js/jquery.easing.min.js"></script>
-<script type="text/javascript" src="../../static/js/script.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+<script src="../../static/js/jquery.easing.min.js"></script>
+<script src="../../static/js/script.js"></script>
 
-<script type="text/javascript" src="../../static/layui/layui.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/layui@2.7/dist/layui.js"></script>
 
 <!-- 自定义脚本 layui -->
 <script>
@@ -185,9 +185,9 @@
     });
 
     layui.use(['laydate', 'layer', 'form'], function () {
-        var laydate = layui.laydate;
-        var layer = layui.layer;
-        var form = layui.form;
+        const laydate = layui.laydate;
+        const layer = layui.layer;
+        const form = layui.form;
         laydate.render({
             elem: '#birthDate' //指定元素
         });
@@ -222,19 +222,19 @@
 
 <!-- 常用变量与页面启动加载 -->
 <script>
-    var userNum = $("input[name='userNum']");
-    var userName = $("input[name='userName']");
-    var userPwd = $("input[name='userPwd']");
-    var rePassword = $("input[name='rePassword']");
-    var email = $("input[name='email']");
-    var photoNum = $("input[name='photoNum']");
-    var birthDate = $("input[name='birthDate']");
-    var title = $("select[name='title']");
-    var sex = $("input[name='sex']");
-    var grade = $("select[name='grade']");
-    var academy = $("select[name='academy']");
-    var major = $("input[name='major']");
-    var roleId = $("select[name='roleId']");
+    const userNum = $("input[name='userNum']");
+    const userName = $("input[name='userName']");
+    const userPwd = $("input[name='userPwd']");
+    const rePassword = $("input[name='rePassword']");
+    const email = $("input[name='email']");
+    const photoNum = $("input[name='photoNum']");
+    const birthDate = $("input[name='birthDate']");
+    const title = $("select[name='title']");
+    const sex = $("input[name='sex']");
+    const grade = $("select[name='grade']");
+    const academy = $("select[name='academy']");
+    const major = $("input[name='major']");
+    const roleId = $("select[name='roleId']");
 
     $(function () {
         $(".previous").css("background-color", "#27AE60");
@@ -253,7 +253,7 @@
     // 验证账号是否已注册
     userNum.focus(function () {
         userNum.mouseleave(function () {
-            var param = {
+            const param = {
                 userNum: userNum.val()
             };
             if (userNum.val() == "") {
@@ -348,7 +348,7 @@
 
 <script>
     function submitUser() {
-        var param = {
+        const param = {
             userNum: userNum.val(),
             userName: userName.val(),
             userPwd: userPwd.val(),
@@ -362,7 +362,7 @@
             academy: academy.val(),
             major: major.val(),
             roleId: roleId.val()
-        };
+        }; 
 
         console.log(param);
         $.post("/register.do", param, function (result) {

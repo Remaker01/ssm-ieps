@@ -8,7 +8,7 @@
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
 
-    <link rel="stylesheet" type="text/css" href="../../static/layui/css/layui.css"/>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/layui@2.7/dist/css/layui.css"/>
 
 </head>
 
@@ -94,8 +94,8 @@
 
 
 
-<script src="../../static/layui/layui.js"></script>
-<script src="../../static/js/jquery-1.9.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/layui@2.7/dist/layui.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
 <script src="../../static/js/getParam.js"></script>
 
 <!--<script src="../../static/ckeditor/ckeditor.js"></script>-->
@@ -108,13 +108,13 @@
 
 <!-- 用户名和角色解密  -->
 <script>
-    var userNumAdmin = decrypt(getUrlParam("userNum"), "abcd1234abcd1234");
-    var roleIdAdmin = decrypt(getUrlParam("roleId"), "abcd1234abcd1234");
+    const userNumAdmin = decrypt(getUrlParam("userNum"), "abcd1234abcd1234");
+    const roleIdAdmin = decrypt(getUrlParam("roleId"), "abcd1234abcd1234");
 
     // 获取传参的值
     function getUrlParam(name) {
-        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i"); //构造一个含有目标参数的正则表达式对象
-        var r = window.parent.location.search.substr(1).match(reg);  //匹配目标参数
+        const reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i"); //构造一个含有目标参数的正则表达式对象
+        const r = window.parent.location.search.substr(1).match(reg);  //匹配目标参数
         if (r != null) return encodeURI(r[2]);
         return null; //返回参数值
     }
@@ -157,12 +157,12 @@
     });
 
     layui.use(['form', 'layer', 'table', 'laytpl', 'laydate'], function () {
-        var form = layui.form;
-        var layer = layui.layer;
-        var table = layui.table;
-        var laytpl = layui.laytpl;
+        const form = layui.form;
+        const layer = layui.layer;
+        const table = layui.table;
+        const laytpl = layui.laytpl;
 
-        var tableIns = table.render({
+        const tableIns = table.render({
             elem: '#test',
             url: '/getAllInformList.do',
             title: '通知公告表',
@@ -220,8 +220,8 @@
         // 头工具栏事件
         table.on('toolbar(test)', function (obj) {
             console.log(obj);
-            var checkStatus = table.checkStatus(obj.config.id);
-            var data = checkStatus.data;
+const checkStatus = table.checkStatus(obj.config.id);
+        const data = checkStatus.data;
 
             switch (obj.event) {
                 case 'addInform':
@@ -240,7 +240,7 @@
                     });
                     break;
                 case 'batchRemove':
-                    var ids = new Array();
+                    const ids = [];
 
                     if (data.length == 0) {
                         return layer.msg("亲，你还没有选择任何的项目呢!");
@@ -275,7 +275,7 @@
 
         // 监听行双击事件（双击事件为：rowDouble，单击事件row）
         table.on('rowDouble(test)', function (obj) {
-            var data = obj.data;
+            const data = obj.data;
 
             layer.open({
                 type: 1,
@@ -303,7 +303,7 @@
         // 监听行工具事件
         table.on('tool(test)', function (obj) {
             console.log(obj);
-            var data = obj.data;
+            const data = obj.data;
 
             if (obj.event === 'detail') {
                 layer.open({
@@ -327,7 +327,7 @@
             }
             else if (obj.event === 'del') {
                 layer.confirm('真的删除当前' + data.id + '么？', function (index) {
-                    var param = {
+                    const param = {
                         id: data.id,
                         userNum: userNumAdmin,
                         roleId: roleIdAdmin
@@ -395,8 +395,8 @@
             }
         });
 
-        var searchKeyWord = $("input[name='searchKeyWord']");
-        var searchBtn = $("input[name='searchBtn']");
+const searchKeyWord = $("input[name='searchKeyWord']");
+    const searchBtn = $("input[name='searchBtn']");
 
         searchKeyWord.bind("keydown", function (event) {
             if (event.keyCode == 13 || event.keyCode == 9) {

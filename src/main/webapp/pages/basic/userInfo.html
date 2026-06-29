@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
 <head>
     <title>个人资料</title>
@@ -7,7 +8,7 @@
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0">
 
-    <link rel="stylesheet" type="text/css" href="../../static/layui/css/layui.css"/>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/layui@2.7/dist/css/layui.css"/>
 
 </head>
 
@@ -78,8 +79,8 @@
     </div>
 </form>
 
-<script src="../../static/layui/layui.js"></script>
-<script src="../../static/js/jquery-1.9.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/layui@2.7/dist/layui.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
 <script src="../../static/js/getParam.js"></script>
 
 <!-- 加密和解密 -->
@@ -92,29 +93,29 @@
     });
 
     layui.use(['form', 'layer'], function () {
-        var form = layui.form,
-            layer = layui.layer;
+        const form = layui.form;
+        const layer = layui.layer;
     });
 </script>
 
 <script>
-    var userNum = $("input[name='userNum']");
-    var userName = $("input[name='userName']");
-    var academy = $("input[name='academy']");
-    var grade = $("input[name='grade']");
-    var major = $("input[name='major']");
-    var birthDate = $("input[name='birthDate']");
-    var photoNum = $("input[name='photoNum']");
-    var email = $("input[name='email']");
+    const userNum = $("input[name='userNum']");
+    const userName = $("input[name='userName']");
+    const academy = $("input[name='academy']");
+    const grade = $("input[name='grade']");
+    const major = $("input[name='major']");
+    const birthDate = $("input[name='birthDate']");
+    const photoNum = $("input[name='photoNum']");
+    const email = $("input[name='email']");
 
-    var reUpdate = $("input[name='reUpdate']");
+    const reUpdate = $("input[name='reUpdate']");
 </script>
 
 <script>
     $(function () {
         $('input:lt(5)').css("background-color", "red");
 
-        var param = {
+        const param = {
             userNum: decrypt(getUrlParam("userNum"), "abcd1234abcd1234")
         };
         $.get('/getUserInfo.do', param, function (result) {
@@ -122,7 +123,7 @@
                 return layer.msg(result.msg, {icon: 2});
             }
 
-            var userInfo = result.data;
+            const userInfo = result.data;
 
             userNum.val(userInfo.userNum);
             userName.val(userInfo.userName);
@@ -146,14 +147,14 @@
 <script>
     // 获取传参的值
     function getUrlParam(name) {
-        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i"); //构造一个含有目标参数的正则表达式对象
-        var r = window.parent.location.search.substr(1).match(reg);  //匹配目标参数
+        const reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i"); //构造一个含有目标参数的正则表达式对象
+        const r = window.parent.location.search.substr(1).match(reg);  //匹配目标参数
         if (r != null) return encodeURI(r[2]);
         return null; //返回参数值
     }
 
     function modifyUserInfo() {
-        var userInfo = {
+        const userInfo = {
             userNum: userNum.val(),
             birthDate: birthDate.val(),
             photoNum: photoNum.val(),
@@ -171,10 +172,10 @@
 
     // 时间格式化
     function fmtDate(obj) {
-        var date = new Date(obj);
-        var y = 1900 + date.getYear();
-        var m = "0" + (date.getMonth() + 1);
-        var d = "0" + date.getDate();
+        const date = new Date(obj);
+        const y = 1900 + date.getYear();
+        const m = "0" + (date.getMonth() + 1);
+        const d = "0" + date.getDate();
         return y + "-" + m.substring(m.length - 2, m.length) + "-" + d.substring(d.length - 2, d.length);
     }
 </script>

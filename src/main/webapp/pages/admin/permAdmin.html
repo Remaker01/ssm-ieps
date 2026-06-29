@@ -8,7 +8,7 @@
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
 
-    <link rel="stylesheet" type="text/css" href="../../static/layui/css/layui.css"/>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/layui@2.7/dist/css/layui.css"/>
 
     <style>
         .model-form {
@@ -183,8 +183,8 @@
     </form>
 </div>
 
-<script src="../../static/layui/layui.js"></script>
-<script src="../../static/js/jquery-1.9.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/layui@2.7/dist/layui.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
 <script src="../../static/js/getParam.js"></script>
 
 <!-- 加密和解密 -->
@@ -193,13 +193,13 @@
 
 <!-- 用户名和角色解密  -->
 <script>
-    var userNumAdmin = decrypt(getUrlParam("userNum"), "abcd1234abcd1234");
-    var roleIdAdmin = decrypt(getUrlParam("roleId"), "abcd1234abcd1234");
+    const userNumAdmin = decrypt(getUrlParam("userNum"), "abcd1234abcd1234");
+    const roleIdAdmin = decrypt(getUrlParam("roleId"), "abcd1234abcd1234");
 
     // 获取传参的值
     function getUrlParam(name) {
-        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i"); //构造一个含有目标参数的正则表达式对象
-        var r = window.parent.location.search.substr(1).match(reg);  //匹配目标参数
+        const reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i"); //构造一个含有目标参数的正则表达式对象
+        const r = window.parent.location.search.substr(1).match(reg);  //匹配目标参数
         if (r != null) return encodeURI(r[2]);
         return null; //返回参数值
     }
@@ -253,15 +253,15 @@
     }).extend({
         treetable: 'treetable-lay/treetable'
     }).use(['form', 'layer', 'table', 'treetable'], function () {
-        var form = layui.form;
-        var layer = layui.layer;
-        var table = layui.table;
-        var treetable = layui.treetable;
+        const form = layui.form;
+        const layer = layui.layer;
+        const table = layui.table;
+        const treetable = layui.treetable;
 
         form.render();
 
         // 渲染表格
-        var renderTable = function () {
+        const renderTable = function () {
             layer.load(2);
             treetable.render({
                 treeColIndex: 1,           // 树形图标显示在第几列
@@ -323,7 +323,7 @@
         // 头工具栏事件
         table.on('toolbar(test)', function (obj) {
             console.log(obj);
-            var checkStatus = table.checkStatus(obj.config.id);
+            const checkStatus = table.checkStatus(obj.config.id);
             switch (obj.event) {
                 case 'addPerm':
                     layer.open({
@@ -349,7 +349,7 @@
                             });
                         },
                         yes: function (index) {
-                            var param = {
+                            const param = {
                                 permId: $("#perm-add input[name='permId']").val(),
                                 permName: $("#perm-add input[name='permName']").val(),
                                 permType: $("#perm-add input[name='permType']:checked").val(),
@@ -381,13 +381,13 @@
                     treetable.foldAll('#test');
                     break;
                 case 'batchRemove':
-                    var data = checkStatus.data;
+                    const data = checkStatus.data;
 
                     if (data.length == 0) {
                         return layer.msg("亲，你还没有选择任何的项目呢!");
                     }
 
-                    var ids = new Array();
+                    const ids = [];
 
                     layer.confirm('真的删除选中角色编号' + data.roleId + '吗？', function (index) {
                         $.each(data, function (index, value) {
@@ -421,7 +421,7 @@
 
         // 监听行双击事件（双击事件为：rowDouble，单击事件row）
         table.on('rowDouble(test)', function (obj) {
-            var data = obj.data;
+            const data = obj.data;
 
             initParam(data);
 
@@ -432,14 +432,14 @@
         // 监听行工具事件
         table.on('tool(test)', function (obj) {
             console.log(obj);
-            var data = obj.data;
+            const data = obj.data;
 
             if (obj.event === 'detail') {
                 initParam(data);
             }
             else if (obj.event === 'del') {
                 layer.confirm('警告：当前操作可能对系统造成严重错误，确定删除' +  data.permName  + '么？', function (index) {
-                    var param = {
+                    const param = {
                         permId: data.permId,
                         permType: data.permType,
                         userNum: userNumAdmin,
@@ -480,7 +480,7 @@
                             $("#perm-edit input[name='parentId']").val("根目录");
                         }
                         else {
-                            var param = {
+                            const param = {
                                 permId: data.parentId,
                                 userNum: userNumAdmin,
                                 roleId: roleIdAdmin
@@ -512,8 +512,8 @@
                         renderForm();
                     },
                     yes: function (index) {
-                        var parentId = -1;
-                        var param = {
+                        const parentId = -1;
+                        const param = {
                             permId: data.permId,
                             permName: $("#perm-edit input[name='permName']").val(),
                             permType: $("#perm-edit input[name='permType']:checked").val(),
@@ -573,7 +573,7 @@
                     $("#perm-detail input[name='parentId']").val("根目录");
                 }
                 else {
-                    var param = {
+                    const param = {
                         permId: data.parentId,
                         userNum: userNumAdmin,
                         roleId: roleIdAdmin

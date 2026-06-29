@@ -12,7 +12,7 @@
     <meta name="format-detection" content="telephone=no">
 
     <link rel="icon" href="../favicon.ico">
-    <link rel="stylesheet" href="../../static/layui/css/layui.css" media="all"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/layui@2.7/dist/css/layui.css" media="all"/>
     <link rel="stylesheet" href="//at.alicdn.com/t/font_tnyc012u2rlwstt9.css" media="all"/>
     <link rel="stylesheet" href="../../static/css/main.css" media="all"/>
 
@@ -89,7 +89,7 @@
                         <dd><a href="javascript:void(0)" data-url="/pages/basic/userInfo.html"><i class="layui-icon"
                                                                                                   data-icon="&#xe62a;">&#xe62a;</i><cite>个人资料</cite></a>
                         </dd>
-                        <dd><a href="javascript:void(0)" data-url="/pages/basic/changePwd.html"><i class="layui-icon"
+                        <dd><a href="javascript:void(0)" data-url="/pages/basic/modifyPwd.html"><i class="layui-icon"
                                                                                                    data-icon="&#xe642;">&#xe642;</i><cite>修改密码</cite></a>
                         </dd>
                         <!--<dd><a href="javascript:void(0)" class="changeSkin"><i class="iconfont icon-huanfu"></i><cite>更换皮肤</cite></a>-->
@@ -149,7 +149,7 @@
 <!--<div class="site-mobile-shade"></div>-->
 
 
-<script src="../../static/js/jquery-1.9.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
 <!-- 获取url参数 -->
 <script src="../../static/js/getParam.js"></script>
 
@@ -165,14 +165,14 @@
     console.log($.Request("userNum"));
     console.log($.Request("roleId"));
 
-    var userNumAdmin = decrypt($.Request("userNum"), "abcd1234abcd1234");
-    var roleIdAdmin = decrypt($.Request("roleId"), "abcd1234abcd1234");
-    var param = {
+    const userNumAdmin = decrypt($.Request("userNum"), "abcd1234abcd1234");
+    const roleIdAdmin = decrypt($.Request("roleId"), "abcd1234abcd1234");
+    const param = {
         userNum: userNumAdmin,
         roleId: roleIdAdmin
     };
 
-    var userImg, userName, dataJson;
+    let userImg, userName, dataJson;
 
     function getMenu() {
         $.ajaxSettings.async = false;
@@ -220,17 +220,17 @@
 //    });
 </script>
 
-<script type="text/javascript" src="../../static/layui/layui.js"></script>
-<script type="text/javascript" src="../../static/js/module/menu/getMenu.js"></script>
-<script type="text/javascript" src="../../static/js/module/menu/index.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/layui@2.7/dist/layui.js"></script>
+<script src="../../static/js/module/menu/getMenu.js"></script>
+<script src="../../static/js/module/menu/index.js"></script>
 
 <!-- 更换头像 -->
 <script>
     layui.use('upload', function () {
-        var upload = layui.upload;
+        const upload = layui.upload;
 
         //执行实例
-        var changeUserImg = upload.render({
+        const changeUserImg = upload.render({
             elem: '.custom-img' //绑定元素
             , url: '/changeUserImg.do' //上传接口
             , data: param
@@ -247,7 +247,7 @@
             }
             , error: function () {
                 //演示失败状态，并实现重传
-                var demoText = $('#demoText');
+                const demoText = $('#demoText');
                 demoText.html('<span style="color: #FF5722;">上传失败</span> <a class="layui-btn layui-btn-xs demo-reload">重试</a>');
                 demoText.find('.demo-reload').on('click', function () {
 //                    uploadInst.upload();
@@ -261,9 +261,9 @@
 <script>
 
     layui.use(['bodyTab', 'form', 'element', 'layer'], function () {
-        var form = layui.form,
-            layer = layui.layer,
-            element = layui.element;
+        const form = layui.form;
+        const layer = layui.layer;
+        const element = layui.element;
 
         //锁屏
         function lockPage() {
@@ -300,7 +300,7 @@
                 layer.msg("请输入解锁密码！");
                 $(this).siblings(".admin-header-lock-input").focus();
             } else {
-                var userPwd = '123456';
+                let userPwd = '123456';
 
                 $.ajaxSettings.async = false;
                 $.get("/getUserPwdWithUserNum.do", {userNum: userNumAdmin}, function (result) {

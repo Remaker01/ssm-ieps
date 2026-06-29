@@ -6,7 +6,7 @@
 	<title>大学生创新创业项目管理登录页</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
 	<link rel="stylesheet" href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.css">
-	<link rel="stylesheet" type="text/css" href="../../static/layui/css/layui.css"/>
+	<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/layui@2.7/dist/css/layui.css"/>
 	<link rel="stylesheet" media="screen" href="../../static/css/background.css">
 	<link rel="stylesheet" type="text/css" href="../../static/css/reset.css" />
 </head>
@@ -49,10 +49,10 @@
 	</div>
 
 	<!-- scripts -->
-	<script src="../../static/js/particles.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
 	<script src="../../static/js/app.js"></script>
-	<script src="../../static/js/jquery-1.9.1.min.js"></script>
-	<script src="../../static/layui/layui.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/layui@2.7/dist/layui.js"></script>
 
 	<!-- 自定义脚本 -->
 	<script>
@@ -61,7 +61,7 @@
         });
 
 		layui.use('layer', function(){
-		  var layer = layui.layer;
+		  const layer = layui.layer;
 		});  
 	</script>
 
@@ -86,20 +86,20 @@
 			//登录操作
 		    $('.login-button').click(function(){
 		    	
-		        var userNum = $('.userNum').val();
-		        var userPwd = $('.userPwd').val();
-		        console.log(userNum + "   " + userPwd);
-		        
-		        if(userNum == '') {
-		            layer.msg('用户名不能为空！');
-		            return false;
-		        }
-		        if(userPwd == '') {
-		        	layer.msg("密码不能为空！");
-		            return false;
-		        }
-		        var data = {userNum: userNum, userPwd: userPwd};
-                var load = layer.load();
+const userNum = $('.userNum').val();
+	        const userPwd = $('.userPwd').val();
+	        console.log(userNum + "   " + userPwd);
+	        
+	        if(userNum == '') {
+	            layer.msg('用户名不能为空！');
+	            return false;
+	        }
+	        if(userPwd == '') {
+	        	layer.msg("密码不能为空！");
+	            return false;
+	        }
+	        const data = {userNum: userNum, userPwd: userPwd};
+                const load = layer.load();
 
 				$.ajax({
                     url: "/login.do",
@@ -154,7 +154,7 @@
 
         function removeClass(ele, cls) {
             if (hasClass(ele, cls)) {
-                var newClass = ' ' + ele.className.replace(/[\t\r\n]/g, '') + ' ';
+                let newClass = ' ' + ele.className.replace(/[\t\r\n]/g, '') + ' ';
                 while (newClass.indexOf(' ' + cls + ' ') >= 0) {
                     newClass = newClass.replace(' ' + cls + ' ', ' ');
                 }

@@ -7,8 +7,8 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
 
-    <link rel="stylesheet" type="text/css" href="../../static/layui/css/layui.css"/>
-    <link rel="stylesheet" type="text/css" href="../../static/zTree_v3/css/zTreeStyle/zTreeStyle.css"/>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/layui@2.7/dist/css/layui.css"/>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/zTree_v3@3.5.45/css/zTreeStyle/zTreeStyle.css"/>
 </head>
 
 <body style="margin: 20px 0 0 20px;">
@@ -261,11 +261,11 @@
     {{#  } }}
 </script>
 
-<script src="../../static/layui/layui.js"></script>
-<script src="../../static/js/jquery-1.9.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/layui@2.7/dist/layui.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
 <script src="../../static/js/getParam.js"></script>
-<script src="../../static/zTree_v3/js/jquery.ztree.core.min.js"></script>
-<script src="../../static/zTree_v3/js/jquery.ztree.excheck.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/zTree_v3@3.5.45/js/jquery.ztree.core.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/zTree_v3@3.5.45/js/jquery.ztree.excheck.min.js"></script>
 
 <!-- 数据表格 -->
 <script>
@@ -278,14 +278,14 @@
     }).extend({
         treetable: 'treetable-lay/treetable'
     }).use(['form', 'layer', 'table', 'treetable'], function () {
-        var form = layui.form;
-        var layer = layui.layer;
-        var table = layui.table;
-        var treetable = layui.treetable;
+        const form = layui.form;
+        const layer = layui.layer;
+        const table = layui.table;
+        const treetable = layui.treetable;
 
 
         // 表格初始化重载
-        var tableIns = table.render({
+        let tableIns = table.render({
             elem: '#roleAdmin',
             url: '/getRoleListByAdmin.do',
             title: '角色管理表',
@@ -335,7 +335,7 @@
 
         // 头工具栏事件
         table.on('toolbar(roleAdmin)', function (obj) {
-            var checkStatus = table.checkStatus(obj.config.id);
+            const checkStatus = table.checkStatus(obj.config.id);
             switch (obj.event) {
                 case 'addRole':
                     layer.open({
@@ -356,8 +356,8 @@
                     });
                     break;
                 case 'batchRemove':
-                    var data = checkStatus.data;
-                    var roleIds = new Array();
+                    const data = checkStatus.data;
+                    const roleIds = [];
 
                     layer.confirm('真的删除选中行吗？', function (index) {
                         $.each(data, function (index, value) {
@@ -388,7 +388,7 @@
 
         // 监听每一行的工具事件
         table.on('tool(roleAdmin)', function (obj) {
-            var data = obj.data;
+            const data = obj.data;
             if (obj.event === 'grant') {
                 layer.open({
                     type: 1,
@@ -401,7 +401,7 @@
                     content: $('#roleAdmin-grant'),
                     success: function () {
                         ///////////////////////////////
-                        var setting = {
+                        const setting = {
                             view: {
                                 showIcon: false,
                                 showTitle: true
@@ -435,12 +435,12 @@
                         });
                     },
                     yes: function (index) {
-                        var treeObj = $.fn.zTree.getZTreeObj("treeDemo");
-                        var nodes = treeObj.getCheckedNodes(true);
+                        const treeObj = $.fn.zTree.getZTreeObj("treeDemo");
+                        const nodes = treeObj.getCheckedNodes(true);
 
                         console.log(nodes);
 
-                        var permIds = new Array();
+                        const permIds = [];
 
                         $.each(nodes, function (index, perm) {
                             permIds[index] = perm.permId;
@@ -453,7 +453,7 @@
             }
             else if (obj.event === 'del') {
                 layer.confirm('真的删除当前角色编号' + data.roleId + '么？', function (index) {
-                    var param = {
+                    const param = {
                         roleId: data.roleId,
                         userNum: getUrlParam("roleId"),
                         roleAdminId: getUrlParam("roleId")
@@ -474,7 +474,7 @@
         // 授权 头工具栏事件
         table.on('toolbar(roleAdminGrant)', function (obj) {
             console.log(obj);
-            var checkStatus = table.checkStatus(obj.config.id);
+            const checkStatus = table.checkStatus(obj.config.id);
 
             switch (obj.event) {
                 case 'expandPerm':
@@ -487,8 +487,8 @@
         });
 
         //  搜索功能
-        var searchKeyWord = $("input[name='searchKeyWord']");
-        var searchBtn = $("input[name='searchBtn']");
+        const searchKeyWord = $("input[name='searchKeyWord']");
+        const searchBtn = $("input[name='searchBtn']");
 
         searchKeyWord.bind("keydown", function (event) {
             if (event.keyCode == 13 || event.keyCode == 9) {
@@ -564,11 +564,11 @@
     };
 
     function onCheck(event, treeId, treeNode){
-        var treeObj = $.fn.zTree.getZTreeObj("treeDemo");
-        var nodes = treeObj.getCheckedNodes(true);
-        var v = "";
+        const treeObj = $.fn.zTree.getZTreeObj("treeDemo");
+        const nodes = treeObj.getCheckedNodes(true);
+        let v = "";
         console.log(nodes);
-        for(var i = 0; i < nodes.length; i++){
+        for(let i = 0; i < nodes.length; i++){
             v += nodes[i].permName + ",";
             console.log("节点id:" + nodes[i].permId + "节点名称" + v); //获取选中节点的值
         }
@@ -580,8 +580,8 @@
 <script>
     // 获取传参的值
     function getUrlParam(name) {
-        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i"); //构造一个含有目标参数的正则表达式对象
-        var r = window.parent.location.search.substr(1).match(reg);  //匹配目标参数
+        const reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i"); //构造一个含有目标参数的正则表达式对象
+        const r = window.parent.location.search.substr(1).match(reg);  //匹配目标参数
         if (r != null) return encodeURI(r[2]);
         return null; //返回参数值
     }

@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <title>通知公告详情</title>
-    <link rel="stylesheet" href="../../static/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
 
     <style>
         .gd-top {
@@ -88,15 +88,15 @@
     </div>
 </div>
 
-<script src="../../static/js/jquery-1.9.1.min.js"></script>
-<script src="../../static/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="../../static/js/getParam.js"></script>
 
 <script>
     $(function () {
         $('input[type="text"]').attr("autocomplete", "off");
         console.log($.Request("id"));
-        var param = {
+        const param = {
             id: $.Request("id")
         };
         $.get("/getInformDetailById.do", param, function (result) {
@@ -104,18 +104,18 @@
                 return;
             }
 
-            var informDetail = $(".gd-main .gd-content");
+            const informDetail = $(".gd-main .gd-content");
 
             result = result.data;
-            var contentTitle = $("<div class='gd-content-title'></div>");
-            var $contentTitleSpan = $("<span style='font-size: 22px;'></span>");
-            var contentTime = $("<div class='gd-content-time'></div>");
-            var $contentTimeSpan = $("<span style='font-size: 14px; '></span>")
-            var contentMain = $("<div></div>");
-            var contentMainDivF = $("<div style='font-size: 16px;'></div>");
-            var contentMainBottom = $("<div style=''></div>");
-            var contentMainBottomDivF = $("<div class='gd-inform-footer'></div>");
-            var contentMainBottomDivS = $("<div class='gd-inform-footer'></div>");
+            const contentTitle = $("<div class='gd-content-title'></div>");
+            const $contentTitleSpan = $("<span style='font-size: 22px;'></span>");
+            const contentTime = $("<div class='gd-content-time'></div>");
+            const $contentTimeSpan = $("<span style='font-size: 14px; '></span>")
+            const contentMain = $("<div></div>");
+            const contentMainDivF = $("<div style='font-size: 16px;'></div>");
+            const contentMainBottom = $("<div style=''></div>");
+            const contentMainBottomDivF = $("<div class='gd-inform-footer'></div>");
+            const contentMainBottomDivS = $("<div class='gd-inform-footer'></div>");
 
             contentTitle.append($contentTitleSpan.text(result.head));
             contentTime.append($contentTimeSpan.text(result.pubdate));
