@@ -801,14 +801,14 @@
 <!-- 项目级别模板脚本-->
 <script id="itemLevelTpl" type="text/html">
     <select name="itemLevel" id="{{ d.itemNum }}" lay-filter="itemLevel">
-        {{# return renderOptions(ITEM_LEVEL_MAP, d.itemLevel); }}
+        {{= renderOptions(ITEM_LEVEL_MAP, d.itemLevel) }}
     </select>
 </script>
 
 <!-- 项目类型模板脚本-->
 <script id="itemTypeTpl" type="text/html">
     <select name="itemType" id="{{ d.itemNum }}" lay-filter="itemType">
-        {{# return renderOptions(ITEM_TYPE_MAP, d.itemType); }}
+        {{= renderOptions(ITEM_TYPE_MAP, d.itemType) }}
     </select>
 </script>
 
@@ -816,7 +816,7 @@
 <!-- 项目状态：1：申请中；2：立项评审；3：已立项；4：立项失败；5：中期检查; 6: 待结题；7：结题评审；8：结题成功；9：结题失败-->
 <script id="itemStatusTpl" type="text/html">
     <select name="itemStatus" id="{{ d.itemNum }}" lay-filter="itemStatus">
-        {{# return renderOptions(ITEM_STATUS_MAP, d.itemStatus); }}
+        {{= renderOptions(ITEM_STATUS_MAP, d.itemStatus) }}
     </select>
 </script>
 
