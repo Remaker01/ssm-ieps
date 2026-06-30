@@ -1,0 +1,19 @@
+# IEPS deployment nginx.conf for Windows Nginx.
+# Copy this file to `conf/nginx.conf`, and copy `ieps.partial-static.conf`
+# to the same directory.
+
+worker_processes  1;
+
+events {
+    worker_connections  1024;
+}
+
+http {
+    include       mime.types;
+    default_type  application/octet-stream;
+
+    sendfile        on;
+    keepalive_timeout  65;
+
+    include ieps.partial-static.conf;
+}
