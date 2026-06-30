@@ -1,7 +1,7 @@
 package com.ieps.util;
 
-
-import com.alibaba.fastjson.JSONObject;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -21,6 +21,8 @@ import java.nio.charset.Charset;
  * Created by ljw
  */
 public class PreviewFileUtil {
+
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     
     /**
      * 向指定 URL 上传文件POST方法的请求
@@ -65,26 +67,35 @@ public class PreviewFileUtil {
         //文件上传转换,获取返回数据
         String convertByFile = SubmitPost("http://dcs.yozosoft.com:80/upload", "G:/eclipse开发教程.doc", "1");
         // String convertByFile = SubmitPost("http://dcs.yozosoft.com:80/upload", "C:/Users/ljw/Desktop/PDF.js", "1");
-        JSONObject obj = JSONObject.parseObject(convertByFile);
-        if ("0".equals(obj.getString("result"))) {// 转换成功
-            String urlData = obj.getString("data");
-            urlData = urlData.replace("[\"", "");//去掉[
-            urlData = urlData.replace("\"]", "");//去掉]
-            
-            //最后urlData是文件的浏览地址
-            System.out.println(urlData);//打印网络文件预览地址
+        try {
+            JsonNode obj = OBJECT_MAPPER.readTree(convertByFile);
+            if ("0".equals(obj.path("result").asText())) {// 转换成功
+                String urlData = extractPreviewUrl(obj);
+                
+                //最后urlData是文件的浏览地址
+                System.out.println(urlData);//打印网络文件预览地址
     
-            // mining of.docx
-            // http://dcs.yozosoft.com:8000/2019/05/27/MTkwNTI3OTMxMDIxMzUw.html
+                // mining of.docx
+                // http://dcs.yozosoft.com:8000/2019/05/27/MTkwNTI3OTMxMDIxMzUw.html
     
     
-            // PDF.js
-            // http://dcs.yozosoft.com:8000/2019/05/27/MTkwNTI3OTczNzEwMDA.html
-            
+                // PDF.js
+                // http://dcs.yozosoft.com:8000/2019/05/27/MTkwNTI3OTczNzEwMDA.html
+                
+            } else {// 转换失败
+                System.out.println("转换失败");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        else {// 转换失败
-            System.out.println("转换失败");
+    }
+
+    public static String extractPreviewUrl(JsonNode previewResponse) {
+        JsonNode dataNode = previewResponse.path("data");
+        if (dataNode.isArray() && dataNode.size() > 0) {
+            return dataNode.get(0).asText();
         }
+        return dataNode.asText();
     }
     
 }

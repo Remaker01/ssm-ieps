@@ -10,45 +10,22 @@ spring:
   application:
     name: ieps
 
-  # 数据源配置 (Druid)
+  # 数据源配置 (HikariCP)
   datasource:
-    type: com.alibaba.druid.pool.DruidDataSource
+    type: com.zaxxer.hikari.HikariDataSource
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/ieps?characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
     username: root
     password: 020701cx
-    druid:
-      # 初始化大小
-      initial-size: 5
-      # 最小连接数
-      min-idle: 5
-      # 最大连接数
-      max-active: 20
-      # 获取连接等待超时时间(毫秒)
-      max-wait: 60000
-      # 检测连接是否有效的 SQL
-      validation-query: SELECT 1
-      # 申请连接时检测
-      test-on-borrow: false
-      # 归还连接时检测
-      test-on-return: false
-      # 建议配置为 true，不影响性能，并且保证安全性
-      test-while-idle: true
-      # 配置间隔多久才进行一次检测(毫秒)
-      time-between-eviction-runs-millis: 60000
-      # 配置一个连接在池中最小生存的时间(毫秒)
-      min-evictable-idle-time-millis: 300000
-      # StatViewServlet 监控配置
-      stat-view-servlet:
-        enabled: true
-        url-pattern: /druid/*
-        login-username: admin
-        login-password: admin
-      # WebStatFilter 配置
-      web-stat-filter:
-        enabled: true
-        url-pattern: /*
-        exclusions: "*.js,*.gif,*.jpg,*.png,*.css,*.ico,/druid/*"
+    hikari:
+      minimum-idle: 5
+      maximum-pool-size: 20
+      connection-timeout: 60000
+      idle-timeout: 300000
+      max-lifetime: 1800000
+      validation-timeout: 5000
+      connection-test-query: SELECT 1
+      pool-name: IepsHikariCP
 
   # 文件上传配置
   servlet:
@@ -107,4 +84,4 @@ logging:
   level:
     com.ieps: DEBUG
     org.springframework: INFO
-    com.alibaba.druid: INFO
+    com.zaxxer.hikari: INFO

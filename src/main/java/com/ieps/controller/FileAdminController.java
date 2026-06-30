@@ -1,6 +1,7 @@
 package com.ieps.controller;
 
-import com.alibaba.fastjson.JSONObject;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.ieps.common.ServerResponse;
 import com.ieps.dto.CkeditorUploadFileDto;
@@ -26,6 +27,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import static com.ieps.util.PreviewFileUtil.SubmitPost;
+import static com.ieps.util.PreviewFileUtil.extractPreviewUrl;
 
 /**
  * Created by ljw
@@ -35,6 +37,9 @@ public class FileAdminController {
     
     @Autowired
     private FileAdminService fileAdminService;
+
+    @Autowired
+    private ObjectMapper objectMapper;
     
     /**
      * 通过userNum获取全部的文件列表信息
@@ -252,29 +257,31 @@ public class FileAdminController {
         //文件上传转换,获取返回数据
         String convertByFile = SubmitPost("http://dcs.yozosoft.com:80/upload", path, "1");
         // String convertByFile = SubmitPost("http://dcs.yozosoft.com:80/upload", "C:/Users/ljw/Desktop/PDF.js", "1");
-        JSONObject obj = JSONObject.parseObject(convertByFile);
-        if ("0".equals(obj.getString("result"))) {// 转换成功
-            String urlData = obj.getString("data");
-            urlData = urlData.replace("[\"", "");//去掉[
-            urlData = urlData.replace("\"]", "");//去掉]
-    
-    
-            //最后urlData是文件的浏览地址
-            System.out.println(urlData);//打印网络文件预览地址
+        try {
+            JsonNode obj = objectMapper.readTree(convertByFile);
+            if ("0".equals(obj.path("result").asText())) {// 转换成功
+                String urlData = extractPreviewUrl(obj);
+
+                //最后urlData是文件的浏览地址
+                System.out.println(urlData);//打印网络文件预览地址
             
-            return ServerResponse.createBySuccess("预览文件正在打开，请稍等！", urlData);
+                return ServerResponse.createBySuccess("预览文件正在打开，请稍等！", urlData);
             
             
         
-            // mining of.docx
-            // http://dcs.yozosoft.com:8000/2019/05/27/MTkwNTI3OTMxMDIxMzUw.html
+                // mining of.docx
+                // http://dcs.yozosoft.com:8000/2019/05/27/MTkwNTI3OTMxMDIxMzUw.html
         
         
-            // PDF.js
-            // http://dcs.yozosoft.com:8000/2019/05/27/MTkwNTI3OTczNzEwMDA.html
+                // PDF.js
+                // http://dcs.yozosoft.com:8000/2019/05/27/MTkwNTI3OTczNzEwMDA.html
         
+            }
+        } catch (Exception e) {
+            return ServerResponse.createByErrorMessage("预览服务响应解析失败");
         }
-        else {// 转换失败
+
+        {// 转换失败
             System.out.println("转换失败");
             
             return ServerResponse.createByErrorMessage("文档过大，打开失败");

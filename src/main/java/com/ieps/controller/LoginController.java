@@ -1,7 +1,7 @@
 package com.ieps.controller;
 
-import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.serializer.SerializerFeature;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ieps.common.ServerResponse;
 import com.ieps.pojo.RolePerm;
 import com.ieps.pojo.User;
@@ -28,6 +28,9 @@ public class LoginController {
     
     @Autowired
     private RolePermService rolePermService;
+
+    @Autowired
+    private ObjectMapper objectMapper;
     
     /**
      * 根路径默认进入公开首页
@@ -80,9 +83,12 @@ public class LoginController {
             return ServerResponse.createByErrorMessage(perm.getMsg());
         }
         
-        return ServerResponse.createBySuccess(perm.getMsg(),
-                JSONObject.toJSONString(perm.getData().get(0).getPermList(),
-                        SerializerFeature.WriteMapNullValue));
+        try {
+            return ServerResponse.createBySuccess(perm.getMsg(),
+                    objectMapper.writeValueAsString(perm.getData().get(0).getPermList()));
+        } catch (JsonProcessingException e) {
+            return ServerResponse.createByErrorMessage("菜单数据序列化失败");
+        }
     }
     
     /**

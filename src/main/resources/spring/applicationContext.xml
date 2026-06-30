@@ -20,12 +20,18 @@
     <!-- 1.0 加载配置文件 -->
     <context:property-placeholder location="classpath:properties/*.properties"/>
     <!-- 1.1 创建数据源 -->
-    <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource" init-method="init" destroy-method="close">
+    <bean id="dataSource" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close">
         <!--基本属性 url、user、password-->
-        <property name="driverClassName" value="${druid.driverClassName}"/>
-        <property name="username" value="${druid.username}"/>
-        <property name="password" value="${druid.password}"/>
-        <property name="url" value="${druid.url}"/>
+        <property name="driverClassName" value="${datasource.driverClassName}"/>
+        <property name="username" value="${datasource.username}"/>
+        <property name="password" value="${datasource.password}"/>
+        <property name="jdbcUrl" value="${datasource.url}"/>
+        <property name="minimumIdle" value="${datasource.minimumIdle}"/>
+        <property name="maximumPoolSize" value="${datasource.maximumPoolSize}"/>
+        <property name="connectionTimeout" value="${datasource.connectionTimeout}"/>
+        <property name="idleTimeout" value="${datasource.idleTimeout}"/>
+        <property name="maxLifetime" value="${datasource.maxLifetime}"/>
+        <property name="connectionTestQuery" value="${datasource.connectionTestQuery}"/>
     </bean>
 
     <!-- 第二步：配置sqlSessionFactory -->
