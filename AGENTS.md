@@ -13,8 +13,9 @@
 | **后端框架** | Spring Boot 2.7.18 | Java 11, 内嵌 Tomcat, JAR 打包 |
 | **ORM** | MyBatis + mybatis-spring-boot-starter 2.3.0 | XML 映射文件在 `src/main/resources/mappers/` |
 | **分页** | PageHelper (pagehelper-spring-boot-starter 1.4.6) | |
-| **连接池** | Druid (druid-spring-boot-starter 1.2.16) | 监控台 `/druid/index.html` (admin/admin) |
+| **连接池** | HikariCP | Spring Boot 默认连接池 |
 | **数据库** | MySQL 8.0+ | 数据库名 `ieps` |
+| **Redis** | Spring Data Redis + Spring Session Redis | 用于 `HttpSession` 托管与验证码存储 |
 | **前端** | Layui 2.7 + jQuery 3.7.1 + Bootstrap 4.6 | 纯静态 HTML，CDN 引用 |
 
 ---
@@ -92,7 +93,8 @@ ssm-ieps/
 
 ### 5. 安全校验
 
-- 用户信息存储在 `HttpSession` 中，key 为 `"activeUser"`
+- 默认密码: `Ieps@123`
+- 用户信息存储在 `HttpSession` 中，key 为 `"activeUser"`；底层默认由 Redis 托管
 - 控制器通过 `session.getAttribute("activeUser")` 获取当前用户
 - 角色 ID 定义在 `Const.java` 中：
   - `ROLEID_STU = 200001` (学生)
@@ -209,6 +211,8 @@ java -jar target/ieps.jar
 java -jar target/ieps.jar --server.port=8080
 ```
 
+静态资源通过Nginx转发，仅在确有必要时，通过`scripts`中的脚本启停Nginx服务器
+
 ---
 
 ## 数据库
@@ -230,6 +234,13 @@ spring.datasource.url
 spring.datasource.username
 spring.datasource.password
 
+# Redis / Spring Session
+spring.redis.host
+spring.redis.port
+spring.redis.database
+spring.session.store-type
+spring.session.redis.namespace
+
 # 文件上传路径 (上传文件实际存储在服务器)
 # application.yml 中 upload/ 路径映射
 spring.web.resources.static-locations[2]: file:./upload/
@@ -240,6 +251,7 @@ spring.web.resources.static-locations[2]: file:./upload/
 HTML 页面中引用静态资源使用 `../../static/...` 路径格式：
 - `/pages/common/login.html` → `../../static/css/background.css` → `/static/css/background.css`
 - 实际文件位于 `src/main/resources/static/static/css/background.css`
+- 所有静态资源通过Nginx转发，详见`deploy/nginx`。修改前后端代码后，如果需要，同步到当前项目下的`deploy/`目录中
 
 ---
 
