@@ -2,8 +2,6 @@ server:
   address: ${IEPS_SERVER_ADDRESS:127.0.0.1}
   port: 8080
   servlet:
-    session:
-      timeout: 30m
     encoding:
       charset: UTF-8
       enabled: true
@@ -18,11 +16,6 @@ spring:
     port: 6379
     database: 1
     timeout: 3s
-
-  session:
-    store-type: redis
-    redis:
-      namespace: ieps:session
 
   # 数据源配置 (HikariCP)
   datasource:
@@ -84,6 +77,11 @@ ieps:
       cooldown-seconds: 60
       max-failures: 5
       namespace: ieps:verify
+
+  # JWT 配置
+  jwt:
+    secret: Ieps_JWT_Secret_Key_2024_For_Innovation_Project
+    expiration: 1800000
 
 # MyBatis 配置
 mybatis:

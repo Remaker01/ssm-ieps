@@ -38,12 +38,13 @@ public class Const {
     // 统一注册状态
     public final static int UNIFORM_STATUS = 1;
 
-    // Session Key
-    public final static String SESSION_ACTIVE_USER = "activeUser";
-    public final static String SESSION_FORGET_PWD_VERIFIED_USER = "forgetPwdVerifiedUser";
-    public final static String SESSION_FORGET_PWD_VERIFIED_AT = "forgetPwdVerifiedAt";
+    // Request 属性 Key（JWT 认证后当前用户）
+    public final static String REQUEST_CURRENT_USER = "currentUser";
 
-    // 忘记密码验证码校验通过后会话有效期（分钟）
+    // 忘记密码验证码校验通过后的 Redis Key 前缀
+    public final static String REDIS_FORGET_PWD_TOKEN_PREFIX = "ieps:forgetPwd:token:";
+
+    // 忘记密码验证码校验通过后 Token 有效期（分钟）
     public final static long FORGET_PWD_VERIFIED_TIMEOUT_MINUTES = 10L;
     
     // 文件类型 file_kind  0：普通文件；1：常用下载文件；2：项目文件；
