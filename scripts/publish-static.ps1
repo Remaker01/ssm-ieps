@@ -1,10 +1,15 @@
 param(
-    [string]$TargetRoot = "D:\deploy\ieps-static"
+    [string]$TargetRoot
 )
 
 $ErrorActionPreference = "Stop"
 
 $projectRoot = Split-Path -Parent $PSScriptRoot
+$defaultTargetRoot = Join-Path $projectRoot "deploy"
+if (-not $TargetRoot) {
+    $TargetRoot = $defaultTargetRoot
+}
+
 $staticSource = Join-Path $projectRoot "src\main\resources\static\static"
 $faviconSource = Join-Path $projectRoot "src\main\resources\static\favicon.ico"
 $targetStatic = Join-Path $TargetRoot "static"
