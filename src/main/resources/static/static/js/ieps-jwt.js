@@ -115,6 +115,20 @@ function requireAuth() {
     return true;
 }
 
+/**
+ * 登录态检查：如果 Token 有效则跳转到首页
+ * 在登录页/注册页/首页等公开页面调用
+ */
+function redirectIfAuthenticated() {
+    if (!hasToken()) return;
+    // 仅当 token 未过期时才跳转
+    if (isTokenExpiring(1)) return;
+    var payload = parseTokenPayload(getToken());
+    if (payload && payload.userNum && payload.roleId) {
+        window.location.href = '/index';
+    }
+}
+
 // ======================== 全局 AJAX 配置 ========================
 
 /**
