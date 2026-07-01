@@ -55,7 +55,7 @@
                 <li class="layui-nav-item" pc>
                     <a href="javascript:;">
                         <img src="/static/images/default.jpg" class="layui-circle custom-img" width="35" height="35"
-                             onerror="this.src='/static/images/default.jpg'">
+                             onerror="this.onerror=null;this.src='/static/images/default.jpg'">
                         <cite class="userName"></cite>
                     </a>
                     <dl class="layui-nav-child">
@@ -80,7 +80,7 @@
     <div class="layui-side" style="background-color: #053a71;">
         <div class="user-photo">
             <a class="img" title="更换头像"><img src="/static/images/default.jpg" class="custom-img"
-                                               onerror="this.src='/static/images/default.jpg'"/></a>
+                                               onerror="this.onerror=null;this.src='/static/images/default.jpg'"/></a>
             <p>你好！<span class="userName"></span>, 欢迎登录</p>
             <p class="uploadError"></p>
         </div>
@@ -124,7 +124,9 @@
 
 
 <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
-<!-- 获取url参数 -->
+<!-- JWT 鉴权辅助 -->
+<script src="/static/js/ieps-jwt.js?v=20260701"></script>
+<!-- 获取url参数（已弃用，保留兼容） -->
 <script src="/static/js/getParam.js?v=20260629"></script>
 
 <!-- 中英互译js  -->
@@ -149,15 +151,13 @@
         }
     }());
 
-    console.log($.Request("userNum"));
-    console.log($.Request("roleId"));
+    // 鉴权检查：无 Token 则跳转登录页
+    requireAuth();
 
-    const userNumAdmin = decrypt($.Request("userNum"), "abcd1234abcd1234");
-    const roleIdAdmin = decrypt($.Request("roleId"), "abcd1234abcd1234");
-    const param = {
-        userNum: userNumAdmin,
-        roleId: roleIdAdmin
-    };
+    // 从 JWT Token 获取当前用户（不再依赖 URL 参数）
+    var userNumAdmin = getCurrentUserNum() || "";
+    var roleIdAdmin = getCurrentRoleId() || "";
+    var param = getAuthParams();
 
     var userImg = "/static/images/default.jpg";
     var userName = "";

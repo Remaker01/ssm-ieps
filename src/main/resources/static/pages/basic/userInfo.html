@@ -81,6 +81,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/layui@2.7/dist/layui.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+<script src="../../static/js/ieps-jwt.js"></script>
 <script src="../../static/js/getParam.js"></script>
 
 <!-- 加密和解密 -->
@@ -115,9 +116,7 @@
     $(function () {
         $('input:lt(5)').css("background-color", "red");
 
-        const param = {
-            userNum: decrypt(getUrlParam("userNum"), "abcd1234abcd1234")
-        };
+        var param = getAuthParams();
         $.get('/getUserInfo.do', param, function (result) {
             if (result.status != 0) {
                 return layer.msg(result.msg, {icon: 2});

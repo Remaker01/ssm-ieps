@@ -3,6 +3,7 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
+$ErrorView = "DetailedView"
 
 $projectRoot = Split-Path -Parent $PSScriptRoot
 if (-not $DeployRoot) {
@@ -127,9 +128,9 @@ function Ensure-BackendBuild {
 
     if ($needBuild) {
         Write-Host "Building backend..."
-        & mvn -q -DskipTests package
+        & mvn -DskipTests package
         if ($LASTEXITCODE -ne 0) {
-            throw "Backend build failed."
+            throw "Backend build failed with exit code $LASTEXITCODE. Check the Maven output above for details."
         }
     } elseif (-not (Test-Path -LiteralPath $targetJarPath)) {
         throw "Backend jar not found: $targetJarPath"
@@ -310,7 +311,7 @@ function Ensure-Nginx {
             Write-Host "Nginx started."
         }
     } catch {
-        Write-Warning $warningMessage
+        Write-Warning "$warningMessage`: $($_.Exception.Message)"
     }
 }
 

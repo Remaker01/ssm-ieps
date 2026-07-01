@@ -112,6 +112,7 @@
 <script src="../../static/js/app.js"></script>
 <!-- 分步注册特效 -->
 <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+<script src="../../static/js/ieps-jwt.js"></script>
 <script src="../../static/js/verify.min.js"></script>
 <script src="../../static/js/jquery.easing.min.js"></script>
 <script src="../../static/js/script.js"></script>
@@ -299,11 +300,16 @@
                 }
 
                 layer.msg(result.msg);
+                // 存储后端返回的 forgetPwdToken
+                forgetPwdToken = result.data;
                 $(".secondNext").css("background-color", "#27AE60").removeAttr("disabled", "");
             });
 
         });
     });
+
+    // 存储 forgetPwdToken（验证码校验通过后由后端返回）
+    let forgetPwdToken = null;
 
     reNewPassword.focus(function () {
         reNewPassword.mouseleave(function () {
@@ -344,7 +350,8 @@
 
         const param = {
             userNum: userNum.val(),
-            userPwd: newPassword.val()
+            userPwd: newPassword.val(),
+            forgetPwdToken: forgetPwdToken
         };
         console.log(param.userNum + "   " + param.userPwd)
 

@@ -230,7 +230,7 @@
 
 <!-- 主表头工具栏 -->
 <script type="text/html" id="toolbarDemo">
-    {{# if (( getUrlParam("roleId") == '200004') || (getUrlParam("roleId") == '200006')) { }}
+    {{# if (( ROLE_ID_ADMIN == '200004') || (ROLE_ID_ADMIN == '200006')) { }}
     <div class="layui-btn-container">
         <button class="layui-btn layui-btn-sm" lay-event="addRole">
             <i class="layui-icon">&#xe61f;</i> 新增
@@ -244,7 +244,7 @@
 
 <!--主表每一条记录最后的操作栏-->
 <script type="text/html" id="barDemo">
-    {{# if (getUrlParam("roleId") == '200006') { }}
+    {{# if (ROLE_ID_ADMIN == '200006') { }}
     <a class="layui-btn layui-btn-xs" title="授权" lay-event="grant">
         <i class="layui-icon">&#xe672;</i>
     </a>
@@ -263,7 +263,12 @@
 
 <script src="https://cdn.jsdelivr.net/npm/layui@2.7/dist/layui.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+<script src="../../static/js/ieps-jwt.js"></script>
 <script src="../../static/js/getParam.js"></script>
+<script>
+    // 全局角色 ID，供 Layui 模板中使用
+    var ROLE_ID_ADMIN = getCurrentRoleId() || "";
+</script>
 <script src="https://cdn.jsdelivr.net/npm/zTree_v3@3.5.45/js/jquery.ztree.core.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/zTree_v3@3.5.45/js/jquery.ztree.excheck.min.js"></script>
 
@@ -294,10 +299,7 @@
             height: 'full-90',
             limits: [10, 20, 50, 100],
             page: true,
-            where: {
-                userNum: getUrlParam("userNum"),
-                roleAdminId: getUrlParam("roleId")
-            },
+            where: getAuthParams(),
             cols: [
                 [{
                     type: 'checkbox',
@@ -368,9 +370,7 @@
                             url: "/batchRemoveRole.do",
                             type: "POST",
                             data: {
-                                roleIds: roleIds,
-                                userNum: getUrlParam("userNum"),
-                                roleAdminId: getUrlParam("roleId")
+                                roleIds: roleIds
                             },
                             traditional: true,
                             success: function (result) {
@@ -509,8 +509,8 @@
                     photoNum: searchKeyWord.val(),
                     email: searchKeyWord.val(),
                     academy: searchKeyWord.val(),
-                    userNumAdmin: getUrlParam("userNum"),
-                    roleId: getUrlParam("roleId")
+                    userNumAdmin: getCurrentUserNum(),
+                    roleId: getCurrentRoleId()
                 }
             });
         });

@@ -93,7 +93,7 @@ ssm-ieps/
 
 ### 5. 安全校验
 
-- 默认密码: `Ieps@123`
+- *默认密码*: `Ieps@123`
 - 用户信息存储在 `HttpSession` 中，key 为 `"activeUser"`；底层默认由 Redis 托管
 - 控制器通过 `session.getAttribute("activeUser")` 获取当前用户
 - 角色 ID 定义在 `Const.java` 中：
@@ -192,6 +192,10 @@ ssm-ieps/
 - 提交信息格式: `<type>: <描述>`
 - type: `feat` / `fix` / `refactor` / `docs` / `chore` / `style`
 - 描述使用中文，一两句话说清楚更改，简洁明了
+
+### 命令执行规范
+- Windows下如已安装Powershell 7，优先采用，尽量不要使用Powershell的旧版本，更不要使用cmd
+- Powershell下不要使用`Pid`等内部变量
 
 ---
 

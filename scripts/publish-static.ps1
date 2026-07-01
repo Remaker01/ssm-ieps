@@ -3,6 +3,7 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
+$ErrorView = "DetailedView"
 
 $projectRoot = Split-Path -Parent $PSScriptRoot
 $defaultTargetRoot = Join-Path $projectRoot "deploy"

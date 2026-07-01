@@ -3,6 +3,7 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
+$ErrorView = "DetailedView"
 
 $projectRoot = Split-Path -Parent $PSScriptRoot
 if (-not $DeployRoot) {
@@ -71,6 +72,7 @@ function Stop-Nginx {
     try {
         & $nginxCommand.Source -p $nginxPrefixArg -c "conf/nginx.conf" -s stop | Out-Null
     } catch {
+        Write-Error $_.Exception.Message
     }
 }
 
@@ -84,6 +86,7 @@ function Stop-Redis {
                 return
             }
         } catch {
+            Write-Error $_.Exception.Message
         }
     }
 

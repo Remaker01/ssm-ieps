@@ -5,7 +5,7 @@
         Request: function (name) {
             var sValue = location.search.match(new RegExp("[\?\&]" + name + "=([^\&]*)(\&?)", "i"));
             //decodeURIComponent解码
-            return sValue ? decodeURIComponent(sValue[1]) : decodeURIComponent(sValue);
+            return sValue ? decodeURIComponent(sValue[1]) : null;
  
         },
         //2、给url加参数    $.UrlUpdateParams(url, "add", 11111);

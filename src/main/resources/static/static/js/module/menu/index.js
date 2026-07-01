@@ -135,6 +135,8 @@ layui.config({
         window.sessionStorage.removeItem("menu");
         menu = [];
         window.sessionStorage.removeItem("curmenu");
+        // JWT 退出：清除 Token
+        removeToken();
         layer.msg(message);
         setTimeout(function () {
             $(window).attr('location', '/home');
