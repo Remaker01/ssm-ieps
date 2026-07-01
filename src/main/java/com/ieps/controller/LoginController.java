@@ -9,13 +9,14 @@ import com.ieps.pojo.User;
 import com.ieps.pojo.UserInfo;
 import com.ieps.service.RolePermService;
 import com.ieps.service.UserService;
+import com.ieps.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 /**
@@ -33,6 +34,9 @@ public class LoginController {
     @Autowired
     private ObjectMapper objectMapper;
     
+    @Autowired
+    private JwtUtil jwtUtil;
+    
     /**
      * 根路径默认进入公开首页
      * @return
@@ -46,35 +50,37 @@ public class LoginController {
      * 通过userNum和userPwd登录系统
      * @param userNum
      * @param userPwd
-     * @param session
-     * @return
+     * @return JWT token
      */
     @RequestMapping(value = {"/login", "/login.do"}, method = RequestMethod.POST)
     @ResponseBody
-    public ServerResponse login(String userNum, String userPwd, HttpSession session) {
+    public ServerResponse login(String userNum, String userPwd) {
    
-        ServerResponse user = userService.login(userNum, userPwd);
+        ServerResponse<User> response = userService.login(userNum, userPwd);
         
-        if (user.getStatus() == 0) {
-            session.setAttribute(Const.SESSION_ACTIVE_USER, user.getData());
+        if (response.isSuccess()) {
+            // 生成 JWT Token 并返回
+            User loginUser = response.getData();
+            String token = jwtUtil.generateToken(loginUser);
+            return ServerResponse.createBySuccess("登录成功，请尽情享用！", token);
         }
         
-        return user;
+        return response;
     }
     
     /**
      * 根据roleId获取菜单
      * @param userNum
      * @param roleId
-     * @param session
+     * @param request
      * @return
      */
     @RequestMapping(value = {"/getMenu", "/getMenu.do"}, method = RequestMethod.POST)
     @ResponseBody
-    public ServerResponse getMenu(String userNum, Integer roleId, HttpSession session) {
-        User user = (User) session.getAttribute(Const.SESSION_ACTIVE_USER);
+    public ServerResponse getMenu(String userNum, Integer roleId, HttpServletRequest request) {
+        User user = (User) request.getAttribute(Const.REQUEST_CURRENT_USER);
     
-        // if (!user.getUserNum().equals(userNum)) {
+        // if (user != null && !user.getUserNum().equals(userNum)) {
         //     return ServerResponse.createByErrorMessage("安全检查不通过，用户已过时或不存在！");
         // }
         
@@ -109,12 +115,13 @@ public class LoginController {
      * 根据userNum检查用户原始密码是否正确
      * @param userNum
      * @param userPwd
+     * @param request
      * @return
      */
     @RequestMapping(value = {"/checkUserPwdWithUserNum", "/checkUserPwdWithUserNum.do"}, method = RequestMethod.POST)
     @ResponseBody
-    public ServerResponse checkUserPwdWithUserNum(String userNum, String userPwd, HttpSession session) {
-        User activeUser = (User) session.getAttribute(Const.SESSION_ACTIVE_USER);
+    public ServerResponse checkUserPwdWithUserNum(String userNum, String userPwd, HttpServletRequest request) {
+        User activeUser = (User) request.getAttribute(Const.REQUEST_CURRENT_USER);
         if (activeUser == null) {
             return ServerResponse.createByErrorMessage("登录状态已失效，请重新登录后再试！");
         }
@@ -127,12 +134,11 @@ public class LoginController {
     }
     
     /**
-     * 退出系统
+     * 退出系统（无状态 JWT，前端清除 token 即可）
      * @return
      */
     @RequestMapping(value = {"/logout", "/logout.do"}, method = RequestMethod.GET)
-    public String logout(HttpSession session) {
-        session.invalidate();
+    public String logout() {
         return "redirect:/login";
     }
 

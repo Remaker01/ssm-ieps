@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import java.io.File;
 
 /**
@@ -39,14 +38,14 @@ public class UserInfoController {
 
     @RequestMapping(value = {"/checkVerifyCode", "/checkVerifyCode.do"}, method = RequestMethod.POST)
     @ResponseBody
-    public ServerResponse checkVerifyCode(String userNum, String verifyNum, String verifyCode, HttpSession session) {
-        return userInfoService.checkVerifyCode(userNum, verifyNum, verifyCode, session);
+    public ServerResponse checkVerifyCode(String userNum, String verifyNum, String verifyCode) {
+        return userInfoService.checkVerifyCode(userNum, verifyNum, verifyCode);
     }
     
     @RequestMapping({"/getUserInfo", "/getUserInfo.do"})
     @ResponseBody
-    public ServerResponse<UserInfo> getUserInfo(String userNum, HttpSession session) {
-        User user = (User) session.getAttribute("activeUser");
+    public ServerResponse<UserInfo> getUserInfo(String userNum, HttpServletRequest request) {
+        User user = (User) request.getAttribute(com.ieps.common.Const.REQUEST_CURRENT_USER);
         
         /*if (!user.getUserNum().equals(userNum)) {
             return ServerResponse.createByErrorMessage("安全检查不通过，用户已过时或不存在！");
@@ -57,8 +56,8 @@ public class UserInfoController {
     
     @RequestMapping(value = {"/modifyUserInfo", "/modifyUserInfo.do"}, method = RequestMethod.POST)
     @ResponseBody
-    public ServerResponse modifyUserInfo(UserInfo userInfo, HttpSession session) {
-        User user = (User) session.getAttribute("activeUser");
+    public ServerResponse modifyUserInfo(UserInfo userInfo, HttpServletRequest request) {
+        User user = (User) request.getAttribute(com.ieps.common.Const.REQUEST_CURRENT_USER);
         
        /* if (!user.getUserNum().equals(userInfo.getUserNum())) {
             return ServerResponse.createByErrorMessage("安全检查不通过，用户已过时或不存在！");
@@ -71,8 +70,8 @@ public class UserInfoController {
     @RequestMapping(value = {"/changeUserImg", "/changeUserImg.do"}, method = RequestMethod.POST)
     @ResponseBody
     public ServerResponse changeUserImg(@RequestParam("file") MultipartFile file, String userNum,
-                                        HttpServletRequest request, HttpSession session) {
-        User user = (User) session.getAttribute("activeUser");
+                                        HttpServletRequest request) {
+        User user = (User) request.getAttribute(com.ieps.common.Const.REQUEST_CURRENT_USER);
     
         // if (!user.getUserNum().equals(userNum)) {
         //     return ServerResponse.createByErrorMessage("安全检查不通过，用户已过时或不存在！");
@@ -117,8 +116,8 @@ public class UserInfoController {
     
     @RequestMapping(value = {"/getUserInfoWithItemNum", "/getUserInfoWithItemNum.do"}, method = RequestMethod.GET)
     @ResponseBody
-    public ServerResponse getUserInfoWithItemNum(String itemNum, HttpSession session) {
-        User user = (User) session.getAttribute("activeUser");
+    public ServerResponse getUserInfoWithItemNum(String itemNum, HttpServletRequest request) {
+        User user = (User) request.getAttribute(com.ieps.common.Const.REQUEST_CURRENT_USER);
         
        /* if (!user.getUserNum().equals(userInfo.getUserNum())) {
             return ServerResponse.createByErrorMessage("安全检查不通过，用户已过时或不存在！");

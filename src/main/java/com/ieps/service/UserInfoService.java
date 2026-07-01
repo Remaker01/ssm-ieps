@@ -13,7 +13,6 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.mail.MessagingException;
-import javax.servlet.http.HttpSession;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -33,12 +32,17 @@ public class UserInfoService {
     private IepsRedisProperties iepsRedisProperties;
     
     public ServerResponse<UserInfo> findByUserNum(String userNum) {
+        if (userNum == null || userNum.isEmpty() || "undefined".equals(userNum)) {
+            return ServerResponse.createByErrorMessage("用户不存在，请重新登录！");
+        }
+        
         UserInfo userInfo = userInfoMapper.selectByUserNum(userNum);
-        userInfo.setUserNum(userNum);
         
         if (userInfo == null) {
             return ServerResponse.createByErrorMessage("用户过时或不存在，请重新登录！");
         }
+        
+        userInfo.setUserNum(userNum);
         
         return ServerResponse.createBySuccess(userInfo);
     }
@@ -68,7 +72,7 @@ public class UserInfoService {
         String code = generateVerifyCode();
 
         // 邮箱验证
-        if (verifyNum.indexOf("@") != -1) {
+        if (verifyNum.indexOf('@') != -1) {
             try {
                 MailUtil.send_mail(verifyNum, code);
             } catch (MessagingException e) {
@@ -105,7 +109,7 @@ public class UserInfoService {
         return ServerResponse.createBySuccess();
     }
 
-    public ServerResponse checkVerifyCode(String userNum, String verifyNum, String verifyCode, HttpSession session) {
+    public ServerResponse<String> checkVerifyCode(String userNum, String verifyNum, String verifyCode) {
         if (verifyCode == null || verifyCode.trim().isEmpty()) {
             return ServerResponse.createByErrorMessage("请输入验证码后再继续！");
         }
@@ -138,9 +142,14 @@ public class UserInfoService {
         }
 
         clearVerifyState(userNum);
-        session.setAttribute(Const.SESSION_FORGET_PWD_VERIFIED_USER, userNum);
-        session.setAttribute(Const.SESSION_FORGET_PWD_VERIFIED_AT, System.currentTimeMillis());
-        return ServerResponse.createBySuccessMessage("验证通过，请继续下一步！");
+        
+        // 生成短时效的 forgetPwdToken 存入 Redis，替代 Session
+        String forgetPwdToken = java.util.UUID.randomUUID().toString();
+        String tokenKey = Const.REDIS_FORGET_PWD_TOKEN_PREFIX + userNum;
+        stringRedisTemplate.opsForValue().set(tokenKey, forgetPwdToken,
+                Const.FORGET_PWD_VERIFIED_TIMEOUT_MINUTES, TimeUnit.MINUTES);
+        
+        return ServerResponse.createBySuccess("验证通过，请继续下一步！", forgetPwdToken);
     }
     
     public ServerResponse getUserInfoWithItemNum(String itemNum) {

@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * Created by ljw
@@ -34,14 +34,8 @@ public class RoleAdminController {
     @RequestMapping({"/getRoleListByAdmin", "/getRoleListByAdmin.do"})
     @ResponseBody
     public ServerResponse getRoleListByAdmin(@RequestParam(value = "page", defaultValue = "1") int page, Role role,
-                                             @RequestParam(value = "limit", defaultValue = "10") int limit, HttpSession session,
+                                             @RequestParam(value = "limit", defaultValue = "10") int limit,
                                              String userNum, int roleAdminId) {
-        
-        // User user = (User) session.getAttribute("activeUser");
-        
-        // if (!user.getUserNum().equals(userNum)) {
-        //     return ServerResponse.createByErrorMessage("安全检查不通过，用户已过时或不存在！");
-        // }
         
         return roleAdminService.getRoleList(page, limit, userNum, roleAdminId, role);
     }
@@ -56,9 +50,9 @@ public class RoleAdminController {
      */
     @RequestMapping({"/batchRemoveRole", "/batchRemoveRole.do"})
     @ResponseBody
-    public ServerResponse batchRemoveRole(int[] roleIds, String userNum, int roleAdminId, HttpSession session) {
+    public ServerResponse batchRemoveRole(int[] roleIds, String userNum, int roleAdminId, HttpServletRequest request) {
         
-        User user = (User) session.getAttribute("activeUser");
+        User user = (User) request.getAttribute(com.ieps.common.Const.REQUEST_CURRENT_USER);
     
         System.out.println(userNum + "   " +  roleAdminId);
         
@@ -79,9 +73,9 @@ public class RoleAdminController {
      */
     @RequestMapping({"/removeRoleByRoleId", "/removeRoleByRoleId.do"})
     @ResponseBody
-    public ServerResponse removeRoleByRoleId(int roleId, String userNum, int roleAdminId, HttpSession session) {
+    public ServerResponse removeRoleByRoleId(int roleId, String userNum, int roleAdminId, HttpServletRequest request) {
         
-        User user = (User) session.getAttribute("activeUser");
+        User user = (User) request.getAttribute(com.ieps.common.Const.REQUEST_CURRENT_USER);
         
         System.out.println(userNum + "   " +  roleAdminId);
         

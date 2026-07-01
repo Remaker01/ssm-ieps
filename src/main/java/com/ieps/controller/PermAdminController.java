@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import javax.servlet.http.HttpSession;
+// HttpSession no longer needed after JWT migration
 import java.util.List;
 
 /**
@@ -26,7 +26,7 @@ public class PermAdminController {
     @RequestMapping({"/getPermListWithCondition", "/getPermListWithCondition.do"})
     @ResponseBody
     public ServerResponse<List<Perm>> getPermListWithCondition(@RequestParam(value = "page", defaultValue = "1") int page,
-                                                               @RequestParam(value = "limit", defaultValue = "5") int limit, HttpSession session,
+                                                               @RequestParam(value = "limit", defaultValue = "5") int limit,
                                                                @RequestParam("userNum") String userNum, @RequestParam("roleId") Integer roleId,
                                                                Perm perm) {
         
@@ -47,13 +47,7 @@ public class PermAdminController {
      */
     @RequestMapping({"/getPermWithCondition", "/getPermWithCondition.do"})
     @ResponseBody
-    public ServerResponse getPermWithCondition(HttpSession session) {
-        
-        // User user = (User) session.getAttribute("activeUser");
-        //
-        // if (!user.getUserNum().equals(userNum)) {
-        //     return ServerResponse.createByErrorMessage("安全检查不通过，用户已过时或不存在！");
-        // }
+    public ServerResponse getPermWithCondition() {
         return permAdminService.getPerm();
     }
     
@@ -68,7 +62,7 @@ public class PermAdminController {
     @RequestMapping({"/removePermById", "/removePermById.do"})
     @ResponseBody
     public ServerResponse<List<Perm>> removePermById(@RequestParam("userNum") String userNum, @RequestParam("roleId") int roleId,
-                                                     HttpSession session, Perm perm) {
+                                                     Perm perm) {
         
         // User user = (User) session.getAttribute("activeUser");
         //
@@ -105,7 +99,7 @@ public class PermAdminController {
     @RequestMapping({"/getPermByPermId", "/getPermByPermId.do"})
     @ResponseBody
     public ServerResponse<Perm> getPermByPermId(@RequestParam("userNum") String userNum, @RequestParam("roleId") int roleId,
-                                                    HttpSession session, Integer permId) {
+                                                    Integer permId) {
         
         // User user = (User) session.getAttribute("activeUser");
         //
@@ -126,7 +120,7 @@ public class PermAdminController {
     @RequestMapping({"/modifyPemrById", "/modifyPemrById.do"})
     @ResponseBody
     public ServerResponse modifyPemrById(@RequestParam("userNum") String userNum, @RequestParam("roleId") int roleId,
-                                                HttpSession session, Perm perm) {
+                                                Perm perm) {
         
         // User user = (User) session.getAttribute("activeUser");
         //
@@ -147,7 +141,7 @@ public class PermAdminController {
     @RequestMapping({"/addPerm", "/addPerm.do"})
     @ResponseBody
     public ServerResponse addPerm(@RequestParam("userNum") String userNum, @RequestParam("roleId") int roleId,
-                                               HttpSession session, Perm perm) {
+                                               Perm perm) {
         
         // User user = (User) session.getAttribute("activeUser");
         //
@@ -168,7 +162,7 @@ public class PermAdminController {
     @RequestMapping({"/batchRemovePerm", "/batchRemovePerm.do"})
     @ResponseBody
     public ServerResponse batchRemovePerm(@RequestParam("userNum") String userNum, @RequestParam("roleId") int roleId,
-                                  HttpSession session, Integer[] permIds) {
+                                  Integer[] permIds) {
         
         // User user = (User) session.getAttribute("activeUser");
         //

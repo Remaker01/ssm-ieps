@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import javax.servlet.http.HttpSession;
+// HttpSession no longer needed after JWT migration
 import java.util.List;
 
 /**
@@ -50,15 +50,9 @@ public class InformAdminController {
     @RequestMapping({"/getAllInformList", "/getAllInformList.do"})
     @ResponseBody
     public ServerResponse<List<Inform>> getAllInformList(@RequestParam(value = "page",defaultValue = "1") int page,
-                                 @RequestParam(value = "limit",defaultValue = "10") int limit, HttpSession session,
+                                 @RequestParam(value = "limit",defaultValue = "10") int limit,
                                  @RequestParam(value = "userNum", required = false) String userNum, @RequestParam("roleId") Integer roleId) {
     
-        User user = (User) session.getAttribute("activeUser");
-    
-        // if (!user.getUserNum().equals(userNum)) {
-        //     return ServerResponse.createByErrorMessage("安全检查不通过，用户已过时或不存在！");
-        // }
-        
         return informService.getAllInformList(page, limit, userNum, roleId);
         
     }
@@ -76,16 +70,10 @@ public class InformAdminController {
     @RequestMapping({"/searchInformListWithCondition", "/searchInformListWithCondition.do"})
     @ResponseBody
     public ServerResponse<List<Inform>> searchInformListWithCondition(@RequestParam(value = "page", defaultValue = "1") int page,
-                                                         @RequestParam(value = "limit", defaultValue = "5") int limit, HttpSession session,
+                                                         @RequestParam(value = "limit", defaultValue = "5") int limit,
                                                          @RequestParam("userNum") String userNum, @RequestParam("roleId") Integer roleId,
                                                          Inform inform) {
     
-        User user = (User) session.getAttribute("activeUser");
-        
-        // if (!user.getUserNum().equals(userNum)) {
-        //     return ServerResponse.createByErrorMessage("安全检查不通过，用户已过时或不存在！");
-        // }
-        
         return informService.searchInformListWithCondition(page, limit, userNum, roleId, inform);
     }
     
@@ -100,13 +88,7 @@ public class InformAdminController {
     @RequestMapping(value = {"/removeInformById", "/removeInformById.do"}, method = RequestMethod.GET)
     @ResponseBody
     public ServerResponse removeInformById(@RequestParam("userNum") String userNum, @RequestParam("id") Integer id,
-                                           @RequestParam("roleId") Integer roleId, HttpSession session) {
-        
-        User user = (User) session.getAttribute("activeUser");
-
-        // if (!user.getUserNum().equals(userNum)) {
-        //     return ServerResponse.createByErrorMessage("安全检查不通过，用户已过时或不存在！");
-        // }
+                                           @RequestParam("roleId") Integer roleId) {
         
         return informService.removeInformById(id, roleId);
     }
@@ -120,14 +102,7 @@ public class InformAdminController {
      */
     @RequestMapping(value = {"/modifyInformById", "/modifyInformById.do"}, method = RequestMethod.POST)
     @ResponseBody
-    public ServerResponse modifyInformById(@RequestParam("userNum") String userNum, Inform inform,
-                                           HttpSession session) {
-        
-        User user = (User) session.getAttribute("activeUser");
-        
-        // if (!user.getUserNum().equals(userNum)) {
-        //     return ServerResponse.createByErrorMessage("安全检查不通过，用户已过时或不存在！");
-        // }
+    public ServerResponse modifyInformById(@RequestParam("userNum") String userNum, Inform inform) {
         
         return informService.modifyInformById(inform);
     }
@@ -143,13 +118,7 @@ public class InformAdminController {
     @RequestMapping(value = {"/addInform", "/addInform.do"}, method = RequestMethod.POST)
     @ResponseBody
     public ServerResponse addInform(@RequestParam("userNum") String userNum, @RequestParam("roleId") Integer roleId,
-                                    Inform inform, HttpSession session) {
-        
-        User user = (User) session.getAttribute("activeUser");
-        
-        // if (!user.getUserNum().equals(userNum)) {
-        //     return ServerResponse.createByErrorMessage("安全检查不通过，用户已过时或不存在！");
-        // }
+                                    Inform inform) {
         
         inform.setPublisher(userNum);
         inform.setRoleId(roleId);
@@ -169,13 +138,7 @@ public class InformAdminController {
     @RequestMapping({"/batchRemoveInform", "/batchRemoveInform.do"})
     @ResponseBody
     public ServerResponse batchRemoveInform(@RequestParam("ids") Integer[] ids, @RequestParam("roleId") Integer roleId,
-                                            @RequestParam("userNum") String userNum, HttpSession session) {
-        
-        User user = (User) session.getAttribute("activeUser");
-        
-        // if (!user.getUserNum().equals(userNum)) {
-        //     return ServerResponse.createByErrorMessage("安全检查不通过，用户已过时或不存在！");
-        // }
+                                            @RequestParam("userNum") String userNum) {
         
         return informService.batchRemoveInform(ids, roleId);
     }
@@ -193,7 +156,7 @@ public class InformAdminController {
     @ResponseBody
     public ServerResponse getInformListByAdminWithUserNum(@RequestParam(value = "pageNum",defaultValue = "1") int pageNum,
                                                           @RequestParam(value = "pageSize",defaultValue = "7") int pageSize,
-                                                          HttpSession session, String head, String pubdate) {
+                                                          String head, String pubdate) {
         return informService.getInformListByAdmin(pageNum, pageSize, head, pubdate);
     }
     

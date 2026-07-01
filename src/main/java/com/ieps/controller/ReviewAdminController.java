@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * Created by ljw
@@ -33,11 +33,11 @@ public class ReviewAdminController {
     @RequestMapping({"/getAllReviewWithItemNum", "/getAllReviewWithItemNum.do"})
     @ResponseBody
     public ServerResponse getAllReviewWithItemNum(@RequestParam(value = "page", defaultValue = "1") int page, String itemNum,
-                                                  @RequestParam(value = "limit", defaultValue = "10") int limit, HttpSession session,
-                                                  @RequestParam("userNum") String userNum) {
+                                                  @RequestParam(value = "limit", defaultValue = "10") int limit,
+                                                  @RequestParam("userNum") String userNum, HttpServletRequest request) {
     
     
-        User user = (User) session.getAttribute("activeUser");
+        User user = (User) request.getAttribute(com.ieps.common.Const.REQUEST_CURRENT_USER);
     
         // if (!user.getUserNum().equals(userNum)) {
         //     return ServerResponse.createByErrorMessage("安全检查不通过，用户已过时或不存在！");
@@ -52,10 +52,10 @@ public class ReviewAdminController {
     
     @RequestMapping({"/checkReview", "/checkReview.do"})
     @ResponseBody
-    public ServerResponse checkReview(ReviewAdminDto reviewAdminDto, HttpSession session) {
+    public ServerResponse checkReview(ReviewAdminDto reviewAdminDto, HttpServletRequest request) {
         
         
-        User user = (User) session.getAttribute("activeUser");
+        User user = (User) request.getAttribute(com.ieps.common.Const.REQUEST_CURRENT_USER);
         
         // if (!user.getUserNum().equals(userNum)) {
         //     return ServerResponse.createByErrorMessage("安全检查不通过，用户已过时或不存在！");

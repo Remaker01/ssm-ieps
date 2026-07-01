@@ -18,7 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
+// HttpSession no longer needed after JWT migration
 import java.io.*;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -54,14 +54,8 @@ public class FileAdminController {
     @RequestMapping({"/getFileListByUserNum", "/getFileListByUserNum.do"})
     @ResponseBody
     public ServerResponse getFileListByUserNum(@RequestParam(value = "page", defaultValue = "1") int page, FileHub fileHub,
-                                               @RequestParam(value = "limit", defaultValue = "5") int limit, HttpSession session,
+                                               @RequestParam(value = "limit", defaultValue = "5") int limit,
                                                @RequestParam("userNumAdmin") String userNumAdmin, @RequestParam("roleId") Integer roleId) {
-        
-        User user = (User) session.getAttribute("activeUser");
-        
-        // if (!user.getUserNum().equals(userNum)) {
-        //     return ServerResponse.createByErrorMessage("安全检查不通过，用户已过时或不存在！");
-        // }
         
         return fileAdminService.getFileListByUserNum(page, limit, userNumAdmin, roleId, fileHub);
     }
@@ -79,16 +73,10 @@ public class FileAdminController {
      */
     @RequestMapping({"/removeFileById", "/removeFileById.do"})
     @ResponseBody
-    public ServerResponse removeFileById(@RequestParam("userNum") String userNum, HttpSession session, HttpServletRequest request,
+    public ServerResponse removeFileById(@RequestParam("userNum") String userNum, HttpServletRequest request,
                                          @RequestParam("id") Integer id, @RequestParam("userNumAdmin") String userNumAdmin,
                                          @RequestParam("roleId") Integer roleId, @RequestParam("fileName") String fileName) {
         
-        User user = (User) session.getAttribute("activeUser");
-        
-        // if (!user.getUserNum().equals(userNum)) {
-        //     return ServerResponse.createByErrorMessage("安全检查不通过，用户已过时或不存在！");
-        // }
-    
         String filePath = request.getServletContext().getRealPath("/hub/");
         
         return fileAdminService.removeFileById(filePath, fileName, userNum, id, roleId);
@@ -107,16 +95,10 @@ public class FileAdminController {
      */
     @RequestMapping({"/batchRemoveFile", "/batchRemoveFile.do"})
     @ResponseBody
-    public ServerResponse batchRemoveFile(@RequestParam("userNum") String userNumAdmin, HttpSession session, HttpServletRequest request,
+    public ServerResponse batchRemoveFile(@RequestParam("userNum") String userNumAdmin, HttpServletRequest request,
                                           @RequestParam("userNums") String[] userNums, @RequestParam("ids") Integer[] ids,
                                           @RequestParam("roleId") Integer roleId, @RequestParam("fileNames") String[] fileNames) {
         
-        User user = (User) session.getAttribute("activeUser");
-        
-        // if (!user.getUserNum().equals(userNumAdmin)) {
-        //     return ServerResponse.createByErrorMessage("安全检查不通过，用户已过时或不存在！");
-        // }
-    
         String filePath = request.getServletContext().getRealPath("/hub/");
         
         return fileAdminService.batchRemoveFile(filePath, fileNames, userNums, ids, roleId);
@@ -135,21 +117,8 @@ public class FileAdminController {
      */
     @RequestMapping(value = {"/batchUploadFile", "/batchUploadFile.do"}, method = RequestMethod.POST)
     @ResponseBody
-    public ServerResponse batchUploadFile(@RequestParam("files") MultipartFile[] files, String userNum, String itemNum, HttpSession session,
+    public ServerResponse batchUploadFile(@RequestParam("files") MultipartFile[] files, String userNum, String itemNum,
                                           HttpServletRequest request, int fileKind) {
-    // public ServerResponse batchUploadFile(@RequestParam("files") MultipartFile[] files, @RequestParam(value = "userNum") String userNum,
-    //                                       @RequestParam(value = "itemNum", defaultValue = "-1") String itemNum, HttpSession session, HttpServletRequest request,
-    //                                       @RequestParam(value = "fileKind", defaultValue = "2") Integer fileKind) {
-        // public ServerResponse batchUploadFile(@RequestParam("files") MultipartFile[] files, @RequestParam(value = "userNum") String userNum,
-        //                                       @RequestParam(value = "itemNum") String itemNum, HttpSession session, HttpServletRequest request,
-        //                                       @RequestParam(value = "fileKind") int fileKind) {
-        
-        User user = (User) session.getAttribute("activeUser");
-        
-        // if (!user.getUserNum().equals(userNumAdmin)) {
-        //     return ServerResponse.createByErrorMessage("安全检查不通过，用户已过时或不存在！");
-        // }
-        
         
         String filePath = request.getServletContext().getRealPath("/hub/");
         
@@ -169,15 +138,8 @@ public class FileAdminController {
      */
     @RequestMapping(value = {"/batchCkeditorUploadFile", "/batchCkeditorUploadFile.do"}, method = RequestMethod.POST)
     @ResponseBody
-    public CkeditorUploadFileDto batchCkeditorUploadFile(@RequestParam("upload") MultipartFile[] files, String userNum, String itemNum, HttpSession session,
+    public CkeditorUploadFileDto batchCkeditorUploadFile(@RequestParam("upload") MultipartFile[] files, String userNum, String itemNum,
                                           HttpServletRequest request, Integer fileKind) throws Exception  {
-        
-        User user = (User) session.getAttribute("activeUser");
-        
-        // if (!user.getUserNum().equals(userNumAdmin)) {
-        //     return ServerResponse.createByErrorMessage("安全检查不通过，用户已过时或不存在！");
-        // }
-        
         
         // http://127.0.0.1:8080/batchCkeditorUploadFile.do
         // String filePath = request.getServletContext().getContextPath();
@@ -317,15 +279,8 @@ public class FileAdminController {
     @RequestMapping(value = {"/modifyFileKindWithUserNum", "/modifyFileKindWithUserNum.do"}, method = RequestMethod.GET)
     @ResponseBody
     public ServerResponse modifyFileKindWithUserNum(FileHub fileHub, @RequestParam("userNumAdmin") String userNumAdmin,
-                                                    HttpSession session, @RequestParam("roleId") int roleId) {
+                                                    @RequestParam("roleId") int roleId) {
         
-        User user = (User) session.getAttribute("activeUser");
-        
-        // if (!user.getUserNum().equals(userNumAdmin)) {
-        //     return ServerResponse.createByErrorMessage("安全检查不通过，用户已过时或不存在！");
-        // }
-        
-        // return fileAdminService.batchRemoveFile(userNums, ids, roleId);
         return fileAdminService.modifyFileKindWithUserNum(roleId, fileHub);
     }
     
@@ -342,7 +297,7 @@ public class FileAdminController {
     @ResponseBody
     public ServerResponse getFileListByAdminWithKind(@RequestParam(value = "pageNum",defaultValue = "1") int pageNum,
                                                      @RequestParam(value = "pageSize",defaultValue = "8") int pageSize,
-                                                     HttpSession session, String fileName, String updateTime) {
+                                                     String fileName, String updateTime) {
         return fileAdminService.getFileListByAdmin(pageNum, pageSize, fileName, updateTime);
     }
     

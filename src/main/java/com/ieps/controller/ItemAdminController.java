@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 /**
@@ -42,18 +42,14 @@ public class ItemAdminController {
     @RequestMapping({"/getItemListByUserNum", "/getItemListByUserNum.do"})
     @ResponseBody
     public ServerResponse getItemListByUserNum(@RequestParam(value = "page", defaultValue = "1") int page, ItemAdminDto itemAdminDto,
-                                               @RequestParam(value = "limit", defaultValue = "10") int limit, HttpSession session,
+                                               @RequestParam(value = "limit", defaultValue = "10") int limit,
                                                @RequestParam("userNumAdmin") String userNumAdmin, @RequestParam("roleId") int roleId,
                                                @RequestParam(value = "itemStatusF", required = false) Integer itemStatusF,
                                                @RequestParam(value = "itemStatusS", required = false) Integer itemStatusS,
                                                @RequestParam(value = "itemStatusT", required = false) Integer itemStatusT,
-                                               @RequestParam(value = "itemStatusFF", required = false) Integer itemStatusFF) {
+                                               @RequestParam(value = "itemStatusFF", required = false) Integer itemStatusFF, HttpServletRequest request) {
        
-        User user = (User) session.getAttribute("activeUser");
-        
-        // if (!user.getUserNum().equals(userNumAdmin)) {
-        //     return ServerResponse.createByErrorMessage("安全检查不通过，用户已过时或不存在！");
-        // }
+        User user = (User) request.getAttribute(com.ieps.common.Const.REQUEST_CURRENT_USER);
         
         // <!-- 项目状态：1：申请中；2：立项评审；3：已立项；4：立项失败；5：中期检查; 6: 待结题；7：结题评审；8：结题成功；9：结题失败-->
     
@@ -87,10 +83,10 @@ public class ItemAdminController {
     @RequestMapping({"/getItemListByUserNumAndItemStatus", "/getItemListByUserNumAndItemStatus.do"})
     @ResponseBody
     public ServerResponse getItemListByUserNumAndItemStatus(@RequestParam(value = "page", defaultValue = "1") int page, ItemAdminDto itemAdminDto,
-                                               @RequestParam(value = "limit", defaultValue = "5") int limit, HttpSession session,
-                                               @RequestParam("userNumAdmin") String userNumAdmin, @RequestParam("roleId") int roleId) {
+                                               @RequestParam(value = "limit", defaultValue = "5") int limit,
+                                               @RequestParam("userNumAdmin") String userNumAdmin, @RequestParam("roleId") int roleId, HttpServletRequest request) {
         
-        User user = (User) session.getAttribute("activeUser");
+        User user = (User) request.getAttribute(com.ieps.common.Const.REQUEST_CURRENT_USER);
         
         // if (!user.getUserNum().equals(userNumAdmin)) {
         //     return ServerResponse.createByErrorMessage("安全检查不通过，用户已过时或不存在！");
@@ -110,9 +106,9 @@ public class ItemAdminController {
     @RequestMapping({"/removeItemById", "/removeItemById.do"})
     @ResponseBody
     public ServerResponse removeItemById(@RequestParam("userNum") String userNum, @RequestParam("roleId") int roleId,
-                                         HttpSession session, String itemNum) {
+                                         HttpServletRequest request, String itemNum) {
         
-        User user = (User) session.getAttribute("activeUser");
+        User user = (User) request.getAttribute(com.ieps.common.Const.REQUEST_CURRENT_USER);
         
         // if (!user.getUserNum().equals(userNumAdmin)) {
         //     return ServerResponse.createByErrorMessage("安全检查不通过，用户已过时或不存在！");
@@ -132,9 +128,9 @@ public class ItemAdminController {
     @RequestMapping({"/batchRemoveItem", "/batchRemoveItem.do"})
     @ResponseBody
     public ServerResponse batchRemoveItem(@RequestParam("userNum") String userNum, @RequestParam("roleId") int roleId,
-                                          HttpSession session, String[] itemNums) {
+                                          HttpServletRequest request, String[] itemNums) {
         
-        User user = (User) session.getAttribute("activeUser");
+        User user = (User) request.getAttribute(com.ieps.common.Const.REQUEST_CURRENT_USER);
         
         // if (!user.getUserNum().equals(userNumAdmin)) {
         //     return ServerResponse.createByErrorMessage("安全检查不通过，用户已过时或不存在！");
@@ -155,9 +151,9 @@ public class ItemAdminController {
     @RequestMapping({"/modifyItemLevelByItemNum", "/modifyItemLevelByItemNum.do"})
     @ResponseBody
     public ServerResponse modifyItemLevelByItemNum(@RequestParam("userNum") String userNum, @RequestParam("roleId") int roleId,
-                                          HttpSession session, String itemNum, @RequestParam("itemLevel") int itemlevel) {
+                                          HttpServletRequest request, String itemNum, @RequestParam("itemLevel") int itemlevel) {
         
-        User user = (User) session.getAttribute("activeUser");
+        User user = (User) request.getAttribute(com.ieps.common.Const.REQUEST_CURRENT_USER);
     
         System.out.println(itemlevel);
         
@@ -180,9 +176,9 @@ public class ItemAdminController {
     @RequestMapping({"/modifyItemTypeByItemNum", "/modifyItemTypeByItemNum.do"})
     @ResponseBody
     public ServerResponse modifyItemTypeByItemNum(@RequestParam("userNum") String userNum, @RequestParam("roleId") int roleId,
-                                                   HttpSession session, String itemNum, @RequestParam("itemType") int itemType) {
+                                                   HttpServletRequest request, String itemNum, @RequestParam("itemType") int itemType) {
         
-        User user = (User) session.getAttribute("activeUser");
+        User user = (User) request.getAttribute(com.ieps.common.Const.REQUEST_CURRENT_USER);
         
         // if (!user.getUserNum().equals(userNumAdmin)) {
         //     return ServerResponse.createByErrorMessage("安全检查不通过，用户已过时或不存在！");
@@ -203,9 +199,9 @@ public class ItemAdminController {
     @RequestMapping({"/modifyItemStatusByItemNum", "/modifyItemStatusByItemNum.do"})
     @ResponseBody
     public ServerResponse modifyItemStatusByItemNum(@RequestParam("userNum") String userNum, @RequestParam("roleId") int roleId,
-                                                  HttpSession session, String itemNum, @RequestParam("itemStatus") int itemStatus) {
+                                                  HttpServletRequest request, String itemNum, @RequestParam("itemStatus") int itemStatus) {
         
-        User user = (User) session.getAttribute("activeUser");
+        User user = (User) request.getAttribute(com.ieps.common.Const.REQUEST_CURRENT_USER);
         
         // if (!user.getUserNum().equals(userNumAdmin)) {
         //     return ServerResponse.createByErrorMessage("安全检查不通过，用户已过时或不存在！");
@@ -225,9 +221,9 @@ public class ItemAdminController {
     @RequestMapping({"/modifyItemByItemNum", "/modifyItemByItemNum.do"})
     @ResponseBody
     public ServerResponse modifyItemByItemNum(@RequestParam("userNum") String userNum, @RequestParam("roleId") int roleId,
-                                                    HttpSession session, ItemAdminDto itemAdminDto) {
+                                                    HttpServletRequest request, ItemAdminDto itemAdminDto) {
         
-        User user = (User) session.getAttribute("activeUser");
+        User user = (User) request.getAttribute(com.ieps.common.Const.REQUEST_CURRENT_USER);
         
         // if (!user.getUserNum().equals(userNumAdmin)) {
         //     return ServerResponse.createByErrorMessage("安全检查不通过，用户已过时或不存在！");
@@ -248,9 +244,9 @@ public class ItemAdminController {
     @RequestMapping({"/onekeyModifyItemTypeWithItemNums", "/onekeyModifyItemTypeWithItemNums.do"})
     @ResponseBody
     public ServerResponse onekeyModifyItemTypeWithItemNums(@RequestParam("userNum") String userNum, @RequestParam("roleId") int roleId,
-                                              HttpSession session, String[] itemNums, int itemType) {
+                                              HttpServletRequest request, String[] itemNums, int itemType) {
         
-        User user = (User) session.getAttribute("activeUser");
+        User user = (User) request.getAttribute(com.ieps.common.Const.REQUEST_CURRENT_USER);
         
         // if (!user.getUserNum().equals(userNumAdmin)) {
         //     return ServerResponse.createByErrorMessage("安全检查不通过，用户已过时或不存在！");
@@ -271,9 +267,9 @@ public class ItemAdminController {
     @RequestMapping({"/onekeyModifyItemStatusWithItemNums", "/onekeyModifyItemStatusWithItemNums.do"})
     @ResponseBody
     public ServerResponse onekeyModifyItemStatusWithItemNums(@RequestParam("userNum") String userNum, @RequestParam("roleId") int roleId,
-                                                           HttpSession session, String[] itemNums, Integer itemStatus) {
+                                                           HttpServletRequest request, String[] itemNums, Integer itemStatus) {
         
-        User user = (User) session.getAttribute("activeUser");
+        User user = (User) request.getAttribute(com.ieps.common.Const.REQUEST_CURRENT_USER);
         
         // if (!user.getUserNum().equals(userNumAdmin)) {
         //     return ServerResponse.createByErrorMessage("安全检查不通过，用户已过时或不存在！");
@@ -294,9 +290,9 @@ public class ItemAdminController {
     @RequestMapping({"/onekeyModifyItemLevelWithItemNums", "/onekeyModifyItemLevelWithItemNums.do"})
     @ResponseBody
     public ServerResponse onekeyModifyItemLevelWithItemNums(@RequestParam("userNum") String userNum, @RequestParam("roleId") int roleId,
-                                                           HttpSession session, String[] itemNums, int itemLevel) {
+                                                           HttpServletRequest request, String[] itemNums, int itemLevel) {
         
-        User user = (User) session.getAttribute("activeUser");
+        User user = (User) request.getAttribute(com.ieps.common.Const.REQUEST_CURRENT_USER);
         
         // if (!user.getUserNum().equals(userNum)) {
         //     return ServerResponse.createByErrorMessage("安全检查不通过，用户已过时或不存在！");
@@ -317,10 +313,10 @@ public class ItemAdminController {
      */
     @RequestMapping({"/addItemAndUserInfo", "/addItemAndUserInfo.do"})
     @ResponseBody
-    public ServerResponse addItemAndUserInfo(@RequestParam("userNum") String userNum, @RequestParam("roleId") int roleId, HttpSession session,
+    public ServerResponse addItemAndUserInfo(@RequestParam("userNum") String userNum, @RequestParam("roleId") int roleId, HttpServletRequest request,
                                              @RequestParam("userNums") String[] userNums, @RequestParam("userNames") String[] userNames, ItemAdminDto itemAdminDto) {
     
-        User user = (User) session.getAttribute("activeUser");
+        User user = (User) request.getAttribute(com.ieps.common.Const.REQUEST_CURRENT_USER);
         
         // if (!user.getUserNum().equals(userNumAdmin)) {
         //     return ServerResponse.createByErrorMessage("安全检查不通过，用户已过时或不存在！");
@@ -338,9 +334,9 @@ public class ItemAdminController {
      */
     @RequestMapping({"/getReviewLeaderByRoleIdAndUserNum", "/getReviewLeaderByRoleIdAndUserNum.do"})
     @ResponseBody
-    public ServerResponse getReviewLeaderByRoleIdAndUserNum(@RequestParam("userNum") String userNum, @RequestParam("roleId") int roleId, HttpSession session) {
+    public ServerResponse getReviewLeaderByRoleIdAndUserNum(@RequestParam("userNum") String userNum, @RequestParam("roleId") int roleId, HttpServletRequest request) {
         
-        User user = (User) session.getAttribute("activeUser");
+        User user = (User) request.getAttribute(com.ieps.common.Const.REQUEST_CURRENT_USER);
         
         // if (!user.getUserNum().equals(userNumAdmin)) {
         //     return ServerResponse.createByErrorMessage("安全检查不通过，用户已过时或不存在！");
@@ -365,10 +361,10 @@ public class ItemAdminController {
     public ServerResponse chooseUserItemWithLeader(@RequestParam("userNumAdmin") String userNumAdmin, @RequestParam("roleId") int roleId,
                                                    @RequestParam("userNum") String userNum, @RequestParam("userName") String userName,
                                                    @RequestParam("itemNum") String itemNum, @RequestParam("itemStatus") int itemStatus,
-                                                   HttpSession session) {
+                                                   HttpServletRequest request) {
         
         
-        User user = (User) session.getAttribute("activeUser");
+        User user = (User) request.getAttribute(com.ieps.common.Const.REQUEST_CURRENT_USER);
         
         //     return ServerResponse.createByErrorMessage("安全检查不通过，用户已过时或不存在！");
         // }
@@ -382,9 +378,9 @@ public class ItemAdminController {
     public ServerResponse batchAddReviewTeam(@RequestParam("userNumAdmin") String userNumAdmin, @RequestParam("roleId") int roleId,
                                              @RequestParam("userNum") String userNum, @RequestParam("userName") String userName,
                                              @RequestParam("itemNums") String[] itemNums, @RequestParam("itemStatus") int itemStatus,
-                                             HttpSession session) {
+                                             HttpServletRequest request) {
     
-        User user = (User) session.getAttribute("activeUser");
+        User user = (User) request.getAttribute(com.ieps.common.Const.REQUEST_CURRENT_USER);
     
         //     return ServerResponse.createByErrorMessage("安全检查不通过，用户已过时或不存在！");
         // }
@@ -401,10 +397,10 @@ public class ItemAdminController {
      */
     @RequestMapping({"/addReviewByExport", "/addReviewByExport.do"})
     @ResponseBody
-    public ServerResponse addReviewByExport(@RequestParam("roleId") int roleId, Review review, HttpSession session) {
+    public ServerResponse addReviewByExport(@RequestParam("roleId") int roleId, Review review, HttpServletRequest request) {
         
         
-        User user = (User) session.getAttribute("activeUser");
+        User user = (User) request.getAttribute(com.ieps.common.Const.REQUEST_CURRENT_USER);
         
         // if (!user.getUserNum().equals(userNumAdmin)) {
         //     return ServerResponse.createByErrorMessage("安全检查不通过，用户已过时或不存在！");
@@ -428,7 +424,7 @@ public class ItemAdminController {
     @ResponseBody
     public ServerResponse getFinishedItemList(@RequestParam(value = "pageNum",defaultValue = "1") int pageNum,
                                               @RequestParam(value = "pageSize",defaultValue = "10") int pageSize,
-                                              HttpSession session, String itemName, String itemDate) {
+                                              String itemName, String itemDate) {
         return itemAdminService.getFinishedItem(pageNum, pageSize, itemName, itemDate);
     }
     

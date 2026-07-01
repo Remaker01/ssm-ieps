@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import javax.servlet.http.HttpSession;
 import java.util.List;
 
 /**
@@ -29,14 +28,8 @@ public class UserAdminController {
     @RequestMapping({"/getUserAdminList", "/getUserAdminList.do"})
     @ResponseBody
     public ServerResponse<List<Inform>> getUserAdminList(@RequestParam(value = "page", defaultValue = "1") int page,
-                                                         @RequestParam(value = "limit", defaultValue = "5") int limit, HttpSession session,
+                                                         @RequestParam(value = "limit", defaultValue = "5") int limit,
                                                          @RequestParam("userNum") String userNum, @RequestParam("roleId") int roleId) {
-        
-        User user = (User) session.getAttribute("activeUser");
-        
-        // if (!user.getUserNum().equals(userNum)) {
-        //     return ServerResponse.createByErrorMessage("安全检查不通过，用户已过时或不存在！");
-        // }
         
         return userAdminService.getAllUserList(page, limit, userNum, roleId);
     }
@@ -56,13 +49,7 @@ public class UserAdminController {
     public ServerResponse<List<Inform>> searchUserAdminListWithCondition(@RequestParam(value = "page", defaultValue = "1") int page,
                                                                          @RequestParam(value = "limit", defaultValue = "5") int limit,
                                                                          @RequestParam("userNumAdmin") String userNum, UserInfo userInfo,
-                                                                         @RequestParam("roleId") int roleId, HttpSession session) {
-        
-        User user = (User) session.getAttribute("activeUser");
-        
-        // if (!user.getUserNum().equals(userNum)) {
-        //     return ServerResponse.createByErrorMessage("安全检查不通过，用户已过时或不存在！");
-        // }
+                                                                         @RequestParam("roleId") int roleId) {
         
         return userAdminService.searchUserAdminListWithCondition(page, limit, userNum, roleId, userInfo);
     }
@@ -77,14 +64,8 @@ public class UserAdminController {
      */
     @RequestMapping({"/modifySexWithUserNum", "/modifySexWithUserNum.do"})
     @ResponseBody
-    public ServerResponse modifySexWithUserNum(@RequestParam("userNum") String userNum, HttpSession session,
+    public ServerResponse modifySexWithUserNum(@RequestParam("userNum") String userNum,
                                                @RequestParam("roleId") int roleId, @RequestParam("sex") Integer sex) {
-        
-        User user = (User) session.getAttribute("activeUser");
-        
-        // if (user == null) {
-        //     return ServerResponse.createByErrorMessage("安全检查不通过，用户已过时或不存在！");
-        // }
         
         if (roleId == Const.ROLEID_COLLEGE || roleId == Const.ROLEID_ACADEMY) {
             return userAdminService.modifySexWithUserNum(userNum, sex);
@@ -103,14 +84,8 @@ public class UserAdminController {
      */
     @RequestMapping({"/modifyStatusWithUserNum", "/modifyStatusWithUserNum.do"})
     @ResponseBody
-    public ServerResponse modifyStatusWithUserNum(@RequestParam("userNum") String userNum, HttpSession session,
+    public ServerResponse modifyStatusWithUserNum(@RequestParam("userNum") String userNum,
                                                   @RequestParam("roleId") int roleId, @RequestParam("status") Integer status) {
-        
-        User user = (User) session.getAttribute("activeUser");
-        
-        // if (user == null) {
-        //     return ServerResponse.createByErrorMessage("安全检查不通过，用户已过时或不存在！");
-        // }
         
         if (roleId == Const.ROLEID_COLLEGE || roleId == Const.ROLEID_ACADEMY) {
             return userAdminService.modifyStatusWithUserNum(userNum, status);
@@ -128,13 +103,7 @@ public class UserAdminController {
      */
     @RequestMapping(value = {"/modifyUserByUserNum", "/modifyUserByUserNum.do"}, method = RequestMethod.POST)
     @ResponseBody
-    public ServerResponse modifyUserByUserNum(UserInfo userInfo, int roleId, HttpSession session) {
-        
-        User user = (User) session.getAttribute("activeUser");
-        
-        // if (user == null) {
-        //     return ServerResponse.createByErrorMessage("安全检查不通过，用户已过时或不存在！");
-        // }
+    public ServerResponse modifyUserByUserNum(UserInfo userInfo, int roleId) {
         
         if (roleId == Const.ROLEID_COLLEGE || roleId == Const.ROLEID_ACADEMY) {
             return userAdminService.modifyUserByUserNum(userInfo);
@@ -152,12 +121,7 @@ public class UserAdminController {
      */
     @RequestMapping({"/removeUserByUserNum", "/removeUserByUserNum.do"})
     @ResponseBody
-    public ServerResponse removeUserByUserNum(String userNum, HttpSession session, int roleId) {
-        
-        User user = (User) session.getAttribute("activeUser");
-        // if (user == null) {
-        //     return ServerResponse.createByErrorMessage("安全检查不通过，用户已过时或不存在！");
-        // }
+    public ServerResponse removeUserByUserNum(String userNum, int roleId) {
         
         if (roleId == Const.ROLEID_COLLEGE || roleId == Const.ROLEID_ACADEMY) {
             return userAdminService.removeUserByUserNum(userNum);
@@ -176,12 +140,7 @@ public class UserAdminController {
      */
     @RequestMapping({"/addUserAdmin", "/addUserAdmin.do"})
     @ResponseBody
-    public ServerResponse addUserAdmin(UserAdminDto userAdminDto, int roleId, int adminRoleId, HttpSession session) {
-        
-        User user = (User) session.getAttribute("activeUser");
-        // if (user == null) {
-        //     return ServerResponse.createByErrorMessage("安全检查不通过，用户已过时或不存在！");
-        // }
+    public ServerResponse addUserAdmin(UserAdminDto userAdminDto, int roleId, int adminRoleId) {
         
         if (adminRoleId <= roleId) {
             return ServerResponse.createByErrorMessage("对不起，你没有权限创建该角色的操作！");
@@ -203,12 +162,7 @@ public class UserAdminController {
      */
     @RequestMapping({"/batchRemoveUser", "/batchRemoveUser.do"})
     @ResponseBody
-    public ServerResponse batchRemoveUser(@RequestParam("userNums") String[] userNums, int roleId, HttpSession session) {
-        
-        // User user = (User) session.getAttribute("activeUser");
-        // if (user == null) {
-        //     return ServerResponse.createByErrorMessage("安全检查不通过，用户已过时或不存在！");
-        // }
+    public ServerResponse batchRemoveUser(@RequestParam("userNums") String[] userNums, int roleId) {
         
         if (roleId == Const.ROLEID_COLLEGE || roleId == Const.ROLEID_ACADEMY) {
             return userAdminService.batchRemoveUser(userNums);
@@ -225,12 +179,7 @@ public class UserAdminController {
      */
     @RequestMapping({"/getUserInfoByUserName", "/getUserInfoByUserName.do"})
     @ResponseBody
-    public ServerResponse getUserInfoByUserName(@RequestParam("userName") String userName, HttpSession session) {
-        
-        // User user = (User) session.getAttribute("activeUser");
-        // if (user == null) {
-        //     return ServerResponse.createByErrorMessage("安全检查不通过，用户已过时或不存在！");
-        // }
+    public ServerResponse getUserInfoByUserName(@RequestParam("userName") String userName) {
         
         return userAdminService.getUserInfoByUserName(userName);
     }
@@ -243,12 +192,7 @@ public class UserAdminController {
      */
     @RequestMapping({"/getAllRoleIdWithRoleIdByAdmin", "/getAllRoleIdWithRoleIdByAdmin.do"})
     @ResponseBody
-    public ServerResponse getAllRoleIdWithRoleIdByAdmin(Integer roleId, HttpSession session) {
-        
-        User user = (User) session.getAttribute("activeUser");
-        // if (user == null) {
-        //     return ServerResponse.createByErrorMessage("安全检查不通过，用户已过时或不存在！");
-        // }
+    public ServerResponse getAllRoleIdWithRoleIdByAdmin(Integer roleId) {
         
         return userAdminService.getAllRoleIdWithRoleIdByAdmin(roleId);
     }
@@ -264,12 +208,7 @@ public class UserAdminController {
     @RequestMapping({"/batchAddUser", "/batchAddUser.do"})
     @ResponseBody
     public ServerResponse batchAddUser(UserAdminDto userAdminDto, @RequestParam("roleId") Integer roleId,
-                                       @RequestParam("roleIdAdmin") int roleIdAdmin, HttpSession session) {
-        
-        User user = (User) session.getAttribute("activeUser");
-        // if (user == null) {
-        //     return ServerResponse.createByErrorMessage("安全检查不通过，用户已过时或不存在！");
-        // }
+                                       @RequestParam("roleIdAdmin") int roleIdAdmin) {
         
         return userAdminService.batchAddUser(userAdminDto, roleId, roleIdAdmin);
     }

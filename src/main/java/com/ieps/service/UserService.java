@@ -10,9 +10,9 @@ import com.ieps.pojo.UserInfo;
 import com.ieps.pojo.UserRole;
 import com.ieps.util.PasswordUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
-import javax.servlet.http.HttpSession;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -29,6 +29,9 @@ public class UserService {
     
     @Autowired
     private UserRoleMapper userRoleMapper;
+    
+    @Autowired
+    private StringRedisTemplate stringRedisTemplate;
     
     public ServerResponse login(String userNum, String userPwd) {
         User storedUser = userMapper.selectByUserNum(userNum);
@@ -125,28 +128,22 @@ public class UserService {
     }
     
     
-    public ServerResponse forgetPwd(String userNum, String userPwd, HttpSession session) {
-        User user = userMapper.selectByUserNum(userNum);
-        if (user == null) {
-            return ServerResponse.createByErrorMessage("用户不存在，请重新填写！");
-        }
-
-        Object verifiedUser = session.getAttribute(Const.SESSION_FORGET_PWD_VERIFIED_USER);
-        Object verifiedAt = session.getAttribute(Const.SESSION_FORGET_PWD_VERIFIED_AT);
-        if (!(verifiedUser instanceof String) || !(verifiedAt instanceof Long)) {
+    public ServerResponse forgetPwd(String userNum, String userPwd, String forgetPwdToken) {
+        if (forgetPwdToken == null || forgetPwdToken.trim().isEmpty()) {
             return ServerResponse.createByErrorMessage("请先完成验证码校验后再重置密码！");
         }
 
-        if (!userNum.equals(verifiedUser)) {
-            return ServerResponse.createByErrorMessage("验证码校验账号与当前重置账号不一致，请重新验证！");
+        // 从 Redis 校验 forgetPwdToken
+        String tokenKey = Const.REDIS_FORGET_PWD_TOKEN_PREFIX + userNum;
+        String storedToken = stringRedisTemplate.opsForValue().get(tokenKey);
+        if (storedToken == null || !storedToken.equals(forgetPwdToken.trim())) {
+            return ServerResponse.createByErrorMessage("验证码校验已失效，请重新获取验证码！");
         }
 
-        long verifiedAtMillis = (Long) verifiedAt;
-        long expireMillis = TimeUnit.MINUTES.toMillis(Const.FORGET_PWD_VERIFIED_TIMEOUT_MINUTES);
-        if (System.currentTimeMillis() - verifiedAtMillis > expireMillis) {
-            session.removeAttribute(Const.SESSION_FORGET_PWD_VERIFIED_USER);
-            session.removeAttribute(Const.SESSION_FORGET_PWD_VERIFIED_AT);
-            return ServerResponse.createByErrorMessage("验证码校验已过期，请重新获取验证码！");
+        User user = userMapper.selectByUserNum(userNum);
+        if (user == null) {
+            stringRedisTemplate.delete(tokenKey);
+            return ServerResponse.createByErrorMessage("用户不存在，请重新填写！");
         }
 
         String passwordPolicyError = PasswordUtil.validatePasswordPolicy(userPwd);
@@ -158,8 +155,8 @@ public class UserService {
             return ServerResponse.createByErrorMessage("重置密码失败，请重新填写！");
         }
 
-        session.removeAttribute(Const.SESSION_FORGET_PWD_VERIFIED_USER);
-        session.removeAttribute(Const.SESSION_FORGET_PWD_VERIFIED_AT);
+        // 清除已使用的 token
+        stringRedisTemplate.delete(tokenKey);
         
         return ServerResponse.createBySuccessMessage("重置密码成功，请使用新密码重新登录！");
     }
