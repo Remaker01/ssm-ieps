@@ -2,6 +2,8 @@ server:
   address: ${IEPS_SERVER_ADDRESS:127.0.0.1}
   port: 8080
   servlet:
+    session:
+      timeout: 30m
     encoding:
       charset: UTF-8
       enabled: true
@@ -10,6 +12,17 @@ server:
 spring:
   application:
     name: ieps
+
+  redis:
+    host: 127.0.0.1
+    port: 6379
+    database: 1
+    timeout: 3s
+
+  session:
+    store-type: redis
+    redis:
+      namespace: ieps:session
 
   # 数据源配置 (HikariCP)
   datasource:
@@ -63,6 +76,14 @@ spring:
           auth: true
           starttls:
             enable: true
+
+ieps:
+  redis:
+    verify-code:
+      ttl-seconds: 300
+      cooldown-seconds: 60
+      max-failures: 5
+      namespace: ieps:verify
 
 # MyBatis 配置
 mybatis:

@@ -158,8 +158,6 @@
     const newPassword = $("input[name='newPassword']");
     const reNewPassword = $("input[name='reNewPassword']");
 
-    let backVerifyCode;
-
 </script>
 
 <script>
@@ -226,7 +224,7 @@
                     layer.msg(result.msg);
                     return;
                 }
-                $(".getVerifyCode").on("click", sendMessage).removeAttr("disabled");
+                $(".getVerifyCode").off("click").on("click", sendMessage).removeAttr("disabled");
             })
         })
     })
@@ -249,17 +247,18 @@
         InterValObj = window.setInterval(setRemainTime, 1000); //启动计时器，1秒执行一次
         // todo 向后台发送处理数据
         const param = {
+            userNum: userNum.val(),
             verifyNum: verifyNum.val()
         };
 
-        $.get("/getVerifyCode.do", param, function (result) {
+        $.post("/getVerifyCode", param, function (result) {
             if (result.status != 0) {
-                layer.msg(rsult.msg);
+                window.clearInterval(InterValObj);
+                $(".getVerifyCode").removeAttr("disabled").val("重新发送");
+                layer.msg(result.msg);
                 return;
             }
-            backVerifyCode = result.data;
-            console.log("backVerifyCode：" + backVerifyCode);
-
+            layer.msg(result.msg);
             verifyCode.removeAttr("disabled", "");
         })
     }
@@ -282,13 +281,26 @@
                 verifyCode.val("");
                 return;
             }
-            if (verifyCode.val() != backVerifyCode) {
-                layer.msg("验证码不正确，请重新输入！");
+            if (verifyCode.val() == "") {
+                layer.msg("请输入验证码后再继续！");
                 return;
             }
 
-            layer.msg("验证通过，请继续下一步！");
-            $(".secondNext").css("background-color", "#27AE60").removeAttr("disabled", "");
+            const param = {
+                userNum: userNum.val(),
+                verifyNum: verifyNum.val(),
+                verifyCode: verifyCode.val()
+            };
+
+            $.post("/checkVerifyCode", param, function (result) {
+                if (result.status != 0) {
+                    layer.msg(result.msg);
+                    return;
+                }
+
+                layer.msg(result.msg);
+                $(".secondNext").css("background-color", "#27AE60").removeAttr("disabled", "");
+            });
 
         });
     });

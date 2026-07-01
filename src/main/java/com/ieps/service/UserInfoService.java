@@ -1,16 +1,21 @@
 package com.ieps.service;
 
+import com.ieps.common.Const;
 import com.ieps.common.ServerResponse;
+import com.ieps.config.IepsRedisProperties;
 import com.ieps.dto.UserAdminDto;
 import com.ieps.mapper.UserInfoMapper;
 import com.ieps.pojo.UserInfo;
 import com.ieps.util.MailUtil;
 import com.ieps.util.miaodiyun.IndustrySMS;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.mail.MessagingException;
+import javax.servlet.http.HttpSession;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by ljw
@@ -20,6 +25,12 @@ public class UserInfoService {
     
     @Autowired
     private UserInfoMapper userInfoMapper;
+
+    @Autowired
+    private StringRedisTemplate stringRedisTemplate;
+
+    @Autowired
+    private IepsRedisProperties iepsRedisProperties;
     
     public ServerResponse<UserInfo> findByUserNum(String userNum) {
         UserInfo userInfo = userInfoMapper.selectByUserNum(userNum);
@@ -41,20 +52,40 @@ public class UserInfoService {
         return ServerResponse.createBySuccessMessage("恭喜你，修改成功！");
     }
     
-    public ServerResponse<String> getVerifyCode(String verifyNum) {
+    public ServerResponse<String> getVerifyCode(String userNum, String verifyNum) {
+        ServerResponse verifyNumCheck = checkVerifyNum(userNum, verifyNum);
+        if (verifyNumCheck.getStatus() != 0) {
+            return ServerResponse.createByErrorMessage(verifyNumCheck.getMsg());
+        }
+
+        String cooldownKey = buildCooldownKey(userNum);
+        if (Boolean.TRUE.equals(stringRedisTemplate.hasKey(cooldownKey))) {
+            Long seconds = stringRedisTemplate.getExpire(cooldownKey, TimeUnit.SECONDS);
+            long remainSeconds = seconds == null || seconds < 0 ? iepsRedisProperties.getCooldownSeconds() : seconds;
+            return ServerResponse.createByErrorMessage("验证码发送过于频繁，请在" + remainSeconds + "秒后重试！");
+        }
+
+        String code = generateVerifyCode();
+
         // 邮箱验证
         if (verifyNum.indexOf("@") != -1) {
-            int randNum = (int) (Math.random() * 1000000);
             try {
-                MailUtil.send_mail(verifyNum, String.valueOf(randNum));
-                System.out.println("邮箱验证码发送成功！" + randNum);
-                return ServerResponse.createBySuccess("邮箱验证码已发送，请及时输入验证", String.valueOf(randNum));
+                MailUtil.send_mail(verifyNum, code);
             } catch (MessagingException e) {
                 e.printStackTrace();
+                return ServerResponse.createByErrorMessage("邮箱验证码发送失败，请稍后重试！");
             }
+        } else {
+            IndustrySMS.execute(verifyNum, code);
         }
-        
-        return ServerResponse.createBySuccess("短信验证码已发送，请及时输入验证", IndustrySMS.execute(verifyNum));
+
+        stringRedisTemplate.opsForValue().set(buildVerifyCodeKey(userNum), code,
+                iepsRedisProperties.getTtlSeconds(), TimeUnit.SECONDS);
+        stringRedisTemplate.opsForValue().set(cooldownKey, "1",
+                iepsRedisProperties.getCooldownSeconds(), TimeUnit.SECONDS);
+        stringRedisTemplate.delete(buildFailKey(userNum));
+
+        return ServerResponse.createBySuccessMessage("验证码已发送，请及时输入验证");
     }
     
     public ServerResponse checkVerifyNum(String userNum, String verifyNum) {
@@ -73,6 +104,44 @@ public class UserInfoService {
         
         return ServerResponse.createBySuccess();
     }
+
+    public ServerResponse checkVerifyCode(String userNum, String verifyNum, String verifyCode, HttpSession session) {
+        if (verifyCode == null || verifyCode.trim().isEmpty()) {
+            return ServerResponse.createByErrorMessage("请输入验证码后再继续！");
+        }
+
+        ServerResponse verifyNumCheck = checkVerifyNum(userNum, verifyNum);
+        if (verifyNumCheck.getStatus() != 0) {
+            return ServerResponse.createByErrorMessage(verifyNumCheck.getMsg());
+        }
+
+        String codeKey = buildVerifyCodeKey(userNum);
+        String cachedVerifyCode = stringRedisTemplate.opsForValue().get(codeKey);
+        if (cachedVerifyCode == null || cachedVerifyCode.trim().isEmpty()) {
+            return ServerResponse.createByErrorMessage("验证码已失效，请重新获取！");
+        }
+
+        if (!cachedVerifyCode.equals(verifyCode.trim())) {
+            long failCount = stringRedisTemplate.opsForValue().increment(buildFailKey(userNum));
+            if (failCount == 1L) {
+                Long ttl = stringRedisTemplate.getExpire(codeKey, TimeUnit.SECONDS);
+                if (ttl != null && ttl > 0) {
+                    stringRedisTemplate.expire(buildFailKey(userNum), ttl, TimeUnit.SECONDS);
+                }
+            }
+
+            if (failCount >= iepsRedisProperties.getMaxFailures()) {
+                clearVerifyState(userNum);
+                return ServerResponse.createByErrorMessage("验证码错误次数过多，请重新获取验证码！");
+            }
+            return ServerResponse.createByErrorMessage("验证码不正确，请重新输入！");
+        }
+
+        clearVerifyState(userNum);
+        session.setAttribute(Const.SESSION_FORGET_PWD_VERIFIED_USER, userNum);
+        session.setAttribute(Const.SESSION_FORGET_PWD_VERIFIED_AT, System.currentTimeMillis());
+        return ServerResponse.createBySuccessMessage("验证通过，请继续下一步！");
+    }
     
     public ServerResponse getUserInfoWithItemNum(String itemNum) {
         List<UserAdminDto> userAdminDtoList = userInfoMapper.selectUserInfoWithItemNum(itemNum);
@@ -82,6 +151,28 @@ public class UserInfoService {
         
         return ServerResponse.createBySuccess(userAdminDtoList);
     }
-    
+
+    private String buildVerifyCodeKey(String userNum) {
+        return iepsRedisProperties.getNamespace() + ":forgetPwd:" + userNum;
+    }
+
+    private String buildCooldownKey(String userNum) {
+        return iepsRedisProperties.getNamespace() + ":cooldown:" + userNum;
+    }
+
+    private String buildFailKey(String userNum) {
+        return iepsRedisProperties.getNamespace() + ":fail:" + userNum;
+    }
+
+    private void clearVerifyState(String userNum) {
+        stringRedisTemplate.delete(buildVerifyCodeKey(userNum));
+        stringRedisTemplate.delete(buildCooldownKey(userNum));
+        stringRedisTemplate.delete(buildFailKey(userNum));
+    }
+
+    private String generateVerifyCode() {
+        int random = (int) (Math.random() * 1000000);
+        return String.format("%06d", random);
+    }
 
 }

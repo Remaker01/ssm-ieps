@@ -1,5 +1,6 @@
 package com.ieps.service;
 
+import com.ieps.common.Const;
 import com.ieps.common.ServerResponse;
 import com.ieps.mapper.UserInfoMapper;
 import com.ieps.mapper.UserMapper;
@@ -10,6 +11,9 @@ import com.ieps.pojo.UserRole;
 import com.ieps.util.PasswordUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import javax.servlet.http.HttpSession;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by ljw
@@ -121,10 +125,28 @@ public class UserService {
     }
     
     
-    public ServerResponse forgetPwd(String userNum, String userPwd) {
+    public ServerResponse forgetPwd(String userNum, String userPwd, HttpSession session) {
         User user = userMapper.selectByUserNum(userNum);
         if (user == null) {
             return ServerResponse.createByErrorMessage("用户不存在，请重新填写！");
+        }
+
+        Object verifiedUser = session.getAttribute(Const.SESSION_FORGET_PWD_VERIFIED_USER);
+        Object verifiedAt = session.getAttribute(Const.SESSION_FORGET_PWD_VERIFIED_AT);
+        if (!(verifiedUser instanceof String) || !(verifiedAt instanceof Long)) {
+            return ServerResponse.createByErrorMessage("请先完成验证码校验后再重置密码！");
+        }
+
+        if (!userNum.equals(verifiedUser)) {
+            return ServerResponse.createByErrorMessage("验证码校验账号与当前重置账号不一致，请重新验证！");
+        }
+
+        long verifiedAtMillis = (Long) verifiedAt;
+        long expireMillis = TimeUnit.MINUTES.toMillis(Const.FORGET_PWD_VERIFIED_TIMEOUT_MINUTES);
+        if (System.currentTimeMillis() - verifiedAtMillis > expireMillis) {
+            session.removeAttribute(Const.SESSION_FORGET_PWD_VERIFIED_USER);
+            session.removeAttribute(Const.SESSION_FORGET_PWD_VERIFIED_AT);
+            return ServerResponse.createByErrorMessage("验证码校验已过期，请重新获取验证码！");
         }
 
         String passwordPolicyError = PasswordUtil.validatePasswordPolicy(userPwd);
@@ -135,6 +157,9 @@ public class UserService {
         if (userMapper.updatePwd(userNum, PasswordUtil.hashPassword(userPwd)) < 1) {
             return ServerResponse.createByErrorMessage("重置密码失败，请重新填写！");
         }
+
+        session.removeAttribute(Const.SESSION_FORGET_PWD_VERIFIED_USER);
+        session.removeAttribute(Const.SESSION_FORGET_PWD_VERIFIED_AT);
         
         return ServerResponse.createBySuccessMessage("重置密码成功，请使用新密码重新登录！");
     }

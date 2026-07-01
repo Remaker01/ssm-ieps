@@ -37,6 +37,14 @@ public class Const {
     
     // 统一注册状态
     public final static int UNIFORM_STATUS = 1;
+
+    // Session Key
+    public final static String SESSION_ACTIVE_USER = "activeUser";
+    public final static String SESSION_FORGET_PWD_VERIFIED_USER = "forgetPwdVerifiedUser";
+    public final static String SESSION_FORGET_PWD_VERIFIED_AT = "forgetPwdVerifiedAt";
+
+    // 忘记密码验证码校验通过后会话有效期（分钟）
+    public final static long FORGET_PWD_VERIFIED_TIMEOUT_MINUTES = 10L;
     
     // 文件类型 file_kind  0：普通文件；1：常用下载文件；2：项目文件；
     public final static int ZERO_FILE_KIND = 0;

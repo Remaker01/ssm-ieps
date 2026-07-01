@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.servlet.http.HttpSession;
+
 /**
  * Created by ljw
  */
@@ -20,9 +22,9 @@ public class UserController {
     
     @RequestMapping(value = {"/forget-password", "/forgetPwd", "/forgetPwd.do"}, method = RequestMethod.POST)
     @ResponseBody
-    public ServerResponse forgetPwd(String userNum, String userPwd) {
+    public ServerResponse forgetPwd(String userNum, String userPwd, HttpSession session) {
 //        System.out.println(userNum + "   " + userPwd);
-        return userService.forgetPwd(userNum, userPwd);
+        return userService.forgetPwd(userNum, userPwd, session);
     }
     
     @RequestMapping(value = {"/modifyPwd", "/modifyPwd.do"}, method = RequestMethod.POST)

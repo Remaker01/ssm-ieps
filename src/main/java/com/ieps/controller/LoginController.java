@@ -2,6 +2,7 @@ package com.ieps.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ieps.common.Const;
 import com.ieps.common.ServerResponse;
 import com.ieps.pojo.RolePerm;
 import com.ieps.pojo.User;
@@ -55,7 +56,7 @@ public class LoginController {
         ServerResponse user = userService.login(userNum, userPwd);
         
         if (user.getStatus() == 0) {
-            session.setAttribute("activeUser", user.getData());
+            session.setAttribute(Const.SESSION_ACTIVE_USER, user.getData());
         }
         
         return user;
@@ -71,7 +72,7 @@ public class LoginController {
     @RequestMapping(value = {"/getMenu", "/getMenu.do"}, method = RequestMethod.POST)
     @ResponseBody
     public ServerResponse getMenu(String userNum, Integer roleId, HttpSession session) {
-        User user = (User) session.getAttribute("activeUser");
+        User user = (User) session.getAttribute(Const.SESSION_ACTIVE_USER);
     
         // if (!user.getUserNum().equals(userNum)) {
         //     return ServerResponse.createByErrorMessage("安全检查不通过，用户已过时或不存在！");
@@ -113,7 +114,7 @@ public class LoginController {
     @RequestMapping(value = {"/checkUserPwdWithUserNum", "/checkUserPwdWithUserNum.do"}, method = RequestMethod.POST)
     @ResponseBody
     public ServerResponse checkUserPwdWithUserNum(String userNum, String userPwd, HttpSession session) {
-        User activeUser = (User) session.getAttribute("activeUser");
+        User activeUser = (User) session.getAttribute(Const.SESSION_ACTIVE_USER);
         if (activeUser == null) {
             return ServerResponse.createByErrorMessage("登录状态已失效，请重新登录后再试！");
         }
@@ -130,7 +131,8 @@ public class LoginController {
      * @return
      */
     @RequestMapping(value = {"/logout", "/logout.do"}, method = RequestMethod.GET)
-    public String logout() {
+    public String logout(HttpSession session) {
+        session.invalidate();
         return "redirect:/login";
     }
 

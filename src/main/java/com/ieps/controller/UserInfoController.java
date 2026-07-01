@@ -31,10 +31,16 @@ public class UserInfoController {
         return userInfoService.checkVerifyNum(userNum, verifyNum);
     }
     
-    @RequestMapping({"/getVerifyCode", "/getVerifyCode.do"})
+    @RequestMapping(value = {"/getVerifyCode", "/getVerifyCode.do"}, method = RequestMethod.POST)
     @ResponseBody
-    public ServerResponse<String> getVerifyCode(String verifyNum) {
-        return userInfoService.getVerifyCode(verifyNum);
+    public ServerResponse<String> getVerifyCode(String userNum, String verifyNum) {
+        return userInfoService.getVerifyCode(userNum, verifyNum);
+    }
+
+    @RequestMapping(value = {"/checkVerifyCode", "/checkVerifyCode.do"}, method = RequestMethod.POST)
+    @ResponseBody
+    public ServerResponse checkVerifyCode(String userNum, String verifyNum, String verifyCode, HttpSession session) {
+        return userInfoService.checkVerifyCode(userNum, verifyNum, verifyCode, session);
     }
     
     @RequestMapping({"/getUserInfo", "/getUserInfo.do"})
