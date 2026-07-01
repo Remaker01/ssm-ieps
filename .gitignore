@@ -33,3 +33,12 @@ hs_err_pid*
 
 # Upload directory
 /upload/
+
+# Runtime deploy artifacts
+/deploy/app/
+/deploy/static/
+/deploy/logs/
+/deploy/run/
+/deploy/favicon.ico
+/deploy/dump.rdb
+dump.rdb
