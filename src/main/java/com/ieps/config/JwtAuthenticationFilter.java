@@ -18,7 +18,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -39,91 +38,43 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     /**
      * 白名单路径——不需要认证即可访问
      */
-    private final List<String> whiteList = new ArrayList<>();
-    
-    private final PathMatcher pathMatcher = new AntPathMatcher();
-    
-    public JwtAuthenticationFilter() {
+    private final List<String> whiteList = List.of(
         // 公开页面路由
-        whiteList.add("/");
-        whiteList.add("/home");
-        whiteList.add("/login");
-        whiteList.add("/register");
-        whiteList.add("/logout");
-        whiteList.add("/forget-password");
-        whiteList.add("/informs/**");
-        whiteList.add("/items");
-        whiteList.add("/items/detail");
-        whiteList.add("/downloads");
-        
+        "/", "/home", "/login", "/register", "/logout", "/forget-password",
+        "/informs/**", "/items", "/items/detail", "/downloads",
+
         // 兼容旧 .do 路由
-        whiteList.add("/goHome.do");
-        whiteList.add("/login.do");
-        whiteList.add("/register.do");
-        whiteList.add("/logout.do");
-        whiteList.add("/goLogin.do");
-        whiteList.add("/goRegister.do");
-        whiteList.add("/goForgetPwd.do");
-        whiteList.add("/goShowInformDetail.do");
-        whiteList.add("/goShowInfoemDetail.do");
-        whiteList.add("/goShowInformMore.do");
-        whiteList.add("/goShowItemMore.do");
-        whiteList.add("/goShowItemDetail.do");
-        whiteList.add("/goShowDownLoadMore.do");
-        
+        "/goHome.do", "/login.do", "/register.do", "/logout.do",
+        "/goLogin.do", "/goRegister.do", "/goForgetPwd.do",
+        "/goShowInformDetail.do", "/goShowInfoemDetail.do", "/goShowInformMore.do",
+        "/goShowItemMore.do", "/goShowItemDetail.do", "/goShowDownLoadMore.do",
+
         // 验证码相关
-        whiteList.add("/getVerifyCode");
-        whiteList.add("/getVerifyCode.do");
-        whiteList.add("/checkVerifyCode");
-        whiteList.add("/checkVerifyCode.do");
-        whiteList.add("/checkVerifyNum");
-        whiteList.add("/checkVerifyNum.do");
-        
+        "/getVerifyCode", "/getVerifyCode.do",
+        "/checkVerifyCode", "/checkVerifyCode.do",
+        "/checkVerifyNum", "/checkVerifyNum.do",
+
         // 公共 AJAX 数据接口（无需登录）
-        whiteList.add("/checkUser");
-        whiteList.add("/checkUser.do");
-        whiteList.add("/getInformDetailById");
-        whiteList.add("/getInformDetailById.do");
-        whiteList.add("/getItemDetailWithItemNum");
-        whiteList.add("/getItemDetailWithItemNum.do");
-        whiteList.add("/getUserInfoWithItemNum");
-        whiteList.add("/getUserInfoWithItemNum.do");
-        whiteList.add("/getFinishedItemList");
-        whiteList.add("/getFinishedItemList.do");
-        whiteList.add("/getInformListByAdminWithUserNum");
-        whiteList.add("/getInformListByAdminWithUserNum.do");
-        whiteList.add("/getFileListByAdminWithKind");
-        whiteList.add("/getFileListByAdminWithKind.do");
-        whiteList.add("/previewFile");
-        whiteList.add("/previewFile.do");
-        whiteList.add("/downloadFile");
-        whiteList.add("/downloadFile.do");
-        whiteList.add("/downloadFileWithItemNum");
-        whiteList.add("/downloadFileWithItemNum.do");
-        
-        // 静态资源（按扩展名放行）
-        whiteList.add("/static/**");
-        whiteList.add("/pages/**");
-        whiteList.add("/upload/**");
-        whiteList.add("/hub/**");
-        whiteList.add("/favicon.ico");
-        whiteList.add("/error");
-        
-        // 通用静态文件扩展名
-        whiteList.add("/**/*.html");
-        whiteList.add("/**/*.css");
-        whiteList.add("/**/*.js");
-        whiteList.add("/**/*.png");
-        whiteList.add("/**/*.jpg");
-        whiteList.add("/**/*.jpeg");
-        whiteList.add("/**/*.gif");
-        whiteList.add("/**/*.ico");
-        whiteList.add("/**/*.woff");
-        whiteList.add("/**/*.woff2");
-        whiteList.add("/**/*.ttf");
-        whiteList.add("/**/*.svg");
-        whiteList.add("/**/*.map");
-    }
+        "/checkUser", "/checkUser.do",
+        "/getInformDetailById", "/getInformDetailById.do",
+        "/getItemDetailWithItemNum", "/getItemDetailWithItemNum.do",
+        "/getUserInfoWithItemNum", "/getUserInfoWithItemNum.do",
+        "/getFinishedItemList", "/getFinishedItemList.do",
+        "/getInformListByAdminWithUserNum", "/getInformListByAdminWithUserNum.do",
+        "/getFileListByAdminWithKind", "/getFileListByAdminWithKind.do",
+        "/previewFile", "/previewFile.do",
+        "/downloadFile", "/downloadFile.do",
+        "/downloadFileWithItemNum", "/downloadFileWithItemNum.do",
+
+        // 静态资源
+        "/static/**", "/pages/**", "/upload/**", "/hub/**",
+        "/favicon.ico", "/error",
+        "/**/*.html", "/**/*.css", "/**/*.js",
+        "/**/*.png", "/**/*.jpg", "/**/*.jpeg", "/**/*.gif", "/**/*.ico",
+        "/**/*.woff", "/**/*.woff2", "/**/*.ttf", "/**/*.svg", "/**/*.map"
+    );
+
+    private final PathMatcher pathMatcher = new AntPathMatcher();
     
     @Override
     protected void doFilterInternal(HttpServletRequest request,
