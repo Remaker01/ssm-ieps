@@ -13,7 +13,7 @@ import java.security.MessageDigest;
 import java.security.SecureRandom;
 import java.util.Base64;
 
-@Deprecated(forRemoval = true)
+@Deprecated
 public class EncryptUtil {
     
     public static final String MD5 = "MD5";
