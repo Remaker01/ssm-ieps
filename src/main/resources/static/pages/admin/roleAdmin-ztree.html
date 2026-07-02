@@ -372,14 +372,13 @@
                             data: {
                                 roleIds: roleIds
                             },
-                            traditional: true,
-                            success: function (result) {
+                            traditional: true
+                        }).done(function (result) {
                                 if (result.status != 0) {
                                     return layer.msg(result.msg, {icon: 2});
                                 }
                                 layer.msg(result.msg, {icon: 1});
-                            }
-                        });
+                            });
                         layer.close(index);
                     });
             }

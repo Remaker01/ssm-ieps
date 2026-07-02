@@ -26,11 +26,10 @@
             url:'checkCaptchaCode.do',
             data:{
                 "captchaCode" : captchaCode
-            },
-            success: function(res){
-                alert(res);
             }
-        });
+        }).done(function(res){
+                alert(res);
+            });
     }
 
     //时间戳

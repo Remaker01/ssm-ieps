@@ -112,8 +112,8 @@ const userNum = $('.userNum').val();
                     beforeSend: function(){
                         layer.msg('开始登录...');
                         console.log("进入开始登录！");
-                    },
-                    success: function(result){
+                    }
+                }).done(function(result){
                         layer.close(load);
 
                         console.log(result);
@@ -134,13 +134,11 @@ const userNum = $('.userNum').val();
                                 //登录返回，跳转首页
                             },1000);
                         }
-                    },
-                    error: function(e){
+                    }).fail(function(e){
                         console.log(e, e.msg);
                         layer.msg('登录异常！',new Function());
                         console.log("登录异常！");
-                    }
-				})
+                    })
 		    });
 		});
     </script>

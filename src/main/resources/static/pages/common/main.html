@@ -156,8 +156,8 @@
             type: "get",
             async: true, //异步请求（同步请求将会锁住浏览器，用户其他操作必须等待请求完成才可以执行）
             url: "/getItemsWithYear.do",
-            dataType: "json",
-            success: function (result) {
+            dataType: "json"
+        }).done(function (result) {
                 const names = [];     // （实际用来盛放X坐标值）
                 const nums = [];      // （实际用来盛放Y坐标值）
 
@@ -181,11 +181,9 @@
                         data: nums
                     }]
                 });
-            },
-            error: function () {
+            }).fail(function () {
                 myChart.hideLoading();
-            }
-        });
+            });
     }
 
     //<!--  饼图  -->
@@ -202,8 +200,8 @@
         $.ajax({
             type: "get",
             url: "/getAcademyStuSex.do",
-            data: {itemDate: $("#getItemDate select[name='itemDate'] > option:selected").val()},
-            success: function (result) {
+            data: {itemDate: $("#getItemDate select[name='itemDate'] > option:selected").val()}
+        }).done(function (result) {
 
                 if (result.status != 0) {
                     return;
@@ -271,11 +269,9 @@
                         }
                     ]
                 });
-            },
-            error: function () {
+            }).fail(function () {
                 myChart.hideLoading();
-            }
-        });
+            });
     }
 </script>
 

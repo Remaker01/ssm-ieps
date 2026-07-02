@@ -830,8 +830,8 @@
                                 userNum: userNumAdmin,
                                 roleId: roleIdAdmin
                             },
-                            traditional: true,
-                            success: function (result) {
+                            traditional: true
+                        }).done(function (result) {
                                 if (result.status != 0) {
                                     return layer.msg(result.msg, {icon: 0});
                                 }
@@ -840,8 +840,7 @@
                                 setTimeout(function () {
                                     window.location.reload();
                                 }, 3000);
-                            }
-                        });
+                            });
                         layer.close(index);
                     });
                     break;
@@ -962,8 +961,8 @@
                                     roleId: roleId,
                                     roleIdAdmin: roleIdAdmin
                                 },
-                                traditional: true,
-                                success: function (result) {
+                                traditional: true
+                            }).done(function (result) {
                                     if (result.status != 0) {
                                         return layer.msg(result.msg, {icon: 2});
                                     }
@@ -974,8 +973,7 @@
                                     setTimeout(function () {
                                         window.location.reload();
                                     }, 3000);
-                                }
-                            });
+                                });
                             layer.close(index);
                         }
                     });
@@ -1083,8 +1081,8 @@
                                 userNumAdmin: userNumAdmin,
                                 roleId: roleIdAdmin
                             },
-                            traditional: true,
-                            success: function (result) {
+                            traditional: true
+                        }).done(function (result) {
                                 if (result.status != 0) {
                                     return layer.msg(result.msg, {icon: 0});
                                 }
@@ -1093,8 +1091,7 @@
                                 setTimeout(function () {
                                     window.location.reload();
                                 }, 3000);
-                            }
-                        });
+                            });
                         layer.close(index);
 
                     }

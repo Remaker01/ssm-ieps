@@ -259,15 +259,14 @@ const checkStatus = table.checkStatus(obj.config.id);
                                 userNum: userNumAdmin,
                                 roleId: roleIdAdmin
                             },
-                            traditional: true,
-                            success: function (result) {
+                            traditional: true
+                        }).done(function (result) {
                                 if (result.status != 0) {
                                     return layer.msg(result.msg, {icon: 0});
                                 }
                                 window.location.reload();
                                 layer.msg(result.msg, {icon: 1});
-                            }
-                        });
+                            });
                         layer.close(index);
                     });
                     break;
