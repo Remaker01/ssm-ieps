@@ -2,12 +2,12 @@ package com.ieps.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.Lists;
 import com.ieps.common.ServerResponse;
 import com.ieps.dto.CkeditorUploadFileDto;
 import com.ieps.pojo.FileHub;
-import com.ieps.pojo.User;
 import com.ieps.service.FileAdminService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,9 +18,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-// HttpSession no longer needed after JWT migration
 import java.io.*;
 import java.net.URLEncoder;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.ZipEntry;
@@ -34,6 +34,8 @@ import static com.ieps.util.PreviewFileUtil.extractPreviewUrl;
  */
 @Controller
 public class FileAdminController {
+    
+    private static final Logger logger = LoggerFactory.getLogger(FileAdminController.class);
     
     @Autowired
     private FileAdminService fileAdminService;
@@ -171,33 +173,24 @@ public class FileAdminController {
     @RequestMapping(value = {"/downloadFile", "/downloadFile.do"}, method = RequestMethod.GET)
     @ResponseBody
     public void downloadFile(String fileName, HttpServletRequest request, HttpServletResponse response) {
-        // request.getServletContext()得到的是ServletContext对象，
-        // getRealPath(“/”) 获取实际路径,“/”指代项目根目录,所以代码返回的是项目在容器中的实际发布运行的根路径。
+        String path = request.getServletContext().getRealPath("/hub/") + fileName;
+        logger.info("Downloading file: {}", path);
         
-        try {
+        try (InputStream is = new BufferedInputStream(new FileInputStream(path));
+             OutputStream os = response.getOutputStream()) {
             
-            String path = request.getServletContext().getRealPath("/hub/") + fileName;
+            String encodedFileName = URLEncoder.encode(fileName, "UTF-8");
+            response.addHeader("Content-Disposition", "attachment;filename=" + encodedFileName);
+            response.setContentType("application/octet-stream");
             
-            System.out.println(path);
-            // 获取输入流
-            InputStream bis = new BufferedInputStream(new FileInputStream(new File(path)));
-            // 转码，免得文件名中文乱码
-            fileName = URLEncoder.encode(fileName, "UTF-8");
-            
-            // 设置文件下载头
-            response.addHeader("Content-Disposition", "attachment;filename=" + fileName);
-            //1.设置文件ContentType类型，这样设置，会自动判断下载文件类型
-            response.setContentType("multipart/form-data");
-            BufferedOutputStream out = new BufferedOutputStream(response.getOutputStream());
-            int length = 0;
-            while ((length = bis.read()) != -1) {
-                out.write(length);
-                out.flush();
+            byte[] buffer = new byte[8192];
+            int length;
+            while ((length = is.read(buffer)) != -1) {
+                os.write(buffer, 0, length);
             }
-            out.close();
+            os.flush();
         } catch (IOException e) {
-            System.out.println("你关闭了已连接的对象流！");
-            System.out.println("FileAdminController：" + e.getMessage());
+            logger.error("Failed to download file: {}", fileName, e);
         }
     }
     
@@ -213,41 +206,23 @@ public class FileAdminController {
     public ServerResponse previewFile(String fileName, HttpServletRequest request, HttpServletResponse response) {
     
         String path = request.getServletContext().getRealPath("/hub/") + fileName;
-    
-        System.out.println(path);
+        logger.info("Previewing file: {}", path);
         
-        //文件上传转换,获取返回数据
         String convertByFile = SubmitPost("http://dcs.yozosoft.com:80/upload", path, "1");
-        // String convertByFile = SubmitPost("http://dcs.yozosoft.com:80/upload", "C:/Users/ljw/Desktop/PDF.js", "1");
         try {
             JsonNode obj = objectMapper.readTree(convertByFile);
-            if ("0".equals(obj.path("result").asText())) {// 转换成功
+            if ("0".equals(obj.path("result").asText())) {
                 String urlData = extractPreviewUrl(obj);
-
-                //最后urlData是文件的浏览地址
-                System.out.println(urlData);//打印网络文件预览地址
-            
+                logger.info("Preview URL: {}", urlData);
                 return ServerResponse.createBySuccess("预览文件正在打开，请稍等！", urlData);
-            
-            
-        
-                // mining of.docx
-                // http://dcs.yozosoft.com:8000/2019/05/27/MTkwNTI3OTMxMDIxMzUw.html
-        
-        
-                // PDF.js
-                // http://dcs.yozosoft.com:8000/2019/05/27/MTkwNTI3OTczNzEwMDA.html
-        
             }
         } catch (Exception e) {
+            logger.error("Preview service response parse failed for file: {}", fileName, e);
             return ServerResponse.createByErrorMessage("预览服务响应解析失败");
         }
 
-        {// 转换失败
-            System.out.println("转换失败");
-            
-            return ServerResponse.createByErrorMessage("文档过大，打开失败");
-        }
+        logger.warn("File conversion failed, file may be too large: {}", fileName);
+        return ServerResponse.createByErrorMessage("文档过大，打开失败");
     }
     
     
@@ -313,41 +288,31 @@ public class FileAdminController {
     public ServerResponse downloadFileWithItemNum(@RequestParam("itemNum") String itemNum, HttpServletRequest request,
                                                   HttpServletResponse response) {
 
-//        System.out.println(itemNum);
-
         if (fileAdminService.getFileWithItemNum(itemNum).getStatus() != 0) {
             return ServerResponse.createByErrorMessage("对不起，你还没有上传项目附件呢!请关闭窗口再重试！");
         }
         
         FileHub fileHub = (FileHub) fileAdminService.getFileWithItemNum(itemNum).getData();
-        
         String fileName = fileHub.getFileName();
-        
-        // request.getServletContext()得到的是ServletContext对象，
-        // getRealPath(“/”) 获取实际路径,“/”指代项目根目录,所以代码返回的是项目在容器中的实际发布运行的根路径。
         String path = request.getServletContext().getRealPath("/hub/") + fileName;
+        logger.info("Downloading file by itemNum: {} -> {}", itemNum, path);
         
-        System.out.println(path);
-        try {
-            // 获取输入流
-            InputStream bis = new BufferedInputStream(new FileInputStream(new File(path)));
-            // 转码，免得文件名中文乱码
-            fileName = URLEncoder.encode(fileHub.getFileName(), "UTF-8");
+        try (InputStream is = new BufferedInputStream(new FileInputStream(path));
+             OutputStream os = response.getOutputStream()) {
             
-            // 设置文件下载头
-            response.addHeader("Content-Disposition", "attachment;filename=" + fileName);
-            //1.设置文件ContentType类型，这样设置，会自动判断下载文件类型
-            response.setContentType("multipart/form-data");
-            BufferedOutputStream out = new BufferedOutputStream(response.getOutputStream());
-            int length = 0;
-            while ((length = bis.read()) != -1) {
-                out.write(length);
-                out.flush();
+            String encodedFileName = URLEncoder.encode(fileHub.getFileName(), "UTF-8");
+            response.addHeader("Content-Disposition", "attachment;filename=" + encodedFileName);
+            response.setContentType("application/octet-stream");
+            
+            byte[] buffer = new byte[8192];
+            int length;
+            while ((length = is.read(buffer)) != -1) {
+                os.write(buffer, 0, length);
             }
-            out.close();
+            os.flush();
         } catch (IOException e) {
-            System.out.println("你关闭了已连接的对象流！");
-            return null;
+            logger.error("Failed to download file with itemNum: {}", itemNum, e);
+            return ServerResponse.createByErrorMessage("文件下载失败：" + e.getMessage());
         }
         
         return ServerResponse.createBySuccess();
@@ -366,132 +331,93 @@ public class FileAdminController {
     @ResponseBody
     public ServerResponse onekeyDownloadFile(@RequestParam("userNum") String userNum, @RequestParam("roleId") int roleId,
                                              HttpServletRequest request, String[] fileNames, HttpServletResponse response) {
-        
-        try {
-            //     String fileName = "";
-            //
-            //     for (int i = 0; i < fileNames.length; i++) {
-            //         fileName = fileNames[i];
-            //         // request.getServletContext()得到的是ServletContext对象，
-            //         // getRealPath(“/”) 获取实际路径,“/”指代项目根目录,所以代码返回的是项目在容器中的实际发布运行的根路径。
-            //         String path = request.getServletContext().getRealPath("/hub/") + fileName;
-            //         // 获取输入流
-            //         InputStream bis = new BufferedInputStream(new FileInputStream(new File(path)));
-            //         // 转码，免得文件名中文乱码
-            //         fileName = URLEncoder.encode(fileName, "UTF-8");
-            //
-            //         // 设置文件下载头
-            //         response.addHeader("Content-Disposition", "attachment;filename=" + fileName);
-            //         //1.设置文件ContentType类型，这样设置，会自动判断下载文件类型
-            //         response.setContentType("multipart/form-data");
-            //         BufferedOutputStream out = new BufferedOutputStream(response.getOutputStream());
-            //         int length = 0;
-            //         while ((length = bis.read()) != -1) {
-            //             out.write(length);
-            //             out.flush();
-            //         }
-            //         out.close();
-            //     }
-            //
-            // }
-            
-            // response.setContentType("text/html; charset=UTF-8"); //设置编码字符
-            // response.setContentType("application/octet-stream"); //设置内容类型为下载类型
-            // response.setHeader("Content-disposition", "attachment;filename=" + fileName);//设置下载的文件名称
-            
-            OutputStream out = response.getOutputStream();   //创建页面返回方式为输出流，会自动弹出下载框
-            
-            String zipBasePath = request.getServletContext().getRealPath("/hub/");
-            String zipName = System.currentTimeMillis() + ".zip";
-            String zipFilePath = zipBasePath + File.separator + zipName;
-            
-            List<String> filePaths = Lists.newArrayList();
-            
-            for (int i = 0; i < fileNames.length; i++) {
-                System.out.println(i + "     11111");
-                filePaths.add(zipBasePath + File.separator + fileNames[i]);
-            }
-    
-            System.out.println(filePaths.size());
-            
-            File zip = new File(zipFilePath);
-            
-            if (!zip.exists()) {
-                zip.createNewFile();
-            }
-            //创建zip文件输出流
-            ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(zip));
-            this.zipFile(zipBasePath, zipName, zipFilePath, filePaths, zos);
-            zos.close();
-            response.setHeader("Content-disposition", "attachment;filename=" + zipName);//设置下载的压缩文件名称
-            
-            //将打包后的文件写到客户端，输出的方法同上，使用缓冲流输出
-            BufferedInputStream bis = new BufferedInputStream(new FileInputStream(zipFilePath));
-            byte[] buff = new byte[bis.available()];
-            bis.read(buff);
-            bis.close();
-            out.write(buff);//输出数据文件
-            out.flush();//释放缓存
-            out.close();//关闭输出流
-        } catch (Exception e) {
-//            System.out.println("你关闭了已连接的对象流！");
+
+        String zipBasePath = request.getServletContext().getRealPath("/hub/");
+        String zipName = System.currentTimeMillis() + ".zip";
+        String zipFilePath = zipBasePath + File.separator + zipName;
+
+        List<String> filePaths = new ArrayList<>();
+        for (String fileName : fileNames) {
+            filePaths.add(zipBasePath + File.separator + fileName);
         }
-        
-        return ServerResponse.createBySuccess("文件已打包下载,请到指定路径下查看!");
+        logger.info("Packaging {} files into {}", filePaths.size(), zipName);
+
+        try {
+            File zip = new File(zipFilePath);
+            //noinspection ResultOfMethodCallIgnored
+            zip.createNewFile();
+
+            try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(zip))) {
+                zipFile(filePaths, zos);
+            }
+
+            response.setHeader("Content-disposition", "attachment;filename=" + zipName);
+            response.setContentType("application/octet-stream");
+
+            try (InputStream is = new BufferedInputStream(new FileInputStream(zipFilePath));
+                 OutputStream os = response.getOutputStream()) {
+
+                byte[] buffer = new byte[8192];
+                int length;
+                while ((length = is.read(buffer)) != -1) {
+                    os.write(buffer, 0, length);
+                }
+                os.flush();
+            }
+        } catch (Exception e) {
+            logger.error("Failed to package and download files", e);
+            return ServerResponse.createByErrorMessage("文件打包下载失败：" + e.getMessage());
+        } finally {
+            // 清理临时 zip 文件
+            try {
+                Files.deleteIfExists(new File(zipFilePath).toPath());
+            } catch (IOException e) {
+                logger.warn("Failed to delete temporary zip file: {}", zipFilePath, e);
+            }
+        }
+
+        return ServerResponse.createBySuccess("文件已打包下载成功!");
     }
     
     /**
-     * 压缩文件
+     * 将文件列表压缩到已打开的 ZipOutputStream 中
      *
-     * @param zipBasePath 临时压缩文件基础路径
-     * @param zipName     临时压缩文件名称
-     * @param zipFilePath 临时压缩文件完整路径
-     * @param filePaths   需要压缩的文件路径集合
-     * @throws IOException
+     * @param filePaths 需要压缩的文件路径集合
+     * @param zos       已打开的 ZipOutputStream
      */
-    private String zipFile(String zipBasePath, String zipName, String zipFilePath, List<String> filePaths, ZipOutputStream zos) {
+    private void zipFile(List<String> filePaths, ZipOutputStream zos) {
         
-        try {
-            
-            //循环读取文件路径集合，获取每一个文件的路径
-            for (String filePath : filePaths) {
-                File inputFile = new File(filePath);  //根据文件路径创建文件
-                if (inputFile.exists()) { //判断文件是否存在
-                    if (inputFile.isFile()) {  //判断是否属于文件，还是文件夹
-                        //创建输入流读取文件
-                        BufferedInputStream bis = new BufferedInputStream(new FileInputStream(inputFile));
-                        
-                        //将文件写入zip内，即将文件进行打包
-                        zos.putNextEntry(new ZipEntry(inputFile.getName()));
-                        
-                        //写入文件的方法，同上
-                        int size = 0;
-                        byte[] buffer = new byte[1024];  //设置读取数据缓存大小
-                        while ((size = bis.read(buffer)) > 0) {
-                            zos.write(buffer, 0, size);
-                        }
-                        //关闭输入输出流
-                        zos.closeEntry();
-                        bis.close();
-                        
-                    } else {  //如果是文件夹，则使用穷举的方法获取文件，写入zip
-                        try {
-                            File[] files = inputFile.listFiles();
-                            List<String> filePathsTem = new ArrayList<String>();
-                            for (File fileTem : files) {
-                                filePathsTem.add(fileTem.toString());
-                            }
-                            return zipFile(zipBasePath, zipName, zipFilePath, filePathsTem, zos);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
+        for (String filePath : filePaths) {
+            File inputFile = new File(filePath);
+            if (!inputFile.exists()) {
+                logger.warn("File not found for zipping: {}", filePath);
+                continue;
+            }
+
+            if (inputFile.isFile()) {
+                try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream(inputFile))) {
+                    zos.putNextEntry(new ZipEntry(inputFile.getName()));
+                    byte[] buffer = new byte[8192];
+                    int size;
+                    while ((size = bis.read(buffer)) > 0) {
+                        zos.write(buffer, 0, size);
                     }
+                    zos.closeEntry();
+                } catch (IOException e) {
+                    logger.error("Failed to add file to zip: {}", filePath, e);
+                }
+            } else {
+                // 如果是文件夹，递归处理
+                File[] files = inputFile.listFiles();
+                if (files != null) {
+                    List<String> subFilePaths = new ArrayList<>();
+                    for (File subFile : files) {
+                        subFilePaths.add(subFile.getAbsolutePath());
+                    }
+                    zipFile(subFilePaths, zos);
                 }
             }
-        } catch (Exception e) {
-//            System.out.println("FileAdminException e关闭数据流失败!");
         }
-        return null;
     }
     
 }
