@@ -862,7 +862,7 @@
         const upload = layui.upload;
         const element = layui.element;
 
-        <!--选择历届项目年份-->
+        //选择历届项目年份
         $.get("/getItemDate.do", function (result) {
             console.log(result);
             $("#getItemDateSelect").prepend("<option value='20'>请选择项目年份</option>");//添加第一个option值
