@@ -165,7 +165,16 @@ function setupAjaxAuth(jqInstance) {
 // 1) 立即配置全局 jQuery（window.$）
 setupAjaxAuth(window.$);
 
-// 2) 如果 Layui 已加载，也配置其内部 jQuery（Layui table 等模块使用 layui.$）
-if (window.layui && layui.$) {
-    setupAjaxAuth(layui.$);
+// 2) Layui 的内部 jQuery（layui.$）在脚本加载时尚不可用，
+//    需要等到 layui.use() 执行后才能配置。
+//    通过代理 layui.use()，在首次调用时自动配置 layui.$
+if (window.layui) {
+    var _origLayuiUse = layui.use;
+    layui.use = function () {
+        // 首次调用 layui.use() 时配置 layui.$
+        if (layui.$ && layui.$.ajaxSetup) {
+            setupAjaxAuth(layui.$);
+        }
+        return _origLayuiUse.apply(this, arguments);
+    };
 }
