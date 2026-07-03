@@ -4,7 +4,7 @@ package com.ieps.util.miaodiyun;
  * 系统常量
  */
 //TODO:这个包好像是验证码短信用的，在毕设中删除这个功能就行了，防止花别人的钱
-@Deprecated(forRemoval = true)
+@Deprecated
 public class Config {
 	/**
 	 * url前半部分

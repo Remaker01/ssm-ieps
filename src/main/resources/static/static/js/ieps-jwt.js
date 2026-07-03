@@ -104,12 +104,20 @@ function getAuthParams() {
 // ======================== 页面鉴权 ========================
 
 /**
+ * 获取顶层窗口的 location，用于统一页面跳转
+ * 在 iframe 中会跳转顶层窗口（而非 iframe 自身）
+ */
+function topLocation() {
+    return window.top.location;
+}
+
+/**
  * 页面鉴权检查：若无 Token 则跳转登录页
  * 在受保护页面的 <head> 中调用
  */
 function requireAuth() {
     if (!hasToken()) {
-        window.location.href = '/login';
+        topLocation().href = '/login';
         return false;
     }
     return true;
@@ -121,11 +129,11 @@ function requireAuth() {
  */
 function redirectIfAuthenticated() {
     if (!hasToken()) return;
-    // 仅当 token 未过期时才跳转
+    // 仅当 token 未过期时才跳转，避免登陆页闪烁
     if (isTokenExpiring(1)) return;
     var payload = parseTokenPayload(getToken());
     if (payload && payload.userNum && payload.roleId) {
-        window.location.href = '/index';
+        topLocation().href = '/index';
     }
 }
 
@@ -146,8 +154,8 @@ function setupAjaxAuth(jqInstance) {
         statusCode: {
             401: function () {
                 removeToken();
-                if (!isPublicPath(window.location.pathname)) {
-                    window.location.href = '/login';
+                if (!isPublicPath(window.top.location.pathname)) {
+                    window.top.location.href = '/login';
                 }
             }
         }

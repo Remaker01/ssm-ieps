@@ -401,11 +401,11 @@ line-height: 43px;"></div>
                 if (result.status != 0) {
                     return layer.msg(result.msg, {icon: 2});
                 }
+                // JWT: 存储 Token 后跳转首页
+                setToken(result.data);
                 layer.msg(result.msg, {icon: 1});
-
                 setTimeout(function () {
-                    $(window).attr('location', '/index?userNum=' + encrypt(result.data.userNum, "abcd1234abcd1234") + '&roleId=' + encrypt(result.data.roleId, "abcd1234abcd1234"));
-//                    $(window).attr('location', '/goIndex.do?userNum=' + result.data.userNum + '&roleId=' + result.data.roleId);
+                    $(window).attr('location', '/index');
                 }, 1000);
             })
         })
