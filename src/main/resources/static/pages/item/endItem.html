@@ -673,6 +673,7 @@
 <script src="https://cdn.jsdelivr.net/npm/layui@2.7/dist/layui.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
 <script src="../../static/js/ieps-jwt.js"></script>
+<script src="../../static/js/ieps-app.js"></script>
 <script src="../../static/js/getParam.js"></script>
 
 <!-- 加密和解密 -->
@@ -683,8 +684,11 @@
 
 <!-- 用户名和角色解密  -->
 <script>
-    var userNumAdmin = getCurrentUserNum() || "";
-    var roleIdAdmin = getCurrentRoleId() || "";
+    ieps.auth.requireAuth();
+
+    var currentUser = ieps.auth.currentUser();
+    var userNumAdmin = currentUser.userNum || "";
+    var roleIdAdmin = currentUser.roleId != null ? String(currentUser.roleId) : "";
 
     // getUrlParam 定义在 itemUtils.js 中
 </script>
@@ -799,6 +803,9 @@
 
 <!-- ======== 共享常量映射表：从独立 JS 文件加载 ======== -->
 <script src="../../static/js/itemConstants.js"></script>
+<script>
+    ieps.meta.loadItemOptionsSync({silentError: true});
+</script>
 <!-- 项目级别模板脚本-->
 <script id="itemLevelTpl" type="text/html">
     <select name="itemLevel" id="{{ d.itemNum }}" lay-filter="itemLevel">
@@ -828,7 +835,7 @@
     <a href="javascript:void(0)" class="layui-table-link" onclick="chooseFileMethod('{{ d.fileName }}')">{{
         d.fileName.substring(d.fileName.indexOf("-") + 1) }}</a>
     {{# } else { }}
-    <a href="/downloadFile.do?fileName={{d.fileName}}" class="layui-table-link">{{ d.fileName }}</a>
+    <a href="/downloadFile?fileName={{d.fileName}}" class="layui-table-link">{{ d.fileName }}</a>
     {{# } }}
     {{# } else { }}
     <span>未上传相关文件</span>
@@ -863,7 +870,7 @@
         const element = layui.element;
 
         //选择历届项目年份
-        $.get("/getItemDate.do", function (result) {
+        $.get("/getItemDate", function (result) {
             console.log(result);
             $("#getItemDateSelect").prepend("<option value='20'>请选择项目年份</option>");//添加第一个option值
             $.each(result.data, function (index, value) {
@@ -876,7 +883,7 @@
         // 表格初始化重载
         var tableIns = table.render({
             elem: '#endItem-table',
-            url: '/getItemListByUserNum.do',
+            url: '/getItemListByUserNum',
             title: '结题评审表',
             toolbar: '#toolbarDemo',
             limit: 10,
@@ -1010,22 +1017,10 @@
                     $.each(data, function (index, item) {
                         fileNames[index] = item.fileName;
                     });
-
-                    $.ajax({
-                        url: "/onekeyDownloadFile.do",
-                        type: "POST",
-                        data: {
-                            fileNames: fileNames,
-                            userNum: userNumAdmin,
-                            roleId: roleIdAdmin
-                        },
-                        traditional: true,
-                        success: function (result) {
-                            if (result.status != 0) {
-                                return layer.msg(result.msg, {icon: 2});
-                            }
-                            layer.msg(result.msg, {icon: 1});
-                        }
+                    submitDownload("/onekeyDownloadFile", {
+                        fileNames: fileNames,
+                        userNum: userNumAdmin,
+                        roleId: roleIdAdmin
                     });
                     break;
             }
@@ -1082,7 +1077,7 @@
                             console.log(itemType);
 
                             $.ajax({
-                                url: "/onekeyModifyItemTypeWithItemNums.do",
+                                url: "/onekeyModifyItemTypeWithItemNums",
                                 type: "POST",
                                 data: {
                                     itemNums: itemNums,
@@ -1164,7 +1159,7 @@ const itemStatus = $("#onekeyModify-Status select[name='itemStatus'] > option:se
                             }
 
                             $.ajax({
-                                url: "/onekeyModifyItemStatusWithItemNums.do",
+                                url: "/onekeyModifyItemStatusWithItemNums",
                                 type: "POST",
                                 data: {
                                     itemNums: itemNums,
@@ -1238,7 +1233,7 @@ const itemStatus = $("#onekeyModify-Status select[name='itemStatus'] > option:se
                             }
 
                             $.ajax({
-                                url: "/onekeyModifyItemLevelWithItemNums.do",
+                                url: "/onekeyModifyItemLevelWithItemNums",
                                 type: "POST",
                                 data: {
                                     itemNums: itemNums,
@@ -1309,7 +1304,7 @@ const itemStatus = $("#onekeyModify-Status select[name='itemStatus'] > option:se
                                     userNum: userNumAdmin
                                 };
                                 $("#addReviewLeaderByCollegeWithOnekeyPoint").empty();//清空select列表数据
-                                $.get("/getReviewLeaderByRoleIdAndUserNum.do", param, function (result) {
+                                $.get("/getReviewLeaderByRoleIdAndUserNum", param, function (result) {
                                     if (result.status != 0) {
                                         return layer.msg(result.msg);
                                     }
@@ -1345,7 +1340,7 @@ const itemStatus = $("#onekeyModify-Status select[name='itemStatus'] > option:se
                                 console.log(param);
 
                                 $.ajax({
-                                    url: "/batchAddReviewTeam.do",
+                                    url: "/batchAddReviewTeam",
                                     type: "POST",
                                     data: param,
                                     traditional: true,
@@ -1390,7 +1385,7 @@ const itemStatus = $("#onekeyModify-Status select[name='itemStatus'] > option:se
                                     userNum: userNumAdmin
                                 };
                                 $("#addReviewLeaderByAcademyWithOnekeyPoint").empty();//清空select列表数据
-                                $.get("/getReviewLeaderByRoleIdAndUserNum.do", param, function (result) {
+                                $.get("/getReviewLeaderByRoleIdAndUserNum", param, function (result) {
                                     console.log(result);
                                     if (result.status != 0) {
                                         return layer.msg(result.msg, {icon: 2});
@@ -1424,7 +1419,7 @@ const itemStatus = $("#onekeyModify-Status select[name='itemStatus'] > option:se
                                 };
 
                                 $.ajax({
-                                    url: "/batchAddReviewTeam.do",
+                                    url: "/batchAddReviewTeam",
                                     type: "POST",
                                     data: param,
                                     traditional: true,
@@ -1446,6 +1441,7 @@ const itemStatus = $("#onekeyModify-Status select[name='itemStatus'] > option:se
                     }
                     break;
                 case 'applyItem':
+                    let applyCreateUploadQueue;
                     layer.open({
                         type: 1,
                         skin: 'layui-layer-rim', //加上边框
@@ -1458,33 +1454,22 @@ const itemStatus = $("#onekeyModify-Status select[name='itemStatus'] > option:se
                         btn: ['确定', '取消'],
                         success: function () {
                             console.log(applyItemNum + "   applyItemNum");
-                            //选完文件后不自动上传   申请项目附件上传
-                            upload.render({
+                            applyCreateUploadQueue = createBackendUploadQueue(upload, {
                                 elem: '#uploadFile',
-                                url: '/batchUploadFile.do',
-                                auto: false,
-                                bindAction: '#applyItemList',
                                 accept: 'file',
-                                data: {
-                                    fileKind: 2,
-                                    userNum: userNumAdmin,
-                                    itemNum: applyItemNum
-                                },
-                                field: 'files',
+                                multiple: false,
                                 number: 1,
-                                done: function (res) {
-                                    console.log(res)
-                                }
+                                bindAction: '#applyItemList',
+                                buildData: function () {
+                                    return {
+                                        fileKind: 2,
+                                        userNum: userNumAdmin,
+                                        itemNum: applyItemNum
+                                    };
+                                },
                             });
                         },
                         yes: function (index) {
-                            ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-                            // 模拟点击按钮事件
-                            $("#applyItemList").click();
-
-                            ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
                             const set = getTableContent();
 
                             const userNums = [];
@@ -1543,7 +1528,7 @@ const itemStatus = $("#onekeyModify-Status select[name='itemStatus'] > option:se
                             };
 
                             $.ajax({
-                                url: '/addItemAndUserInfo.do',
+                                url: '/addItemAndUserInfo',
                                 type: 'post',
                                 data: param,
                                 //通过设置traditional属性为true直接传递数组 */
@@ -1551,6 +1536,17 @@ const itemStatus = $("#onekeyModify-Status select[name='itemStatus'] > option:se
                                 success: function (result) {
                                     if (result.status != 0) {
                                         return layer.msg(result.msg, {icon: 2});
+                                    }
+                                    if (applyCreateUploadQueue && applyCreateUploadQueue.hasFiles()) {
+                                        applyCreateUploadQueue.submit().done(function () {
+                                            layer.msg(result.msg, {icon: 1});
+                                            setTimeout(function () {
+                                                window.location.reload();
+                                            }, 3000);
+                                        }).fail(function (message) {
+                                            layer.msg(message || "附件上传失败，请稍后在项目列表中重新上传！", {icon: 2});
+                                        });
+                                        return;
                                     }
                                     layer.msg(result.msg, {icon: 1});
 
@@ -1579,7 +1575,7 @@ const itemStatus = $("#onekeyModify-Status select[name='itemStatus'] > option:se
                             itemNums[index] = value.itemNum;
                         });
                         $.ajax({
-                            url: "/batchRemoveItem.do",
+                            url: "/batchRemoveItem",
                             type: "POST",
                             data: {
                                 itemNums: itemNums,
@@ -1654,7 +1650,7 @@ const itemStatus = $("#onekeyModify-Status select[name='itemStatus'] > option:se
                             roleId: roleIdAdmin
                         };
                         layer.close(index);
-                        $.get("/modifyItemByItemNum.do", param, function (result) {
+                        $.get("/modifyItemByItemNum", param, function (result) {
                             if (result.status != 0) {
                                 return later.msg(result.msg, {icon: 2});
                             }
@@ -1704,7 +1700,7 @@ const itemStatus = $("#onekeyModify-Status select[name='itemStatus'] > option:se
                         moveType: 1, //拖拽模式，0或者1
                         success: function () {
                             $("#addReviewLeaderByCollege").empty();//清空select列表数据
-                            $.get("/getReviewLeaderByRoleIdAndUserNum.do", param, function (result) {
+                            $.get("/getReviewLeaderByRoleIdAndUserNum", param, function (result) {
                                 if (result.status != 0) {
                                     return layer.msg(result.msg);
                                 }
@@ -1734,7 +1730,7 @@ const itemStatus = $("#onekeyModify-Status select[name='itemStatus'] > option:se
 
                             console.log(param);
 
-                            $.get("/chooseUserItemWithLeader.do", param, function (result) {
+                            $.get("/chooseUserItemWithLeader", param, function (result) {
                                 if (result.status != 0) {
                                     return layer.msg(result.msg, {icon: 2});
                                 }
@@ -1769,7 +1765,7 @@ const itemStatus = $("#onekeyModify-Status select[name='itemStatus'] > option:se
                         moveType: 1, //拖拽模式，0或者1
                         success: function (index) {
                             $("#addReviewLeaderByAcademy").empty();//清空select列表数据
-                            $.get("/getReviewLeaderByRoleIdAndUserNum.do", param, function (result) {
+                            $.get("/getReviewLeaderByRoleIdAndUserNum", param, function (result) {
                                 console.log(result);
                                 if (result.status != 0) {
                                     return layer.msg(result.msg);
@@ -1804,7 +1800,7 @@ const itemStatus = $("#onekeyModify-Status select[name='itemStatus'] > option:se
 
                             console.log(param);
 
-                            $.get("/chooseUserItemWithLeader.do", param, function (result) {
+                            $.get("/chooseUserItemWithLeader", param, function (result) {
                                 if (result.status != 0) {
                                     return layer.msg(result.msg, {icon: 2});
                                 }
@@ -1832,7 +1828,7 @@ const itemStatus = $("#onekeyModify-Status select[name='itemStatus'] > option:se
                         roleId: roleIdAdmin
                     };
                     layer.msg(param.userNum);
-                    $.post("/removeItemById.do", param, function (result) {
+                    $.post("/removeItemById", param, function (result) {
                         if (result.status != 0) {
                             return layer.msg(result.msg, {icon: 0});
                         }
@@ -1888,6 +1884,7 @@ const itemStatus = $("#onekeyModify-Status select[name='itemStatus'] > option:se
                 // 上传文件按钮事件
                 // 每行上传文件事件  多文件列表示例
 
+                let uploadListQueue;
                 layer.open({
                     type: 1,
                     skin: 'layui-layer-rim', //加上边框
@@ -1899,74 +1896,20 @@ const itemStatus = $("#onekeyModify-Status select[name='itemStatus'] > option:se
                     moveType: 1,
                     btn: ['确定', '取消'],
                     success: function () {
-                        const uploadListView = $('#uploadBodyList');
-                        const uploadListIns = upload.render({
+                        uploadListQueue = createBackendUploadQueue(upload, {
                             elem: '#uploadList',
-                            url: '/batchUploadFile.do',
                             accept: 'file',
                             multiple: true,
-                            auto: false,
                             number: 8,
-                            field: 'files',
+                            listView: '#uploadBodyList',
                             bindAction: '#uploadListAction',
-                            before: function (obj) {
-                                var fileKind = $("#endItem-uploadFile select[name='fileKind'] > option:selected").val();
-                                this.data = {
-                                    "fileKind": fileKind,
-                                    "userNum": userNumAdmin,
-                                    "itemNum": itemNum
+                            buildData: function () {
+                                return {
+                                    fileKind: $("#endItem-uploadFile select[name='fileKind'] > option:selected").val(),
+                                    userNum: userNumAdmin,
+                                    itemNum: itemNum
                                 };
                             },
-                            choose: function (obj) {
-                                var files = this.files = obj.pushFile(); //将每次选择的文件追加到文件队列
-                                //读取本地文件
-                                obj.preview(function (index, file, result) {
-                                    var tr = $(['<tr id="upload-' + index + '">'
-                                        , '<td>' + file.name + '</td>'
-                                        , '<td>' + (file.size / 1014).toFixed(1) + 'kb</td>'
-                                        , '<td>等待上传</td>'
-                                        , '<td>'
-                                        , '<button class="layui-btn layui-btn-xs demo-reload layui-hide">重传</button>'
-                                        , '<button class="layui-btn layui-btn-xs layui-btn-danger demo-delete">删除</button>'
-                                        , '</td>'
-                                        , '</tr>'].join(''));
-
-                                    //单个重传
-                                    tr.find('.demo-reload').on('click', function () {
-                                        obj.upload(index, file);
-                                    });
-
-                                    //删除
-                                    tr.find('.demo-delete').on('click', function () {
-                                        delete files[index]; //删除对应的文件
-                                        tr.remove();
-                                        uploadListIns.config.elem.next()[0].value = ''; //清空 input file 值，以免删除后出现同名文件不可选
-                                    });
-
-                                    uploadListView.append(tr);
-                                });
-                            },
-                            done: function (res, index, upload) {
-                                if (res.status == 0) { //上传成功
-                                    var tr = uploadListView.find('tr#upload-' + index)
-                                        , tds = tr.children();
-                                    tds.eq(2).html('<span style="color: #5FB878;">上传成功</span>');
-                                    tds.eq(3).html(''); //清空操作
-                                    delete this.files[index]; //删除文件队列已经上传成功的文件
-                                    setTimeout(function () {
-                                        layer.close(index);
-                                    }, 3000);
-
-                                    return;
-                                }
-                                this.error(index, upload);
-                            },
-                            error: function (index, upload) {
-                                var tr = uploadListView.find('tr#upload-' + index)
-                                    , tds = tr.children();
-                                tds.eq(2).html('<span style="color: #FF5722;">上传失败</span>');
-                                tds.eq(3).find('.demo-reload').removeClass('layui-hide'); //显示重传
-                            }
                         });
                     },
                     yes: function (index) {
@@ -1978,21 +1921,23 @@ const itemStatus = $("#onekeyModify-Status select[name='itemStatus'] > option:se
                             itemNum: itemNum
                         };
 
-                        $.get("/checkReview.do", param, function (result) {
+                        $.get("/checkReview", param, function (result) {
                             if (result.status != 0) {
                                 return layer.msg(result.msg, {icon: 2});
                             }
-                            $("#uploadListAction").click();
-
-                            layer.msg("文件上传成功了，请稍等！！！", {icon: 1});
-
-                            layer.close(index);
+                            if (!uploadListQueue || !uploadListQueue.hasFiles()) {
+                                return layer.msg("请先选择需要上传的文件！", {icon: 2});
+                            }
+                            uploadListQueue.submit().done(function () {
+                                layer.msg("文件上传成功了，请稍等！！！", {icon: 1});
+                                layer.close(index);
+                                setTimeout(function () {
+                                    window.location.reload();
+                                }, 3000);
+                            }).fail(function (message) {
+                                layer.msg(message || "文件上传失败，请稍后重试！", {icon: 2});
+                            });
                         });
-                    },
-                    end: function () {
-                        setTimeout(function () {
-                            window.location.reload();
-                        }, 3000);
                     }
                 });
             }
@@ -2010,12 +1955,13 @@ const itemStatus = $("#onekeyModify-Status select[name='itemStatus'] > option:se
                     userNum: userNumAdmin
                 };
 
-                $.get("/checkIsReviewWithItemNumAndUserNum.do", itemNumParam, function (result) {
+                $.get("/checkIsReviewWithItemNumAndUserNum", itemNumParam, function (result) {
                     if (result.status != 0) {
                         return layer.msg(result.msg, {icon: 2});
                     }
 
                     // 第一次评审同类型的本项目
+                    let reviewListQueue;
                     layer.open({
                             type: 1,
                             skin: 'layui-layer-rim', //加上边框
@@ -2027,78 +1973,21 @@ const itemStatus = $("#onekeyModify-Status select[name='itemStatus'] > option:se
                             moveType: 1, //拖拽模式，0或者1
                             btn: ['确定', '取消'],
                             success: function () {
-                                //  评审结果附件上传
-                                var reviewListView = $('#reviewBodyList');
-                                var reviewListIns = upload.render({
+                                reviewListQueue = createBackendUploadQueue(upload, {
                                     elem: '#reviewList',
-                                    url: '/batchUploadFile.do',
                                     accept: 'file',
                                     multiple: true,
-                                    auto: false,
                                     number: 1,
-                                    field: 'files',
+                                    listView: '#reviewBodyList',
                                     bindAction: '#reviewListAction',
-                                    before: function () {
-                                        // fileKind映射：itemStatus 2→3(立项评审), 5→4(中期检查), 7→5(结题评审)
+                                    buildData: function () {
                                         var fileKindMap = {2: 3, 5: 4, 7: 5};
-                                        var fileKind = fileKindMap[data.itemStatus] || 3;
-
-                                        this.data = {
-                                            "fileKind": fileKind,
-                                            "userNum": userNumAdmin,
-                                            "itemNum": itemNum
+                                        return {
+                                            fileKind: fileKindMap[data.itemStatus] || 3,
+                                            userNum: userNumAdmin,
+                                            itemNum: itemNum
                                         };
                                     },
-                                    choose: function (obj) {
-                                        var files = this.files = obj.pushFile(); //将每次选择的文件追加到文件队列
-                                        //读取本地文件
-                                        obj.preview(function (index, file, result) {
-                                            var tr = $(['<tr id="upload-' + index + '">'
-                                                , '<td>' + file.name + '</td>'
-                                                , '<td>' + (file.size / 1014).toFixed(1) + 'kb</td>'
-                                                , '<td>等待上传</td>'
-                                                , '<td>'
-                                                , '<button class="layui-btn layui-btn-xs demo-reload layui-hide">重传</button>'
-                                                , '<button class="layui-btn layui-btn-xs layui-btn-danger demo-delete">删除</button>'
-                                                , '</td>'
-                                                , '</tr>'].join(''));
-
-                                            //单个重传
-                                            tr.find('.demo-reload').on('click', function () {
-                                                obj.upload(index, file);
-                                            });
-
-                                            //删除
-                                            tr.find('.demo-delete').on('click', function () {
-                                                delete files[index]; //删除对应的文件
-                                                tr.remove();
-                                                reviewListIns.config.elem.next()[0].value = ''; //清空 input file 值，以免删除后出现同名文件不可选
-                                            });
-
-                                            reviewListView.append(tr);
-                                        });
-                                    },
-                                    done: function (res, index, upload) {
-                                        if (res.status == 0) { //上传成功
-                                            var tr = reviewListView.find('tr#upload-' + index)
-                                                , tds = tr.children();
-                                            tds.eq(2).html('<span style="color: #5FB878;">上传成功</span>');
-                                            tds.eq(3).html(''); //清空操作
-                                            delete this.files[index]; //删除文件队列已经上传成功的文件
-                                            setTimeout(function () {
-                                                layer.close(index);
-                                            }, 2000);
-                                            return;
-                                        }
-                                        this.error(index, upload);
-
-                                    },
-                                    error: function (index, upload) {
-                                        var tr = reviewListView.find('tr#upload-' + index)
-                                            , tds = tr.children();
-                                        tds.eq(2).html('<span style="color: #FF5722;">上传失败</span>');
-                                        tds.eq(3).find('.demo-reload').removeClass('layui-hide'); //显示重传
-                                    }
                                 });
 
                                 $("#endItem-review input[name='reviewScore']").val("");
@@ -2136,16 +2025,23 @@ const itemStatus = $("#onekeyModify-Status select[name='itemStatus'] > option:se
                                     roleId: roleIdAdmin
                                 };
 
-                                $("#reviewListAction").click();
-
-                                $.get("/addReviewByExport.do", param, function (result) {
+                                $.get("/addReviewByExport", param, function (result) {
                                     if (result.status != 0) {
                                         return layer.msg(result.msg, {icon: 2});
                                     }
+                                    if (reviewListQueue && reviewListQueue.hasFiles()) {
+                                        reviewListQueue.submit().done(function () {
+                                            layer.msg(result.msg, {icon: 1});
+                                            setTimeout(function () {
+                                                window.location.reload();
+                                            }, 3000);
+                                        }).fail(function (message) {
+                                            layer.msg(message || "评审附件上传失败，请稍后重试！", {icon: 2});
+                                        });
+                                        return;
+                                    }
                                     layer.msg(result.msg, {icon: 1});
                                     setTimeout(function () {
-//                                        要使用 Eclipse 的列编辑功能，只需要通过快捷键Alt+Shift+A 进入列编辑模式，修改完成后，再按一次 Alt+Shift+A 退出列编辑模式
-//                                        alt + c  editplus
                                         window.location.reload();
                                     }, 3000);
                                 });
@@ -2174,7 +2070,7 @@ const itemStatus = $("#onekeyModify-Status select[name='itemStatus'] > option:se
                         // 表格初始化重载
                         var tableIns = table.render({
                             elem: '#reviewProcess',
-                            url: '/getAllReviewWithItemNum.do',
+                            url: '/getAllReviewWithItemNum',
                             title: '项目评审结果表',
                             toolbar: '#reviewToolbar',
                             limit: 5,
@@ -2272,7 +2168,7 @@ const itemStatus = $("#onekeyModify-Status select[name='itemStatus'] > option:se
                     roleId: roleIdAdmin
                 };
                 console.log(param.itemLevel);
-                $.get("/modifyItemLevelByItemNum.do", param, function (result) {
+                $.get("/modifyItemLevelByItemNum", param, function (result) {
                     if (result.status != 0) {
                         return layer.msg(result.msg, {icon: 2});
                     }
@@ -2307,7 +2203,7 @@ const itemStatus = $("#onekeyModify-Status select[name='itemStatus'] > option:se
                     userNum: userNumAdmin,
                     roleId: roleIdAdmin
                 };
-                $.get("/modifyItemTypeByItemNum.do", param, function (result) {
+                $.get("/modifyItemTypeByItemNum", param, function (result) {
                     if (result.status != 0) {
                         return layer.msg(result.msg, {icon: 2});
                     }
@@ -2327,7 +2223,7 @@ const itemStatus = $("#onekeyModify-Status select[name='itemStatus'] > option:se
             var oldItemStatus = 0;
 
             $.ajaxSettings.async = false;
-            $.get("/getItemStatusWithItemNum.do", {itemNum: data.elem.id}, function (result) {
+            $.get("/getItemStatusWithItemNum", {itemNum: data.elem.id}, function (result) {
                 if (result.status != 0) {
                     return layer.msg(result.msg, {icon: 2});
                 }
@@ -2388,7 +2284,7 @@ const itemStatus = $("#onekeyModify-Status select[name='itemStatus'] > option:se
                     roleId: roleIdAdmin
                 };
 
-                $.get("/modifyItemStatusByItemNum.do", param, function (result) {
+                $.get("/modifyItemStatusByItemNum", param, function (result) {
                     if (result.status != 0) {
                         return layer.msg(result.msg, {icon: 2});
                     }
@@ -2399,7 +2295,7 @@ const itemStatus = $("#onekeyModify-Status select[name='itemStatus'] > option:se
                             itemNum: data.elem.id,
                             roleId: roleIdAdmin
                         };
-                        $.get("/removeUserItemWithReview.do", paramTemp, function (result) {
+                        $.get("/removeUserItemWithReview", paramTemp, function (result) {
                             if (result.status != 0) {
                                 return layer.msg(result.msg, {icon: 2});
                             }
@@ -2435,7 +2331,7 @@ const searchKeyWord = $("input[name='searchKeyWord']");
 
             //执行重载
             tableIns.reload({
-                url: "/getItemListByUserNum.do",
+                url: "/getItemListByUserNum",
                 page: {
                     curr: 1 //重新从第 1 页开始
                 },
@@ -2477,7 +2373,7 @@ const searchKeyWord = $("input[name='searchKeyWord']");
             btn: ['关闭'],
             moveType: 1,
             success: function (index) {
-                $.get("/getUserInfoByUserName.do", {userName: userName}, function (result) {
+                $.get("/getUserInfoByUserName", {userName: userName}, function (result) {
                     console.log(result);
 
                     if (result.status != 0) {
@@ -2503,3 +2399,4 @@ const searchKeyWord = $("input[name='searchKeyWord']");
 
 </body>
 </html>
+

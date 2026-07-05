@@ -478,43 +478,7 @@ line-height: 43px;"></div>
 
     function chooseFileMethod() {
         const fileName = this.name;
-
-        // 模拟form表单提交来打开一个新的页面
-        function open_page(url, param) {
-            let form = '<form action="' + url + '"  target="_blank"  id="windowOpen" style="display:none">';
-            for (let key in param) {
-                form += '<input name="' + key + '" value="' + param[key] + '"/>';
-            }
-            form += '</form>';
-            $('body').append(form);
-            $('#windowOpen').submit();
-            $('#windowOpen').remove();
-        }
-
-        layer.confirm('你是需要预览文件还是下载文件呢？', {
-            btn: ['预览', '下载'] //按钮
-        }, function (index) {
-            let url = '';
-            let param = {a: 1};
-
-            $.ajaxSettings.async = false;   //关闭异步
-            $.get("/previewFile.do", {fileName: fileName}, function (result) {
-                console.log(result);
-                if (result.status != 0) {
-                    return layer.msg(result.msg, {icon: 2});
-                }
-                layer.msg(result.msg, {icon: 1});
-                url = result.data;
-            });
-            $.ajaxSettings.async = true;    //改为异步请求
-            layer.close(index);
-            open_page(url, param);
-
-        }, function (index) {
-            window.location.href = "/downloadFile?fileName=" + fileName;
-            layer.close(index);
-        });
-
+        window.location.href = "/downloadFile?fileName=" + encodeURIComponent(fileName);
     }
 
 </script>

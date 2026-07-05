@@ -47,3 +47,21 @@ var ITEM_TYPE_REVERSE = buildReverseMap(ITEM_TYPE_MAP);
 // 1：申请中；2：立项评审；3：已立项；4：立项失败；5：中期检查；6：待结题；7：结题评审；8：结题成功；9：结题失败
 var ITEM_STATUS_MAP     = {1: "申请中", 2: "立项评审", 3: "已立项", 4: "立项失败", 5: "中期检查", 6: "待结题", 7: "结题评审", 8: "结题成功", 9: "结题失败"};
 var ITEM_STATUS_REVERSE = buildReverseMap(ITEM_STATUS_MAP);
+
+function updateItemOptionMaps(meta) {
+    if (!meta) {
+        return;
+    }
+    if (meta.itemLevel) {
+        ITEM_LEVEL_MAP = meta.itemLevel;
+        ITEM_LEVEL_REVERSE = buildReverseMap(ITEM_LEVEL_MAP);
+    }
+    if (meta.itemType) {
+        ITEM_TYPE_MAP = meta.itemType;
+        ITEM_TYPE_REVERSE = buildReverseMap(ITEM_TYPE_MAP);
+    }
+    if (meta.itemStatus) {
+        ITEM_STATUS_MAP = meta.itemStatus;
+        ITEM_STATUS_REVERSE = buildReverseMap(ITEM_STATUS_MAP);
+    }
+}

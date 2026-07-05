@@ -82,6 +82,7 @@
 <script src="https://cdn.jsdelivr.net/npm/layui@2.7/dist/layui.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
 <script src="../../static/js/ieps-jwt.js"></script>
+<script src="../../static/js/ieps-app.js"></script>
 <script src="../../static/js/getParam.js"></script>
 
 <!-- 加密和解密 -->
@@ -90,6 +91,7 @@
 
 <script>
     $(function () {
+        ieps.auth.requireAuth();
         $('input[type="text"]').attr("autocomplete", "off");
     });
 
@@ -116,8 +118,7 @@
     $(function () {
         $('input:lt(5)').css("background-color", "red");
 
-        var param = getAuthParams();
-        $.get('/getUserInfo.do', param, function (result) {
+        ieps.auth.loadCurrentUserInfo({silentError: true}).done(function (result) {
             if (result.status != 0) {
                 return layer.msg(result.msg, {icon: 2});
             }
@@ -144,23 +145,14 @@
 </script>
 
 <script>
-    // 获取传参的值
-    function getUrlParam(name) {
-        const reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i"); //构造一个含有目标参数的正则表达式对象
-        const r = window.parent.location.search.substr(1).match(reg);  //匹配目标参数
-        if (r != null) return encodeURI(r[2]);
-        return null; //返回参数值
-    }
-
     function modifyUserInfo() {
         const userInfo = {
-            userNum: userNum.val(),
             birthDate: birthDate.val(),
             photoNum: photoNum.val(),
             email: email.val()
         };
 
-        $.post("/modifyUserInfo.do", userInfo, function (result) {
+        $.post("/modifyUserInfo", userInfo, function (result) {
             if (result.status != 0) {
                 return layer.msg(result.msg, {icon: 2});
             }

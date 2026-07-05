@@ -126,6 +126,7 @@
 <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
 <!-- JWT 鉴权辅助 -->
 <script src="/static/js/ieps-jwt.js?v=20260701"></script>
+<script src="/static/js/ieps-app.js?v=20260704"></script>
 <!-- 获取url参数（已弃用，保留兼容） -->
 <script src="/static/js/getParam.js?v=20260629"></script>
 
@@ -151,13 +152,12 @@
         }
     }());
 
-    // 鉴权检查：无 Token 则跳转登录页
-    requireAuth();
+    ieps.auth.requireAuth();
 
-    // 从 JWT Token 获取当前用户（不再依赖 URL 参数）
-    var userNumAdmin = getCurrentUserNum() || "";
-    var roleIdAdmin = getCurrentRoleId() || "";
-    var param = getAuthParams();
+    var currentUser = ieps.auth.currentUser();
+    var userNumAdmin = currentUser.userNum || "";
+    var roleIdAdmin = currentUser.roleId != null ? String(currentUser.roleId) : "";
+    var param = ieps.auth.params();
 
     var userImg = "/static/images/default.jpg";
     var userName = "";
@@ -174,15 +174,14 @@
     }
 
     function getMenu() {
-        $.ajaxSettings.async = false;
-        $.post("/getMenu", param, function (result) {
-            if (result.status != 0) {
-                return layer.msg(result.msg, {icon: 2});
+        var result = ieps.http.postSync("/getMenu", {}, {silentError: true});
+        if (!result || result.status !== 0) {
+            if (window.layer) {
+                layer.msg(result && result.msg ? result.msg : "菜单加载失败，请稍后重试！", {icon: 2});
             }
-            dataJson = result.data;
-        });
-        $.ajaxSettings.async = true;
-
+            return [];
+        }
+        dataJson = result.data || [];
         return dataJson;
     }
 
@@ -197,9 +196,9 @@
 
 <script>
     $(function () {
-        $.get("/getUserInfo.do", param, function (result) {
-            if (result.status != 0) {
-                return layer.msg(result.msg, {icon: 2});
+        ieps.auth.loadCurrentUserInfo({silentError: true}).done(function (result) {
+            if (!result || result.status != 0) {
+                return layer.msg(result && result.msg ? result.msg : "加载当前用户信息失败！", {icon: 2});
             }
             result = result.data;
 
@@ -229,32 +228,25 @@
     layui.use('upload', function () {
         const upload = layui.upload;
 
-        //执行实例
-        const changeUserImg = upload.render({
-            elem: '.custom-img' //绑定元素
-            , url: '/changeUserImg.do' //上传接口
-            , data: param
-            , choose: function (obj) {
-                //预读本地文件示例，不支持ie8
+        upload.render({
+            elem: '.custom-img',
+            url: '/changeUserImg',
+            accept: 'images',
+            choose: function (obj) {
                 obj.preview(function (index, file, result) {
-                    $('.custom-img').attr('src', result); //图片链接（base64）s
+                    $('.custom-img').attr('src', result);
                 });
-            }
-            , done: function (result) {
-                if (result.status != 0) {
-                    return layer.msg(result.msg);
+            },
+            done: function (result) {
+                if (!result || result.status != 0) {
+                    return layer.msg(result && result.msg ? result.msg : "头像上传失败，请稍后重试！", {icon: 2});
                 }
+                layer.msg(result.msg || "头像上传成功！", {icon: 1});
+            },
+            error: function () {
+                layer.msg("头像上传失败，请稍后重试！", {icon: 2});
             }
-            , error: function () {
-                //演示失败状态，并实现重传
-                const demoText = $('#demoText');
-                demoText.html('<span style="color: #FF5722;">上传失败</span> <a class="layui-btn layui-btn-xs demo-reload">重试</a>');
-                demoText.find('.demo-reload').on('click', function () {
-//                    uploadInst.upload();
-                });
-            }
-            , accept: 'images'  // 上传文件类型
-        })
+        });
     });
 </script>
 
@@ -303,7 +295,6 @@
                 currentInput.focus();
             } else {
                 $.post("/checkUserPwdWithUserNum", {
-                    userNum: userNumAdmin,
                     userPwd: currentInput.val()
                 }, function (result) {
                     if (result.status !== 0) {

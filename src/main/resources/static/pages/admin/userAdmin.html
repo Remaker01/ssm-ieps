@@ -481,13 +481,8 @@
 
 <!-- 头像模板 -->
 <script type="text/html" id="userImgTpl">
-    {{#  if(d.userImg === ""){ }}
-    <img src="../../hub/default.jpg" class="userImgTplAdmin"
-         style="border-radius: 100%" width="30" height="30" data-action="zoom"/>
-    {{#  } else { }}
-    <img src="../../{{ d.userImg }}" class="userImgTplAdmin" style="border-radius: 100%"
-         width="30" height="30"/>
-    {{#  } }}
+    {{# var imgSrc = d.userImg ? d.userImg : '/static/images/default.jpg'; }}
+    <img src="{{ imgSrc }}" class="userImgTplAdmin" style="border-radius: 100%" width="30" height="30"/>
 </script>
 
 <!-- 数据表格js代码 -->

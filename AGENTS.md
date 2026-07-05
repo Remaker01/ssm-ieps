@@ -15,7 +15,9 @@
 | **分页** | PageHelper (pagehelper-spring-boot-starter 1.4.6) | |
 | **连接池** | HikariCP | Spring Boot 默认连接池 |
 | **数据库** | MySQL 8.0+ | 数据库名 `ieps` |
-| **Redis** | Spring Data Redis + Spring Session Redis | 用于 `HttpSession` 托管与验证码存储 |
+| **Redis** | Spring Data Redis | 用于忘记密码验证码、发送冷却和短期重置 token 存储 |
+| **鉴权** | JWT (jjwt) | 前端通过 `Authorization: Bearer <token>` 调用受保护接口 |
+| **JSON** | Jackson | 统一使用 Spring Boot 默认 `ObjectMapper` 处理 JSON |
 | **前端** | Layui 2.7 + jQuery 3.7.1 + Bootstrap 4.6 | 纯静态 HTML，CDN 引用 |
 
 ---
@@ -94,8 +96,10 @@ ssm-ieps/
 ### 5. 安全校验
 
 - *默认密码*: `Ieps@123`
-- 用户信息存储在 `HttpSession` 中，key 为 `"activeUser"`；底层默认由 Redis 托管
-- 控制器通过 `session.getAttribute("activeUser")` 获取当前用户
+- 登录成功后后端返回 JWT，前端通过 `src/main/resources/static/static/js/ieps-jwt.js` 存入 `localStorage`
+- 受保护接口由 `JwtAuthenticationFilter` 校验 `Authorization` 请求头
+- 控制器通过 `request.getAttribute(Const.REQUEST_CURRENT_USER)` 获取当前用户
+- Redis 当前不托管登录 Session；主要用于忘记密码验证码、发送冷却、失败次数和短时效 `forgetPwdToken`
 - 角色 ID 定义在 `Const.java` 中：
   - `ROLEID_STU = 200001` (学生)
   - `ROLEID_TUTOR = 200002` (指导老师)
@@ -147,13 +151,14 @@ ssm-ieps/
 3. **禁止使用 `System.out.println`** → 使用 SLF4J Logger（`private static final Logger logger = LoggerFactory.getLogger(Xxx.class)`）
 4. **禁止直接使用 `com.sun.*` 内部 API**（Java 11 模块化后不再可见）
 5. **魔法字符串/数字** → 提取到 `Const.java` 或枚举类
+6. **JSON 处理统一使用 Jackson** → 优先复用 Spring 注入的 `ObjectMapper`，不要重新引入 `fastjson`
 
 ### 分层规范
 
 **Controller 层**:
 - 使用 `@Controller` + `@ResponseBody` 注解（而非 `@RestController`）
 - 方法返回 `ServerResponse<T>` 统一格式
-- 通过 `HttpSession` 获取用户信息：`(User) session.getAttribute("activeUser")`
+- 当前用户通过请求属性获取：`(User) request.getAttribute(Const.REQUEST_CURRENT_USER)`
 - 分页参数命名：`page`（页码）、`limit`（每页条数），带 `@RequestParam(defaultValue=...)`
 
 **Service 层**:
@@ -192,6 +197,7 @@ ssm-ieps/
 - 提交信息格式: `<type>: <描述>`
 - type: `feat` / `fix` / `refactor` / `docs` / `chore` / `style`
 - 描述使用中文，一两句话说清楚更改，简洁明了
+- 禁止将Git相关命令与其他命令混合在一起，但不同的Git命令可以一并使用
 
 ### 命令执行规范
 - Windows下如已安装Powershell 7，优先采用，尽量不要使用Powershell的旧版本，更不要使用cmd
@@ -238,12 +244,16 @@ spring.datasource.url
 spring.datasource.username
 spring.datasource.password
 
-# Redis / Spring Session
+# Redis / JWT
 spring.redis.host
 spring.redis.port
 spring.redis.database
-spring.session.store-type
-spring.session.redis.namespace
+ieps.redis.verify-code.ttl-seconds
+ieps.redis.verify-code.cooldown-seconds
+ieps.redis.verify-code.max-failures
+ieps.redis.verify-code.namespace
+ieps.jwt.secret
+ieps.jwt.expiration
 
 # 文件上传路径 (上传文件实际存储在服务器)
 # application.yml 中 upload/ 路径映射

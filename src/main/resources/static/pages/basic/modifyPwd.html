@@ -69,6 +69,7 @@
 <script src="https://cdn.jsdelivr.net/npm/layui@2.7/dist/layui.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
 <script src="../../static/js/ieps-jwt.js"></script>
+<script src="../../static/js/ieps-app.js"></script>
 <!-- 获取url参数 -->
 <script src="../../static/js/getParam.js"></script>
 
@@ -84,18 +85,7 @@
 </script>
 
 <script>
-    var userNumAdmin = getCurrentUserNum() || "";
-    var roleIdAdmin = getCurrentRoleId() || "";
-
-    // 获取传参的值
-    function getUrlParam(name) {
-        const reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i"); //构造一个含有目标参数的正则表达式对象
-        const r = window.parent.location.search.substr(1).match(reg);  //匹配目标参数
-        if (r != null) {
-            return encodeURI(r[2]);
-        }
-        return null; //返回参数值
-    }
+    ieps.auth.requireAuth();
 
     let oldPassword = $("input[name='oldPassword']");
     let newPassword = $("input[name='newPassword']");
@@ -151,39 +141,6 @@
             }
         });
     });
-   reNewPassword.focus(function () {
-       reNewPassword.mouseleave(function () {
-           if (newPassword.val() == "" || oldPassword.val() == "") {
-               return;
-           }
-           // if (reNewPassword.val() != "") {
-           //     if (oldPassword.val() == "") {
-           //         $("input:lt(3)").val('');
-           //         return layer.msg("请先输入原始密码！");
-           //     }
-           //
-           //     if (newPassword.val() == "") {
-           //         $("input[name='reNewPassword']").val('');
-           //         return layer.msg("请先输入新密码！");
-           //     }
-           // }
-           // if (newPassword.val() != reNewPassword.val()) {
-           //     $("input:gt(0)").val('');
-           //     return layer.msg('前后两次密码不一致，请重新输入！');
-           // }
-           if (newPassword.val() === reNewPassword.val()) {
-               const passwordPolicyMessage = validatePasswordPolicy(newPassword.val());
-               if (passwordPolicyMessage) {
-                   layer.msg(passwordPolicyMessage);
-                   newPassword.val('');
-                   reNewPassword.val('');
-                   return;
-               }
-               reUpdate.removeAttribute("disabled", "disabled").on("click", reUpdatePwd);
-           }
-       });
-   });
-
 </script>
 
 <script>
@@ -193,7 +150,6 @@
         }
 
         const param = {
-            userNum: userNumAdmin,
             userPwd: $("input[name='oldPassword']").val()
         };
 
@@ -215,7 +171,6 @@
         }
 
         const param = {
-            userNum: userNumAdmin,
             userPwd: oldPassword.val(),
             newPassword: newPassword.val(),
             rePassword: reNewPassword.val()
