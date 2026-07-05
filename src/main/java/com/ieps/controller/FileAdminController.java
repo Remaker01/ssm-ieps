@@ -7,6 +7,7 @@ import com.ieps.dto.CkeditorUploadFileDto;
 import com.ieps.pojo.FileHub;
 import com.ieps.pojo.User;
 import com.ieps.service.CosStorageService;
+import com.ieps.service.DownloadTaskService;
 import com.ieps.service.FileAdminService;
 import com.ieps.service.StorageService;
 import org.slf4j.Logger;
@@ -24,8 +25,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 
 /**
  * Created by ljw
@@ -46,6 +45,9 @@ public class FileAdminController {
 
     @Autowired
     private IepsCosProperties iepsCosProperties;
+
+    @Autowired
+    private DownloadTaskService downloadTaskService;
 
     private String resolveCurrentUserNum(HttpServletRequest request, String fallbackUserNum) {
         User user = (User) request.getAttribute(Const.REQUEST_CURRENT_USER);
@@ -324,67 +326,11 @@ public class FileAdminController {
      * @param response
      * @return
      */
-    @RequestMapping(value = {"/onekeyDownloadFile", "/onekeyDownloadFile.do"}, method = RequestMethod.POST)
-    public void onekeyDownloadFile(@RequestParam("userNum") String userNum, @RequestParam("roleId") int roleId,
+    @RequestMapping(value = {"/onekeyDownloadFileCompat"}, method = RequestMethod.POST)
+    @ResponseBody
+    public ServerResponse onekeyDownloadFile(@RequestParam("userNum") String userNum, @RequestParam("roleId") int roleId,
                                    HttpServletRequest request, String[] fileNames, HttpServletResponse response) throws IOException {
         User currentUser = (User) request.getAttribute(Const.REQUEST_CURRENT_USER);
-        if (fileNames == null || fileNames.length == 0) {
-            logger.warn("Batch download rejected because no files were selected. requestUser={}",
-                    currentUser == null ? "anonymous" : currentUser.getUserNum());
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            return;
-        }
-        logger.info("Start batch download. requestUser={}, fileCount={}",
-                currentUser == null ? "anonymous" : currentUser.getUserNum(), fileNames.length);
-
-        String zipName = System.currentTimeMillis() + ".zip";
-        response.setHeader("Content-disposition", "attachment;filename=" + zipName);
-        response.setContentType("application/octet-stream");
-
-        try (ZipOutputStream zos = new ZipOutputStream(response.getOutputStream())) {
-            zipFile(fileNames, currentUser, zos);
-            zos.finish();
-            logger.info("Batch download finished. requestUser={}, zipName={}, fileCount={}",
-                    currentUser == null ? "anonymous" : currentUser.getUserNum(), zipName, fileNames.length);
-        }
+        return downloadTaskService.createDownloadTask(currentUser, fileNames);
     }
-    
-    /**
-     * 将文件列表压缩到已打开的 ZipOutputStream 中
-     *
-     * @param fileNames 需要压缩的文件名集合
-     * @param zos       已打开的 ZipOutputStream
-     */
-    private void zipFile(String[] fileNames, User currentUser, ZipOutputStream zos) {
-        for (String fileName : fileNames) {
-            FileHub fileHub = fileAdminService.getFileByFileName(fileName);
-            if (fileHub == null) {
-                logger.warn("Skip zipping because file record was not found. fileName={}, requestUser={}",
-                        fileName, currentUser == null ? "anonymous" : currentUser.getUserNum());
-                continue;
-            }
-            if (!storageService.canAccessFile(currentUser, fileHub)) {
-                logger.warn("Skip zipping because access was denied. fileName={}, objectKey={}, requestUser={}",
-                        fileName, fileHub.getObjectKey(), currentUser == null ? "anonymous" : currentUser.getUserNum());
-                continue;
-            }
-
-            try {
-                logger.info("Adding file to zip. fileName={}, objectKey={}, requestUser={}",
-                        fileHub.getFileName(), fileHub.getObjectKey(), currentUser == null ? "anonymous" : currentUser.getUserNum());
-                zos.putNextEntry(new ZipEntry(fileHub.getFileName()));
-                cosStorageService.writeObjectTo(fileHub.getObjectKey(), zos);
-                zos.closeEntry();
-            } catch (IOException e) {
-                logger.error("Failed to add file to zip. fileName={}, objectKey={}, requestUser={}",
-                        fileName, fileHub.getObjectKey(), currentUser == null ? "anonymous" : currentUser.getUserNum(), e);
-                try {
-                    zos.closeEntry();
-                } catch (IOException ignore) {
-                    // ignore close failure
-                }
-            }
-        }
-    }
-    
 }

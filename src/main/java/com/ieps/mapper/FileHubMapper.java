@@ -23,6 +23,8 @@ public interface FileHubMapper {
     
     FileHub selectByFileName(String fileName);
 
+    List<FileHub> selectByFileNames(String[] fileNames);
+
     FileHub selectStorageFileById(Integer id);
 
     List<FileHub> selectAllStorageFiles();

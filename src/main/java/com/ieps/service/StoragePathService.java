@@ -34,6 +34,11 @@ public class StoragePathService {
                 + "/" + currentMonth() + "/" + safeFileName;
     }
 
+    public String buildArchiveObjectKey(String userNum, String taskId, String zipFileName) {
+        return "archives/" + safeSegment(userNum) + "/" + currentMonth()
+                + "/" + safeSegment(taskId) + "-" + sanitizeFileName(zipFileName);
+    }
+
     public String buildMigratedObjectKey(FileHub fileHub) {
         return buildAttachmentObjectKey(fileHub.getFileKind(), fileHub.getTypeNum(), fileHub.getUserNum(), fileHub.getFileName());
     }

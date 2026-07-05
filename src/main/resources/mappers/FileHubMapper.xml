@@ -164,6 +164,16 @@
     WHERE file_name=#{fileName}
   </select>
 
+  <select id="selectByFileNames" resultType="com.ieps.pojo.FileHub">
+    SELECT
+    <include refid="Base_Column_List"/>
+    FROM ieps_file_hub
+    WHERE file_name IN
+    <foreach collection="array" item="fileName" open="(" separator="," close=")">
+      #{fileName}
+    </foreach>
+  </select>
+
   <select id="selectStorageFileById" parameterType="int" resultType="com.ieps.pojo.FileHub">
     SELECT
     <include refid="Base_Column_List"/>

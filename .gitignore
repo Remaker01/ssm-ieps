@@ -33,6 +33,8 @@ hs_err_pid*
 
 # Upload directory
 /upload/
+/src/main/resources/static/hub/*
+!/src/main/resources/static/hub/.gitkeep
 
 # Runtime deploy artifacts
 /deploy/app/
