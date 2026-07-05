@@ -29,6 +29,30 @@ CREATE TABLE `ieps_file_hub` (
 ) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
+-- Table structure for ieps_download_task
+-- ----------------------------
+DROP TABLE IF EXISTS `ieps_download_task`;
+CREATE TABLE `ieps_download_task` (
+  `task_id` varchar(32) NOT NULL,
+  `user_num` varchar(20) NOT NULL,
+  `status` varchar(20) NOT NULL DEFAULT 'pending',
+  `file_count` int(11) NOT NULL DEFAULT '0',
+  `source_files` text,
+  `zip_object_key` varchar(512) DEFAULT NULL,
+  `zip_file_name` varchar(255) DEFAULT NULL,
+  `error_message` varchar(500) DEFAULT NULL,
+  `created_time` datetime DEFAULT CURRENT_TIMESTAMP,
+  `started_time` datetime DEFAULT NULL,
+  `finished_time` datetime DEFAULT NULL,
+  `expire_time` datetime DEFAULT NULL,
+  `update_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`task_id`),
+  KEY `idx_download_task_user_status` (`user_num`, `status`),
+  KEY `idx_download_task_expire_time` (`expire_time`),
+  KEY `idx_download_task_finished_time` (`finished_time`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- ----------------------------
 -- Table structure for ieps_inform
 -- ----------------------------
 DROP TABLE IF EXISTS `ieps_inform`;

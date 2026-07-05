@@ -11,6 +11,7 @@ SET FOREIGN_KEY_CHECKS=0;
 DELETE FROM `ieps_user_item`;
 DELETE FROM `ieps_review`;
 DELETE FROM `ieps_item_info`;
+DELETE FROM `ieps_download_task`;
 DELETE FROM `ieps_user_role`;
 DELETE FROM `ieps_role_perm`;
 DELETE FROM `ieps_file_hub`;

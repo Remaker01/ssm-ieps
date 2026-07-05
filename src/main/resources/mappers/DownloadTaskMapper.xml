@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ieps.mapper.DownloadTaskMapper">
+
+  <sql id="Base_Column_List">
+    task_id, user_num, status, file_count, source_files, zip_object_key, zip_file_name,
+    error_message, created_time, started_time, finished_time, expire_time, update_time
+  </sql>
+
+  <insert id="insertSelective" parameterType="com.ieps.pojo.DownloadTask">
+    insert into ieps_download_task
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="taskId != null">task_id,</if>
+      <if test="userNum != null">user_num,</if>
+      <if test="status != null">status,</if>
+      <if test="fileCount != null">file_count,</if>
+      <if test="sourceFiles != null">source_files,</if>
+      <if test="zipObjectKey != null">zip_object_key,</if>
+      <if test="zipFileName != null">zip_file_name,</if>
+      <if test="errorMessage != null">error_message,</if>
+      <if test="createdTime != null">created_time,</if>
+      <if test="startedTime != null">started_time,</if>
+      <if test="finishedTime != null">finished_time,</if>
+      <if test="expireTime != null">expire_time,</if>
+      <if test="updateTime != null">update_time,</if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="taskId != null">#{taskId,jdbcType=VARCHAR},</if>
+      <if test="userNum != null">#{userNum,jdbcType=VARCHAR},</if>
+      <if test="status != null">#{status,jdbcType=VARCHAR},</if>
+      <if test="fileCount != null">#{fileCount,jdbcType=INTEGER},</if>
+      <if test="sourceFiles != null">#{sourceFiles,jdbcType=LONGVARCHAR},</if>
+      <if test="zipObjectKey != null">#{zipObjectKey,jdbcType=VARCHAR},</if>
+      <if test="zipFileName != null">#{zipFileName,jdbcType=VARCHAR},</if>
+      <if test="errorMessage != null">#{errorMessage,jdbcType=VARCHAR},</if>
+      <if test="createdTime != null">#{createdTime,jdbcType=TIMESTAMP},</if>
+      <if test="startedTime != null">#{startedTime,jdbcType=TIMESTAMP},</if>
+      <if test="finishedTime != null">#{finishedTime,jdbcType=TIMESTAMP},</if>
+      <if test="expireTime != null">#{expireTime,jdbcType=TIMESTAMP},</if>
+      <if test="updateTime != null">#{updateTime,jdbcType=TIMESTAMP},</if>
+    </trim>
+  </insert>
+
+  <select id="selectByTaskId" parameterType="string" resultType="com.ieps.pojo.DownloadTask">
+    select
+    <include refid="Base_Column_List"/>
+    from ieps_download_task
+    where task_id = #{taskId}
+  </select>
+
+  <update id="updateByTaskIdSelective" parameterType="com.ieps.pojo.DownloadTask">
+    update ieps_download_task
+    <set>
+      <if test="userNum != null">user_num = #{userNum,jdbcType=VARCHAR},</if>
+      <if test="status != null">status = #{status,jdbcType=VARCHAR},</if>
+      <if test="fileCount != null">file_count = #{fileCount,jdbcType=INTEGER},</if>
+      <if test="sourceFiles != null">source_files = #{sourceFiles,jdbcType=LONGVARCHAR},</if>
+      <if test="zipObjectKey != null">zip_object_key = #{zipObjectKey,jdbcType=VARCHAR},</if>
+      <if test="zipFileName != null">zip_file_name = #{zipFileName,jdbcType=VARCHAR},</if>
+      <if test="errorMessage != null">error_message = #{errorMessage,jdbcType=VARCHAR},</if>
+      <if test="createdTime != null">created_time = #{createdTime,jdbcType=TIMESTAMP},</if>
+      <if test="startedTime != null">started_time = #{startedTime,jdbcType=TIMESTAMP},</if>
+      <if test="finishedTime != null">finished_time = #{finishedTime,jdbcType=TIMESTAMP},</if>
+      <if test="expireTime != null">expire_time = #{expireTime,jdbcType=TIMESTAMP},</if>
+      <if test="updateTime != null">update_time = #{updateTime,jdbcType=TIMESTAMP},</if>
+      <if test="updateTime == null">update_time = now(),</if>
+    </set>
+    where task_id = #{taskId,jdbcType=VARCHAR}
+  </update>
+
+  <select id="selectSuccessTasksExpiredBefore" resultType="com.ieps.pojo.DownloadTask">
+    select
+    <include refid="Base_Column_List"/>
+    from ieps_download_task
+    where status = 'success'
+      and expire_time is not null
+      and expire_time &lt;= #{now,jdbcType=TIMESTAMP}
+  </select>
+
+  <select id="selectHistoryTasksBefore" resultType="com.ieps.pojo.DownloadTask">
+    select
+    <include refid="Base_Column_List"/>
+    from ieps_download_task
+    where finished_time is not null
+      and finished_time &lt;= #{finishedBefore,jdbcType=TIMESTAMP}
+      and status in ('failed', 'expired')
+  </select>
+
+  <delete id="batchDeleteByTaskIds">
+    delete from ieps_download_task
+    where task_id in
+    <foreach collection="taskIds" item="taskId" open="(" separator="," close=")">
+      #{taskId}
+    </foreach>
+  </delete>
+</mapper>

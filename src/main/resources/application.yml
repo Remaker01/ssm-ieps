@@ -40,6 +40,7 @@ spring:
       enabled: true
       max-file-size: 100MB
       max-request-size: 100MB
+      file-size-threshold: 0B
 
   # 静态资源配置
   mvc:
@@ -92,6 +93,13 @@ ieps:
       sts-duration-seconds: ${COS_STS_DURATION_SECONDS:${IEPS_COS_STS_DURATION_SECONDS:600}}
       download-url-ttl-seconds: ${COS_DOWNLOAD_URL_TTL_SECONDS:${IEPS_COS_DOWNLOAD_URL_TTL_SECONDS:300}}
       migration-enabled: ${COS_MIGRATION_ENABLED:${IEPS_COS_MIGRATION_ENABLED:false}}
+      multipart-upload-threshold: 16MB
+      minimum-upload-part-size: 8MB
+      transfer-thread-pool-size: 4
+      download-task-executor-pool-size: 2
+      download-task-expire-seconds: 86400
+      download-task-history-retention-seconds: 604800
+      download-task-cleanup-interval-ms: 3600000
 
 # MyBatis 配置
 mybatis:

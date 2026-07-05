@@ -2,6 +2,7 @@ package com.ieps.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
+import org.springframework.util.unit.DataSize;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -20,6 +21,12 @@ public class IepsCosProperties {
     private long stsDurationSeconds = 600L;
     private long downloadUrlTtlSeconds = 300L;
     private boolean migrationEnabled = false;
+    private DataSize multipartUploadThreshold = DataSize.ofMegabytes(16);
+    private DataSize minimumUploadPartSize = DataSize.ofMegabytes(8);
+    private int transferThreadPoolSize = 4;
+    private int downloadTaskExecutorPoolSize = 2;
+    private long downloadTaskExpireSeconds = 86400L;
+    private long downloadTaskHistoryRetentionSeconds = 604800L;
 
     public String getSecretId() {
         return secretId;
@@ -83,6 +90,62 @@ public class IepsCosProperties {
 
     public void setMigrationEnabled(boolean migrationEnabled) {
         this.migrationEnabled = migrationEnabled;
+    }
+
+    public DataSize getMultipartUploadThreshold() {
+        return multipartUploadThreshold;
+    }
+
+    public void setMultipartUploadThreshold(DataSize multipartUploadThreshold) {
+        this.multipartUploadThreshold = multipartUploadThreshold;
+    }
+
+    public DataSize getMinimumUploadPartSize() {
+        return minimumUploadPartSize;
+    }
+
+    public void setMinimumUploadPartSize(DataSize minimumUploadPartSize) {
+        this.minimumUploadPartSize = minimumUploadPartSize;
+    }
+
+    public int getTransferThreadPoolSize() {
+        return transferThreadPoolSize;
+    }
+
+    public void setTransferThreadPoolSize(int transferThreadPoolSize) {
+        this.transferThreadPoolSize = transferThreadPoolSize;
+    }
+
+    public long getMultipartUploadThresholdBytes() {
+        return multipartUploadThreshold == null ? DataSize.ofMegabytes(16).toBytes() : multipartUploadThreshold.toBytes();
+    }
+
+    public long getMinimumUploadPartSizeBytes() {
+        return minimumUploadPartSize == null ? DataSize.ofMegabytes(8).toBytes() : minimumUploadPartSize.toBytes();
+    }
+
+    public int getDownloadTaskExecutorPoolSize() {
+        return downloadTaskExecutorPoolSize;
+    }
+
+    public void setDownloadTaskExecutorPoolSize(int downloadTaskExecutorPoolSize) {
+        this.downloadTaskExecutorPoolSize = downloadTaskExecutorPoolSize;
+    }
+
+    public long getDownloadTaskExpireSeconds() {
+        return downloadTaskExpireSeconds;
+    }
+
+    public void setDownloadTaskExpireSeconds(long downloadTaskExpireSeconds) {
+        this.downloadTaskExpireSeconds = downloadTaskExpireSeconds;
+    }
+
+    public long getDownloadTaskHistoryRetentionSeconds() {
+        return downloadTaskHistoryRetentionSeconds;
+    }
+
+    public void setDownloadTaskHistoryRetentionSeconds(long downloadTaskHistoryRetentionSeconds) {
+        this.downloadTaskHistoryRetentionSeconds = downloadTaskHistoryRetentionSeconds;
     }
 
     public String getResolvedBucket() {
