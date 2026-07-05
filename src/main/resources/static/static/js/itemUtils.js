@@ -118,6 +118,120 @@ function submitDownload(url, params) {
     form.remove();
 }
 
+// ======== 异步批量下载任务 ========
+function createAsyncDownloadTask(layer, options) {
+    var requestOptions = options || {};
+    var fileNames = requestOptions.fileNames || [];
+    if (!fileNames.length) {
+        if (layer && layer.msg) {
+            layer.msg("请先选择需要下载的文件！", {icon: 2});
+        }
+        return;
+    }
+
+    $.ajax({
+        url: '/downloadTasks',
+        type: 'post',
+        traditional: true,
+        data: {
+            fileNames: fileNames,
+            userNum: requestOptions.userNum || '',
+            roleId: requestOptions.roleId || ''
+        },
+        success: function (result) {
+            if (!result || result.status !== 0 || !result.data) {
+                return layer.msg(result && result.msg ? result.msg : "创建下载任务失败，请稍后重试！", {icon: 2});
+            }
+            openDownloadTaskDialog(layer, result.data.taskId);
+        },
+        error: function () {
+            layer.msg("创建下载任务失败，请稍后重试！", {icon: 2});
+        }
+    });
+}
+
+function openDownloadTaskDialog(layer, taskId) {
+    var pollTimer = null;
+    var content = [
+        '<div id="download-task-panel" style="padding:16px 18px;line-height:1.8;">',
+        '<div>任务编号：<span class="download-task-id">' + taskId + '</span></div>',
+        '<div>当前状态：<span class="download-task-status">等待处理</span></div>',
+        '<div>文件数量：<span class="download-task-count">-</span></div>',
+        '<div>结果文件：<span class="download-task-file">-</span></div>',
+        '<div>失败原因：<span class="download-task-error">-</span></div>',
+        '<div class="download-task-action" style="margin-top:12px;"></div>',
+        '</div>'
+    ].join('');
+
+    var layerIndex = layer.open({
+        type: 1,
+        skin: 'layui-layer-rim',
+        title: '批量下载任务',
+        area: ['420px', '280px'],
+        shadeClose: true,
+        content: content,
+        end: function () {
+            if (pollTimer) {
+                clearInterval(pollTimer);
+            }
+        }
+    });
+
+    function renderTask(task) {
+        var panel = $('#download-task-panel');
+        panel.find('.download-task-status').text(task.status || '-');
+        panel.find('.download-task-count').text(task.fileCount != null ? task.fileCount : '-');
+        panel.find('.download-task-file').text(task.zipFileName || '-');
+        panel.find('.download-task-error').text(task.errorMessage || '-');
+
+        var action = panel.find('.download-task-action');
+        if (task.status === 'success' && task.downloadUrl) {
+            action.html('<button type="button" class="layui-btn layui-btn-sm download-task-btn">点击下载 ZIP</button>');
+            action.find('.download-task-btn').off('click').on('click', function () {
+                window.location.href = task.downloadUrl;
+            });
+            return;
+        }
+        if (task.status === 'failed' || task.status === 'expired') {
+            action.html('<span style="color:#FF5722;">任务已结束，请按提示重新发起。</span>');
+            return;
+        }
+        action.html('<span style="color:#1E9FFF;">正在处理，请稍候...</span>');
+    }
+
+    function fetchTask() {
+        $.ajax({
+            url: '/downloadTasks/' + encodeURIComponent(taskId),
+            type: 'get',
+            success: function (result) {
+                if (!result || result.status !== 0 || !result.data) {
+                    if (pollTimer) {
+                        clearInterval(pollTimer);
+                    }
+                    return layer.msg(result && result.msg ? result.msg : "查询下载任务失败，请稍后重试！", {icon: 2});
+                }
+
+                renderTask(result.data);
+                if (result.data.status === 'success' || result.data.status === 'failed' || result.data.status === 'expired') {
+                    if (pollTimer) {
+                        clearInterval(pollTimer);
+                    }
+                }
+            },
+            error: function () {
+                if (pollTimer) {
+                    clearInterval(pollTimer);
+                }
+                layer.msg("查询下载任务失败，请稍后重试！", {icon: 2});
+                layer.close(layerIndex);
+            }
+        });
+    }
+
+    fetchTask();
+    pollTimer = setInterval(fetchTask, 2500);
+}
+
 // ======== 后端中转文件上传队列 ========
 function createBackendUploadQueue(upload, options) {
     var fileQueue = {};

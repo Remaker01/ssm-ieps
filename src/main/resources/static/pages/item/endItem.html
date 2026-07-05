@@ -1017,7 +1017,7 @@
                     $.each(data, function (index, item) {
                         fileNames[index] = item.fileName;
                     });
-                    submitDownload("/onekeyDownloadFile", {
+                    createAsyncDownloadTask(layer, {
                         fileNames: fileNames,
                         userNum: userNumAdmin,
                         roleId: roleIdAdmin
