@@ -23,6 +23,42 @@ $nginxPartialConfigSource = Join-Path $projectRoot "deploy\nginx\ieps.partial-st
 $backendPort = 8080
 $redisHost = "127.0.0.1"
 $redisPort = 6379
+$envFilePath = Join-Path $projectRoot ".env"
+
+function Import-DotEnv {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Path
+    )
+
+    if (-not (Test-Path -LiteralPath $Path)) {
+        return
+    }
+
+    foreach ($line in Get-Content -LiteralPath $Path) {
+        $trimmed = $line.Trim()
+        if (-not $trimmed -or $trimmed.StartsWith("#")) {
+            continue
+        }
+
+        $parts = $trimmed -split "=", 2
+        if ($parts.Count -ne 2) {
+            continue
+        }
+
+        $name = $parts[0].Trim()
+        if ($name -notmatch "^[A-Za-z_][A-Za-z0-9_]*$") {
+            continue
+        }
+
+        $value = $parts[1].Trim()
+        if (($value.StartsWith('"') -and $value.EndsWith('"')) -or ($value.StartsWith("'") -and $value.EndsWith("'"))) {
+            $value = $value.Substring(1, $value.Length - 2)
+        }
+
+        Set-Item -Path "Env:$name" -Value $value
+    }
+}
 
 function Get-LatestWriteTimeUtc {
     param(
@@ -232,15 +268,18 @@ function Ensure-Backend {
         return
     }
 
-    $javaw = Join-Path (Split-Path (Get-Command java).Source) "javaw.exe"
-    if (-not (Test-Path -LiteralPath $javaw)) {
-        throw "javaw.exe not found next to java command."
-    }
+    $stdoutLog = Join-Path $logDir "ieps-run.out.log"
+    $stderrLog = Join-Path $logDir "ieps-run.err.log"
+    $java = (Get-Command java -ErrorAction Stop).Source
 
-    $process = Start-Process -FilePath $javaw `
+    Remove-Item -LiteralPath $stdoutLog, $stderrLog -Force -ErrorAction SilentlyContinue
+
+    $process = Start-Process -FilePath $java `
         -ArgumentList "-Dlogging.file.name=$appLog", "-jar", $deployJarPath, "--server.address=127.0.0.1", "--server.port=$backendPort" `
         -WorkingDirectory $appDir `
         -WindowStyle Hidden `
+        -RedirectStandardOutput $stdoutLog `
+        -RedirectStandardError $stderrLog `
         -PassThru
 
     Set-Content -LiteralPath $javaPidFile -Value $process.Id -Encoding ASCII
@@ -314,6 +353,8 @@ function Ensure-Nginx {
         Write-Warning "$warningMessage`: $($_.Exception.Message)"
     }
 }
+
+Import-DotEnv -Path $envFilePath
 
 $backendBuild = Ensure-BackendBuild
 $frontendDeployed = Ensure-FrontendDeploy

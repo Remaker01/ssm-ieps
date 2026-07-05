@@ -49,7 +49,6 @@ spring:
       static-locations:
         - classpath:/static/
         - classpath:/public/
-        - file:./upload/
 
   # 缓存配置
   cache:
@@ -82,6 +81,17 @@ ieps:
   jwt:
     secret: Ieps_JWT_Secret_Key_2024_For_Innovation_Project
     expiration: 1800000
+
+  storage:
+    cos:
+      secret-id: ${COS_SECRET_ID:${IEPS_COS_SECRET_ID:}}
+      secret-key: ${COS_SECRET_KEY:${IEPS_COS_SECRET_KEY:}}
+      bucket: ${COS_BUCKET:${IEPS_COS_BUCKET:}}
+      region: ${COS_REGION:${IEPS_COS_REGION:}}
+      app-id: ${COS_APP_ID:${IEPS_COS_APP_ID:}}
+      sts-duration-seconds: ${COS_STS_DURATION_SECONDS:${IEPS_COS_STS_DURATION_SECONDS:600}}
+      download-url-ttl-seconds: ${COS_DOWNLOAD_URL_TTL_SECONDS:${IEPS_COS_DOWNLOAD_URL_TTL_SECONDS:300}}
+      migration-enabled: ${COS_MIGRATION_ENABLED:${IEPS_COS_MIGRATION_ENABLED:false}}
 
 # MyBatis 配置
 mybatis:

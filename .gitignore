@@ -42,3 +42,5 @@ hs_err_pid*
 /deploy/favicon.ico
 /deploy/dump.rdb
 dump.rdb
+
+.env
