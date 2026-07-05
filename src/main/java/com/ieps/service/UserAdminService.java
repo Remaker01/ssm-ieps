@@ -38,6 +38,9 @@ public class UserAdminService {
     
     @Autowired
     private RoleMapper roleMapper;
+
+    @Autowired
+    private StorageService storageService;
     
     /**
      * 获取用户列表
@@ -62,6 +65,7 @@ public class UserAdminService {
         if (userAdminDtoList.size() == 0) {
             return ServerResponse.createByErrorMessage("对不起，可能暂无数据，请稍候再试！");
         }
+        decorateUserImages(userAdminDtoList);
         
         PageInfo pageInfo = new PageInfo(userAdminDtoList);
         
@@ -91,6 +95,7 @@ public class UserAdminService {
         if (userAdminDtoList.size() == 0) {
             return ServerResponse.createByErrorMessage("对不起，可能暂无数据，请稍候再试！");
         }
+        decorateUserImages(userAdminDtoList);
         
         PageInfo pageInfo = new PageInfo(userAdminDtoList);
         
@@ -289,6 +294,12 @@ public class UserAdminService {
         }
         
         return ServerResponse.createBySuccessMessage("总共需要导入" + count + "条数据，导入成功" + successCount + "条，导入失败" + failCount + "条！");
+    }
+
+    private void decorateUserImages(List<UserAdminDto> userAdminDtoList) {
+        for (UserAdminDto userAdminDto : userAdminDtoList) {
+            userAdminDto.setUserImg(storageService.resolveUserImageUrl(userAdminDto.getUserImg()));
+        }
     }
     
 }

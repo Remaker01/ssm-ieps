@@ -1,6 +1,7 @@
 package com.ieps.controller;
 
 import com.google.common.collect.Lists;
+import com.ieps.common.Const;
 import com.ieps.common.ServerResponse;
 import com.ieps.dto.ItemAdminDto;
 import com.ieps.pojo.Review;
@@ -24,6 +25,26 @@ public class ItemAdminController {
     
     @Autowired
     private ItemAdminService itemAdminService;
+
+    private User getCurrentUser(HttpServletRequest request) {
+        return (User) request.getAttribute(Const.REQUEST_CURRENT_USER);
+    }
+
+    private String resolveCurrentUserNum(HttpServletRequest request, String fallbackUserNum) {
+        User currentUser = getCurrentUser(request);
+        if (currentUser != null && currentUser.getUserNum() != null && !currentUser.getUserNum().trim().isEmpty()) {
+            return currentUser.getUserNum();
+        }
+        return fallbackUserNum;
+    }
+
+    private int resolveCurrentRoleId(HttpServletRequest request, Integer fallbackRoleId) {
+        User currentUser = getCurrentUser(request);
+        if (currentUser != null && currentUser.getRoleId() != null) {
+            return currentUser.getRoleId();
+        }
+        return fallbackRoleId == null ? 0 : fallbackRoleId;
+    }
     
     /**
      * 根据userNum获取项目，分页显示
@@ -43,14 +64,15 @@ public class ItemAdminController {
     @ResponseBody
     public ServerResponse getItemListByUserNum(@RequestParam(value = "page", defaultValue = "1") int page, ItemAdminDto itemAdminDto,
                                                @RequestParam(value = "limit", defaultValue = "10") int limit,
-                                               @RequestParam("userNumAdmin") String userNumAdmin, @RequestParam("roleId") int roleId,
+                                               @RequestParam(value = "userNumAdmin", required = false) String userNumAdmin,
+                                               @RequestParam(value = "roleId", required = false) Integer roleId,
                                                @RequestParam(value = "itemStatusF", required = false) Integer itemStatusF,
                                                @RequestParam(value = "itemStatusS", required = false) Integer itemStatusS,
                                                @RequestParam(value = "itemStatusT", required = false) Integer itemStatusT,
                                                @RequestParam(value = "itemStatusFF", required = false) Integer itemStatusFF, HttpServletRequest request) {
-       
-        User user = (User) request.getAttribute(com.ieps.common.Const.REQUEST_CURRENT_USER);
-        
+        String effectiveUserNum = resolveCurrentUserNum(request, userNumAdmin);
+        int effectiveRoleId = resolveCurrentRoleId(request, roleId);
+
         // <!-- 项目状态：1：申请中；2：立项评审；3：已立项；4：立项失败；5：中期检查; 6: 待结题；7：结题评审；8：结题成功；9：结题失败-->
     
         List<Integer> integerList = Lists.newArrayList();
@@ -67,7 +89,7 @@ public class ItemAdminController {
             integerList.add(itemStatusFF);
         }
         
-        return itemAdminService.getItemListByUserNum(page, limit, userNumAdmin, roleId, itemAdminDto, integerList);
+        return itemAdminService.getItemListByUserNum(page, limit, effectiveUserNum, effectiveRoleId, itemAdminDto, integerList);
     }
     
     /**
@@ -84,15 +106,16 @@ public class ItemAdminController {
     @ResponseBody
     public ServerResponse getItemListByUserNumAndItemStatus(@RequestParam(value = "page", defaultValue = "1") int page, ItemAdminDto itemAdminDto,
                                                @RequestParam(value = "limit", defaultValue = "5") int limit,
-                                               @RequestParam("userNumAdmin") String userNumAdmin, @RequestParam("roleId") int roleId, HttpServletRequest request) {
-        
-        User user = (User) request.getAttribute(com.ieps.common.Const.REQUEST_CURRENT_USER);
+                                               @RequestParam(value = "userNumAdmin", required = false) String userNumAdmin,
+                                               @RequestParam(value = "roleId", required = false) Integer roleId, HttpServletRequest request) {
+        String effectiveUserNum = resolveCurrentUserNum(request, userNumAdmin);
+        int effectiveRoleId = resolveCurrentRoleId(request, roleId);
         
         // if (!user.getUserNum().equals(userNumAdmin)) {
         //     return ServerResponse.createByErrorMessage("安全检查不通过，用户已过时或不存在！");
         // }
         
-        return itemAdminService.getItemListByUserNumAndItemStatus(page, limit, userNumAdmin, roleId, itemAdminDto);
+        return itemAdminService.getItemListByUserNumAndItemStatus(page, limit, effectiveUserNum, effectiveRoleId, itemAdminDto);
     }
     
     /**
@@ -105,16 +128,16 @@ public class ItemAdminController {
      */
     @RequestMapping({"/removeItemById", "/removeItemById.do"})
     @ResponseBody
-    public ServerResponse removeItemById(@RequestParam("userNum") String userNum, @RequestParam("roleId") int roleId,
+    public ServerResponse removeItemById(@RequestParam(value = "userNum", required = false) String userNum,
+                                         @RequestParam(value = "roleId", required = false) Integer roleId,
                                          HttpServletRequest request, String itemNum) {
-        
-        User user = (User) request.getAttribute(com.ieps.common.Const.REQUEST_CURRENT_USER);
+        int effectiveRoleId = resolveCurrentRoleId(request, roleId);
         
         // if (!user.getUserNum().equals(userNumAdmin)) {
         //     return ServerResponse.createByErrorMessage("安全检查不通过，用户已过时或不存在！");
         // }
         
-        return itemAdminService.removeItemByItemNum(roleId, itemNum);
+        return itemAdminService.removeItemByItemNum(effectiveRoleId, itemNum);
     }
     
     /**
@@ -127,16 +150,16 @@ public class ItemAdminController {
      */
     @RequestMapping({"/batchRemoveItem", "/batchRemoveItem.do"})
     @ResponseBody
-    public ServerResponse batchRemoveItem(@RequestParam("userNum") String userNum, @RequestParam("roleId") int roleId,
+    public ServerResponse batchRemoveItem(@RequestParam(value = "userNum", required = false) String userNum,
+                                          @RequestParam(value = "roleId", required = false) Integer roleId,
                                           HttpServletRequest request, String[] itemNums) {
-        
-        User user = (User) request.getAttribute(com.ieps.common.Const.REQUEST_CURRENT_USER);
+        int effectiveRoleId = resolveCurrentRoleId(request, roleId);
         
         // if (!user.getUserNum().equals(userNumAdmin)) {
         //     return ServerResponse.createByErrorMessage("安全检查不通过，用户已过时或不存在！");
         // }
         
-        return itemAdminService.batchRemoveItemByItemNums(roleId, itemNums);
+        return itemAdminService.batchRemoveItemByItemNums(effectiveRoleId, itemNums);
     }
     
     /**
@@ -150,18 +173,16 @@ public class ItemAdminController {
      */
     @RequestMapping({"/modifyItemLevelByItemNum", "/modifyItemLevelByItemNum.do"})
     @ResponseBody
-    public ServerResponse modifyItemLevelByItemNum(@RequestParam("userNum") String userNum, @RequestParam("roleId") int roleId,
+    public ServerResponse modifyItemLevelByItemNum(@RequestParam(value = "userNum", required = false) String userNum,
+                                                   @RequestParam(value = "roleId", required = false) Integer roleId,
                                           HttpServletRequest request, String itemNum, @RequestParam("itemLevel") int itemlevel) {
-        
-        User user = (User) request.getAttribute(com.ieps.common.Const.REQUEST_CURRENT_USER);
-    
-        System.out.println(itemlevel);
+        int effectiveRoleId = resolveCurrentRoleId(request, roleId);
         
         // if (!user.getUserNum().equals(userNumAdmin)) {
         //     return ServerResponse.createByErrorMessage("安全检查不通过，用户已过时或不存在！");
         // }
         
-        return itemAdminService.modifyItemLevelByItemNum(roleId, itemNum, itemlevel);
+        return itemAdminService.modifyItemLevelByItemNum(effectiveRoleId, itemNum, itemlevel);
     }
     
     /**
@@ -175,16 +196,16 @@ public class ItemAdminController {
      */
     @RequestMapping({"/modifyItemTypeByItemNum", "/modifyItemTypeByItemNum.do"})
     @ResponseBody
-    public ServerResponse modifyItemTypeByItemNum(@RequestParam("userNum") String userNum, @RequestParam("roleId") int roleId,
+    public ServerResponse modifyItemTypeByItemNum(@RequestParam(value = "userNum", required = false) String userNum,
+                                                   @RequestParam(value = "roleId", required = false) Integer roleId,
                                                    HttpServletRequest request, String itemNum, @RequestParam("itemType") int itemType) {
-        
-        User user = (User) request.getAttribute(com.ieps.common.Const.REQUEST_CURRENT_USER);
+        int effectiveRoleId = resolveCurrentRoleId(request, roleId);
         
         // if (!user.getUserNum().equals(userNumAdmin)) {
         //     return ServerResponse.createByErrorMessage("安全检查不通过，用户已过时或不存在！");
         // }
         
-        return itemAdminService.modifyItemTypeByItemNum(roleId, itemNum, itemType);
+        return itemAdminService.modifyItemTypeByItemNum(effectiveRoleId, itemNum, itemType);
     }
     
     /**
@@ -198,16 +219,16 @@ public class ItemAdminController {
      */
     @RequestMapping({"/modifyItemStatusByItemNum", "/modifyItemStatusByItemNum.do"})
     @ResponseBody
-    public ServerResponse modifyItemStatusByItemNum(@RequestParam("userNum") String userNum, @RequestParam("roleId") int roleId,
+    public ServerResponse modifyItemStatusByItemNum(@RequestParam(value = "userNum", required = false) String userNum,
+                                                  @RequestParam(value = "roleId", required = false) Integer roleId,
                                                   HttpServletRequest request, String itemNum, @RequestParam("itemStatus") int itemStatus) {
-        
-        User user = (User) request.getAttribute(com.ieps.common.Const.REQUEST_CURRENT_USER);
+        int effectiveRoleId = resolveCurrentRoleId(request, roleId);
         
         // if (!user.getUserNum().equals(userNumAdmin)) {
         //     return ServerResponse.createByErrorMessage("安全检查不通过，用户已过时或不存在！");
         // }
         
-        return itemAdminService.modifyItemStatusByItemNum(roleId, itemNum, itemStatus);
+        return itemAdminService.modifyItemStatusByItemNum(effectiveRoleId, itemNum, itemStatus);
     }
     
     /**
@@ -220,16 +241,16 @@ public class ItemAdminController {
      */
     @RequestMapping({"/modifyItemByItemNum", "/modifyItemByItemNum.do"})
     @ResponseBody
-    public ServerResponse modifyItemByItemNum(@RequestParam("userNum") String userNum, @RequestParam("roleId") int roleId,
+    public ServerResponse modifyItemByItemNum(@RequestParam(value = "userNum", required = false) String userNum,
+                                              @RequestParam(value = "roleId", required = false) Integer roleId,
                                                     HttpServletRequest request, ItemAdminDto itemAdminDto) {
-        
-        User user = (User) request.getAttribute(com.ieps.common.Const.REQUEST_CURRENT_USER);
+        int effectiveRoleId = resolveCurrentRoleId(request, roleId);
         
         // if (!user.getUserNum().equals(userNumAdmin)) {
         //     return ServerResponse.createByErrorMessage("安全检查不通过，用户已过时或不存在！");
         // }
         
-        return itemAdminService.modifyItemByItemNum(roleId, itemAdminDto);
+        return itemAdminService.modifyItemByItemNum(effectiveRoleId, itemAdminDto);
     }
     
     /**
@@ -243,16 +264,16 @@ public class ItemAdminController {
      */
     @RequestMapping({"/onekeyModifyItemTypeWithItemNums", "/onekeyModifyItemTypeWithItemNums.do"})
     @ResponseBody
-    public ServerResponse onekeyModifyItemTypeWithItemNums(@RequestParam("userNum") String userNum, @RequestParam("roleId") int roleId,
+    public ServerResponse onekeyModifyItemTypeWithItemNums(@RequestParam(value = "userNum", required = false) String userNum,
+                                                           @RequestParam(value = "roleId", required = false) Integer roleId,
                                               HttpServletRequest request, String[] itemNums, int itemType) {
-        
-        User user = (User) request.getAttribute(com.ieps.common.Const.REQUEST_CURRENT_USER);
+        int effectiveRoleId = resolveCurrentRoleId(request, roleId);
         
         // if (!user.getUserNum().equals(userNumAdmin)) {
         //     return ServerResponse.createByErrorMessage("安全检查不通过，用户已过时或不存在！");
         // }
         
-        return itemAdminService.onekeyModifyItemTypeWithItemNums(roleId, itemType, itemNums);
+        return itemAdminService.onekeyModifyItemTypeWithItemNums(effectiveRoleId, itemType, itemNums);
     }
     
     /**
@@ -266,16 +287,16 @@ public class ItemAdminController {
      */
     @RequestMapping({"/onekeyModifyItemStatusWithItemNums", "/onekeyModifyItemStatusWithItemNums.do"})
     @ResponseBody
-    public ServerResponse onekeyModifyItemStatusWithItemNums(@RequestParam("userNum") String userNum, @RequestParam("roleId") int roleId,
+    public ServerResponse onekeyModifyItemStatusWithItemNums(@RequestParam(value = "userNum", required = false) String userNum,
+                                                             @RequestParam(value = "roleId", required = false) Integer roleId,
                                                            HttpServletRequest request, String[] itemNums, Integer itemStatus) {
-        
-        User user = (User) request.getAttribute(com.ieps.common.Const.REQUEST_CURRENT_USER);
+        int effectiveRoleId = resolveCurrentRoleId(request, roleId);
         
         // if (!user.getUserNum().equals(userNumAdmin)) {
         //     return ServerResponse.createByErrorMessage("安全检查不通过，用户已过时或不存在！");
         // }
         
-        return itemAdminService.onekeyModifyItemStatusWithItemNums(roleId, itemStatus, itemNums);
+        return itemAdminService.onekeyModifyItemStatusWithItemNums(effectiveRoleId, itemStatus, itemNums);
     }
     
     /**
@@ -289,16 +310,16 @@ public class ItemAdminController {
      */
     @RequestMapping({"/onekeyModifyItemLevelWithItemNums", "/onekeyModifyItemLevelWithItemNums.do"})
     @ResponseBody
-    public ServerResponse onekeyModifyItemLevelWithItemNums(@RequestParam("userNum") String userNum, @RequestParam("roleId") int roleId,
+    public ServerResponse onekeyModifyItemLevelWithItemNums(@RequestParam(value = "userNum", required = false) String userNum,
+                                                            @RequestParam(value = "roleId", required = false) Integer roleId,
                                                            HttpServletRequest request, String[] itemNums, int itemLevel) {
-        
-        User user = (User) request.getAttribute(com.ieps.common.Const.REQUEST_CURRENT_USER);
+        int effectiveRoleId = resolveCurrentRoleId(request, roleId);
         
         // if (!user.getUserNum().equals(userNum)) {
         //     return ServerResponse.createByErrorMessage("安全检查不通过，用户已过时或不存在！");
         // }
         
-        return itemAdminService.onekeyModifyItemLevelWithItemNums(roleId, itemLevel, itemNums);
+        return itemAdminService.onekeyModifyItemLevelWithItemNums(effectiveRoleId, itemLevel, itemNums);
     }
     
     /**
@@ -313,11 +334,15 @@ public class ItemAdminController {
      */
     @RequestMapping({"/addItemAndUserInfo", "/addItemAndUserInfo.do"})
     @ResponseBody
-    public ServerResponse addItemAndUserInfo(@RequestParam("userNum") String userNum, @RequestParam("roleId") int roleId, HttpServletRequest request,
+    public ServerResponse addItemAndUserInfo(@RequestParam(value = "userNum", required = false) String userNum,
+                                             @RequestParam(value = "roleId", required = false) Integer roleId, HttpServletRequest request,
                                              @RequestParam("userNums") String[] userNums, @RequestParam("userNames") String[] userNames, ItemAdminDto itemAdminDto) {
-    
-        User user = (User) request.getAttribute(com.ieps.common.Const.REQUEST_CURRENT_USER);
-        
+        int effectiveRoleId = resolveCurrentRoleId(request, roleId);
+
+        if (effectiveRoleId != Const.ROLEID_STU && effectiveRoleId != Const.ROLEID_ACADEMY && effectiveRoleId != Const.ROLEID_COLLEGE) {
+            return ServerResponse.createByErrorMessage("对不起，目前你暂时没有权限提交项目申请！");
+        }
+
         // if (!user.getUserNum().equals(userNumAdmin)) {
         //     return ServerResponse.createByErrorMessage("安全检查不通过，用户已过时或不存在！");
         // }
@@ -334,15 +359,17 @@ public class ItemAdminController {
      */
     @RequestMapping({"/getReviewLeaderByRoleIdAndUserNum", "/getReviewLeaderByRoleIdAndUserNum.do"})
     @ResponseBody
-    public ServerResponse getReviewLeaderByRoleIdAndUserNum(@RequestParam("userNum") String userNum, @RequestParam("roleId") int roleId, HttpServletRequest request) {
-        
-        User user = (User) request.getAttribute(com.ieps.common.Const.REQUEST_CURRENT_USER);
+    public ServerResponse getReviewLeaderByRoleIdAndUserNum(@RequestParam(value = "userNum", required = false) String userNum,
+                                                            @RequestParam(value = "roleId", required = false) Integer roleId,
+                                                            HttpServletRequest request) {
+        String effectiveUserNum = resolveCurrentUserNum(request, userNum);
+        int effectiveRoleId = resolveCurrentRoleId(request, roleId);
         
         // if (!user.getUserNum().equals(userNumAdmin)) {
         //     return ServerResponse.createByErrorMessage("安全检查不通过，用户已过时或不存在！");
         // }
         
-        return itemAdminService.getReviewLeaderByRoleIdAndUserNum(userNum, roleId);
+        return itemAdminService.getReviewLeaderByRoleIdAndUserNum(effectiveUserNum, effectiveRoleId);
     }
     
     /**
@@ -358,34 +385,33 @@ public class ItemAdminController {
      */
     @RequestMapping({"/chooseUserItemWithLeader", "/chooseUserItemWithLeader.do"})
     @ResponseBody
-    public ServerResponse chooseUserItemWithLeader(@RequestParam("userNumAdmin") String userNumAdmin, @RequestParam("roleId") int roleId,
+    public ServerResponse chooseUserItemWithLeader(@RequestParam(value = "userNumAdmin", required = false) String userNumAdmin,
+                                                   @RequestParam(value = "roleId", required = false) Integer roleId,
                                                    @RequestParam("userNum") String userNum, @RequestParam("userName") String userName,
                                                    @RequestParam("itemNum") String itemNum, @RequestParam("itemStatus") int itemStatus,
                                                    HttpServletRequest request) {
-        
-        
-        User user = (User) request.getAttribute(com.ieps.common.Const.REQUEST_CURRENT_USER);
+        int effectiveRoleId = resolveCurrentRoleId(request, roleId);
         
         //     return ServerResponse.createByErrorMessage("安全检查不通过，用户已过时或不存在！");
         // }
         
-        return itemAdminService.addUserItemWithLeader(roleId, userNum, userName, itemNum, itemStatus);
+        return itemAdminService.addUserItemWithLeader(effectiveRoleId, userNum, userName, itemNum, itemStatus);
     }
     
     
     @RequestMapping(value = {"/batchAddReviewTeam", "/batchAddReviewTeam.do"}, method = RequestMethod.POST)
     @ResponseBody
-    public ServerResponse batchAddReviewTeam(@RequestParam("userNumAdmin") String userNumAdmin, @RequestParam("roleId") int roleId,
+    public ServerResponse batchAddReviewTeam(@RequestParam(value = "userNumAdmin", required = false) String userNumAdmin,
+                                             @RequestParam(value = "roleId", required = false) Integer roleId,
                                              @RequestParam("userNum") String userNum, @RequestParam("userName") String userName,
                                              @RequestParam("itemNums") String[] itemNums, @RequestParam("itemStatus") int itemStatus,
                                              HttpServletRequest request) {
-    
-        User user = (User) request.getAttribute(com.ieps.common.Const.REQUEST_CURRENT_USER);
+        int effectiveRoleId = resolveCurrentRoleId(request, roleId);
     
         //     return ServerResponse.createByErrorMessage("安全检查不通过，用户已过时或不存在！");
         // }
     
-        return itemAdminService.batchAddReviewTeam(roleId, userNum, userName, itemNums, itemStatus);
+        return itemAdminService.batchAddReviewTeam(effectiveRoleId, userNum, userName, itemNums, itemStatus);
     }
     
     /**
@@ -397,16 +423,14 @@ public class ItemAdminController {
      */
     @RequestMapping({"/addReviewByExport", "/addReviewByExport.do"})
     @ResponseBody
-    public ServerResponse addReviewByExport(@RequestParam("roleId") int roleId, Review review, HttpServletRequest request) {
-        
-        
-        User user = (User) request.getAttribute(com.ieps.common.Const.REQUEST_CURRENT_USER);
+    public ServerResponse addReviewByExport(@RequestParam(value = "roleId", required = false) Integer roleId, Review review, HttpServletRequest request) {
+        int effectiveRoleId = resolveCurrentRoleId(request, roleId);
         
         // if (!user.getUserNum().equals(userNumAdmin)) {
         //     return ServerResponse.createByErrorMessage("安全检查不通过，用户已过时或不存在！");
         // }
         
-        return itemAdminService.addReviewByExport(roleId, review);
+        return itemAdminService.addReviewByExport(effectiveRoleId, review);
     }
     
     // 首页中的项目展览
@@ -436,8 +460,11 @@ public class ItemAdminController {
      */
     @RequestMapping({"/checkIsReviewWithItemNumAndUserNum", "/checkIsReviewWithItemNumAndUserNum.do"})
     @ResponseBody
-    public ServerResponse checkIsReviewWithItemNumAndUserNum(String itemNum, String userNum, int reviewLevel) {
-        return itemAdminService.checkIsReviewWithItemNum(itemNum, userNum, reviewLevel);
+    public ServerResponse checkIsReviewWithItemNumAndUserNum(String itemNum,
+                                                             @RequestParam(value = "userNum", required = false) String userNum,
+                                                             int reviewLevel, HttpServletRequest request) {
+        String effectiveUserNum = resolveCurrentUserNum(request, userNum);
+        return itemAdminService.checkIsReviewWithItemNum(itemNum, effectiveUserNum, reviewLevel);
     }
     
     /**
@@ -475,9 +502,11 @@ public class ItemAdminController {
     
     @RequestMapping({"/removeUserItemWithReview", "/removeUserItemWithReview.do"})
     @ResponseBody
-    public ServerResponse removeUserItemWithReview(String itemNum, int roleId) {
-    
-        return itemAdminService.removeUserItemWithReview(itemNum, roleId);
+    public ServerResponse removeUserItemWithReview(String itemNum,
+                                                   @RequestParam(value = "roleId", required = false) Integer roleId,
+                                                   HttpServletRequest request) {
+        int effectiveRoleId = resolveCurrentRoleId(request, roleId);
+        return itemAdminService.removeUserItemWithReview(itemNum, effectiveRoleId);
     }
     
     

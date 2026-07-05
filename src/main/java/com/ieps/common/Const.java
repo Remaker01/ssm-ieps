@@ -6,7 +6,7 @@ package com.ieps.common;
 public class Const {
     
     // 统一注册头像
-    public final static String UNIFORM_USERIMG = "/upload/";
+    public final static String UNIFORM_USERIMG = "/static/images/default.jpg";
     
     // 学校管理员  学校名称
     public final static String ACADEMY_COLLEGE = "桂林电子科技大学";
@@ -51,6 +51,9 @@ public class Const {
     public final static int ZERO_FILE_KIND = 0;
     public final static int FIRST_FILE_KIND = 1;
     public final static int SECOND_FILE_KIND = 2;
+    public final static int THIRD_FILE_KIND = 3;
+    public final static int FOURTH_FILE_KIND = 4;
+    public final static int FIFTH_FILE_KIND = 5;
     
     // 结题成功状态
     // public final static int FINISH_ITEMSTATUS = 8;

@@ -62,12 +62,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         "/getFinishedItemList", "/getFinishedItemList.do",
         "/getInformListByAdminWithUserNum", "/getInformListByAdminWithUserNum.do",
         "/getFileListByAdminWithKind", "/getFileListByAdminWithKind.do",
-        "/previewFile", "/previewFile.do",
         "/downloadFile", "/downloadFile.do",
         "/downloadFileWithItemNum", "/downloadFileWithItemNum.do",
 
         // 静态资源
-        "/static/**", "/pages/**", "/upload/**", "/hub/**",
+        "/static/**", "/pages/**", "/hub/**",
         "/favicon.ico", "/error",
         "/**/*.html", "/**/*.css", "/**/*.js",
         "/**/*.png", "/**/*.jpg", "/**/*.jpeg", "/**/*.gif", "/**/*.ico",
@@ -93,9 +92,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
         }
         
-        // GET 请求的页面路由（白名单外的无后缀路径视为页面导航，放行）
-        // 注意：API/数据接口应在此之后才走 token 校验
-        if ("GET".equalsIgnoreCase(method) && !requestURI.contains(".")) {
+        // 仅对浏览器直接访问的页面导航放行，AJAX GET 接口仍需走 JWT 校验
+        if (isPageNavigationRequest(request, requestURI, method)) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -138,5 +136,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 HttpServletResponse.SC_UNAUTHORIZED, message);
         
         objectMapper.writeValue(response.getWriter(), serverResponse);
+    }
+
+    private boolean isPageNavigationRequest(HttpServletRequest request, String requestURI, String method) {
+        if (!"GET".equalsIgnoreCase(method) || requestURI.contains(".")) {
+            return false;
+        }
+
+        String requestedWith = request.getHeader("X-Requested-With");
+        if ("XMLHttpRequest".equalsIgnoreCase(requestedWith)) {
+            return false;
+        }
+
+        String accept = request.getHeader("Accept");
+        return accept != null && accept.contains("text/html");
     }
 }

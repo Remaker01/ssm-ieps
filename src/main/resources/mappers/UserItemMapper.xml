@@ -140,6 +140,13 @@
         AND review_level = #{reviewLevel}
     </select>
 
+    <select id="countByItemNumAndUserNum" resultType="int">
+        SELECT count(1)
+        FROM ieps_user_item
+        WHERE item_num = #{itemNum}
+        AND user_num = #{userNum}
+    </select>
+
     <delete id="deleteUsetItemWithReviews">
         DELETE FROM ieps_user_item
         WHERE

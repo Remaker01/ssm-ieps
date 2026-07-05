@@ -3,7 +3,11 @@ package com.ieps.controller;
 import com.ieps.common.ServerResponse;
 import com.ieps.pojo.User;
 import com.ieps.pojo.UserInfo;
+import com.ieps.service.CosStorageService;
+import com.ieps.service.StoragePathService;
 import com.ieps.service.UserInfoService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,16 +17,30 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.File;
-
 /**
  * Created by ljw
  */
 @Controller
 public class UserInfoController {
 
+    private static final Logger logger = LoggerFactory.getLogger(UserInfoController.class);
+
     @Autowired
     private UserInfoService userInfoService;
+
+    @Autowired
+    private StoragePathService storagePathService;
+
+    @Autowired
+    private CosStorageService cosStorageService;
+
+    private String resolveCurrentUserNum(HttpServletRequest request, String fallbackUserNum) {
+        User user = (User) request.getAttribute(com.ieps.common.Const.REQUEST_CURRENT_USER);
+        if (user != null && user.getUserNum() != null && !user.getUserNum().trim().isEmpty()) {
+            return user.getUserNum();
+        }
+        return fallbackUserNum;
+    }
     
     @RequestMapping({"/checkVerifyNum", "/checkVerifyNum.do"})
     @ResponseBody
@@ -45,19 +63,26 @@ public class UserInfoController {
     @RequestMapping({"/getUserInfo", "/getUserInfo.do"})
     @ResponseBody
     public ServerResponse<UserInfo> getUserInfo(String userNum, HttpServletRequest request) {
-        User user = (User) request.getAttribute(com.ieps.common.Const.REQUEST_CURRENT_USER);
+        String effectiveUserNum = resolveCurrentUserNum(request, userNum);
+        if (effectiveUserNum == null || effectiveUserNum.trim().isEmpty()) {
+            return ServerResponse.createByErrorMessage("登录状态已失效，请重新登录后再试！");
+        }
         
         /*if (!user.getUserNum().equals(userNum)) {
             return ServerResponse.createByErrorMessage("安全检查不通过，用户已过时或不存在！");
         }*/
         
-        return userInfoService.findByUserNum(userNum);
+        return userInfoService.findByUserNum(effectiveUserNum);
     }
     
     @RequestMapping(value = {"/modifyUserInfo", "/modifyUserInfo.do"}, method = RequestMethod.POST)
     @ResponseBody
     public ServerResponse modifyUserInfo(UserInfo userInfo, HttpServletRequest request) {
-        User user = (User) request.getAttribute(com.ieps.common.Const.REQUEST_CURRENT_USER);
+        String effectiveUserNum = resolveCurrentUserNum(request, userInfo.getUserNum());
+        if (effectiveUserNum == null || effectiveUserNum.trim().isEmpty()) {
+            return ServerResponse.createByErrorMessage("登录状态已失效，请重新登录后再试！");
+        }
+        userInfo.setUserNum(effectiveUserNum);
         
        /* if (!user.getUserNum().equals(userInfo.getUserNum())) {
             return ServerResponse.createByErrorMessage("安全检查不通过，用户已过时或不存在！");
@@ -71,46 +96,46 @@ public class UserInfoController {
     @ResponseBody
     public ServerResponse changeUserImg(@RequestParam("file") MultipartFile file, String userNum,
                                         HttpServletRequest request) {
-        User user = (User) request.getAttribute(com.ieps.common.Const.REQUEST_CURRENT_USER);
+        String effectiveUserNum = resolveCurrentUserNum(request, userNum);
+        if (effectiveUserNum == null || effectiveUserNum.trim().isEmpty()) {
+            return ServerResponse.createByErrorMessage("登录状态已失效，请重新登录后再试！");
+        }
     
         // if (!user.getUserNum().equals(userNum)) {
         //     return ServerResponse.createByErrorMessage("安全检查不通过，用户已过时或不存在！");
         // }
     
-        //如果文件不为空，写入上传路径
-        if (!file.isEmpty()) {
-            //上传文件名
-            String fileName = file.getOriginalFilename();
-            System.out.println(fileName + "\t文件名");
-            
-            //上传文件路径
-            String storePath = request.getServletContext().getRealPath("/hub/images/");
-            // 前缀
-            String prefix = "/hub/images/";
-    
-            File filepath = new File(storePath, fileName);
-            //判断路径是否存在，如果不存在就创建一个
-            if (!filepath.getParentFile().exists()) {
-                filepath.getParentFile().mkdirs();
-            }
-            //将上传文件保存到一个目标文件当中
-            try {
-                file.transferTo(new File(storePath + File.separator + fileName));// 把文件写入目标文件地址
-    
-                UserInfo userInfo = new UserInfo();
-                userInfo.setUserNum(userNum);
-                userInfo.setUserImg(prefix + fileName);
-                
-                userInfoService.modifyUserInfo(userInfo);
-    
-                return ServerResponse.createBySuccessMessage("上传" + fileName + "成功！");
-            } catch (Exception e) {
-                System.out.println("FileHubController：" + e.getStackTrace());
-                return ServerResponse.createByErrorMessage("文件" + fileName + "上传异常，请重试！");
-            }
+        if (file.isEmpty()) {
+            logger.warn("Reject avatar upload because file was empty. userNum={}", effectiveUserNum);
+            return ServerResponse.createByErrorMessage("上传文件为空，请检查配置！");
         }
-        
-        return ServerResponse.createByErrorMessage("上传文件为空，请检查配置！");
+
+        String fileName = file.getOriginalFilename();
+        logger.info("Start avatar upload. userNum={}, originalFileName={}, size={}",
+                effectiveUserNum, fileName, file.getSize());
+
+        try {
+            String objectKey = storagePathService.buildAvatarObjectKey(effectiveUserNum, fileName);
+            cosStorageService.uploadMultipartFile(file, objectKey);
+
+            UserInfo userInfo = new UserInfo();
+            userInfo.setUserNum(effectiveUserNum);
+            userInfo.setUserImg(objectKey);
+
+            ServerResponse response = userInfoService.modifyUserInfo(userInfo);
+            if (response.getStatus() != 0) {
+                logger.warn("Avatar upload persisted to COS but failed to update user profile. userNum={}, objectKey={}, message={}",
+                        effectiveUserNum, objectKey, response.getMsg());
+                return response;
+            }
+
+            logger.info("Avatar upload succeeded. userNum={}, originalFileName={}, objectKey={}",
+                    effectiveUserNum, fileName, objectKey);
+            return ServerResponse.createBySuccess("上传" + fileName + "成功！", objectKey);
+        } catch (Exception e) {
+            logger.error("Avatar upload failed. userNum={}, originalFileName={}", effectiveUserNum, fileName, e);
+            return ServerResponse.createByErrorMessage("文件" + fileName + "上传异常，请重试！");
+        }
     }
     
     

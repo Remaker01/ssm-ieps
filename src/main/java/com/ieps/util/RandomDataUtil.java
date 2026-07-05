@@ -35,7 +35,7 @@ public final class RandomDataUtil {
     private static final int INFORM_COUNT = 24;
     private static final int COMMON_FILE_COUNT = 18;
     private static final String DEFAULT_PASSWORD = Const.UNIFORM_USERPWD;
-    private static final String DEFAULT_USER_IMG = "";
+    private static final String DEFAULT_USER_IMG = Const.UNIFORM_USERIMG;
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     private static final Random RANDOM = new Random(20260629L);
@@ -875,12 +875,15 @@ public final class RandomDataUtil {
     private static void appendFileInserts(StringBuilder sql, List<GeneratedFile> files) {
         sql.append("-- ieps_file_hub\n");
         for (GeneratedFile file : files) {
-            sql.append("INSERT INTO `ieps_file_hub` (`id`, `type_num`, `user_num`, `academy`, `file_name`, `file_size`, `file_kind`, `create_time`, `update_time`) VALUES (")
+            sql.append("INSERT INTO `ieps_file_hub` (`id`, `type_num`, `user_num`, `academy`, `file_name`, `object_key`, `storage_provider`, `content_type`, `file_size`, `file_kind`, `create_time`, `update_time`) VALUES (")
                     .append(file.id).append(", ")
                     .append(q(file.typeNum)).append(", ")
                     .append(q(file.userNum)).append(", ")
                     .append(q(file.academy)).append(", ")
                     .append(q(file.fileName)).append(", ")
+                    .append(q(file.objectKey)).append(", ")
+                    .append(q(file.storageProvider)).append(", ")
+                    .append(q(file.contentType)).append(", ")
                     .append(file.fileSize).append(", ")
                     .append(file.fileKind).append(", ")
                     .append(q(DATE_TIME_FORMATTER.format(file.createTime))).append(", ")
@@ -896,6 +899,34 @@ public final class RandomDataUtil {
 
     private static String buildEmail(String userNum) {
         return "u" + userNum + "@ieps.local";
+    }
+
+    private static String buildObjectKey(String typeNum, String userNum, String fileName, int fileKind, LocalDateTime createTime) {
+        String yearMonth = createTime.format(DateTimeFormatter.ofPattern("yyyyMM"));
+        if (fileKind == 1) {
+            return "files/public/" + yearMonth + "/" + fileName;
+        }
+        return "files/" + fileKind + "/" + typeNum + "/" + userNum + "/" + yearMonth + "/" + fileName;
+    }
+
+    private static String detectContentType(String fileName) {
+        String lowerCaseFileName = fileName.toLowerCase(Locale.ROOT);
+        if (lowerCaseFileName.endsWith(".pdf")) {
+            return "application/pdf";
+        }
+        if (lowerCaseFileName.endsWith(".doc")) {
+            return "application/msword";
+        }
+        if (lowerCaseFileName.endsWith(".docx")) {
+            return "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+        }
+        if (lowerCaseFileName.endsWith(".xls")) {
+            return "application/vnd.ms-excel";
+        }
+        if (lowerCaseFileName.endsWith(".xlsx")) {
+            return "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+        }
+        return "application/octet-stream";
     }
 
     private static String q(String value) {
@@ -1094,6 +1125,9 @@ public final class RandomDataUtil {
         private final String userNum;
         private final String academy;
         private final String fileName;
+        private final String objectKey;
+        private final String storageProvider;
+        private final String contentType;
         private final int fileSize;
         private final int fileKind;
         private final LocalDateTime createTime;
@@ -1105,6 +1139,9 @@ public final class RandomDataUtil {
             this.userNum = userNum;
             this.academy = academy;
             this.fileName = fileName;
+            this.objectKey = buildObjectKey(typeNum, userNum, fileName, fileKind, createTime);
+            this.storageProvider = "cos";
+            this.contentType = detectContentType(fileName);
             this.fileSize = fileSize;
             this.fileKind = fileKind;
             this.createTime = createTime;

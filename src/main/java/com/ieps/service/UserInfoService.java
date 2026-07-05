@@ -30,6 +30,9 @@ public class UserInfoService {
 
     @Autowired
     private IepsRedisProperties iepsRedisProperties;
+
+    @Autowired
+    private StorageService storageService;
     
     public ServerResponse<UserInfo> findByUserNum(String userNum) {
         if (userNum == null || userNum.isEmpty() || "undefined".equals(userNum)) {
@@ -43,6 +46,7 @@ public class UserInfoService {
         }
         
         userInfo.setUserNum(userNum);
+        userInfo.setUserImg(storageService.resolveUserImageUrl(userInfo.getUserImg()));
         
         return ServerResponse.createBySuccess(userInfo);
     }

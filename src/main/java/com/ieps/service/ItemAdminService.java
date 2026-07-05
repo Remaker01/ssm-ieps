@@ -12,7 +12,9 @@ import com.ieps.pojo.UserInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by ljw
@@ -37,6 +39,36 @@ public class ItemAdminService {
     
     @Autowired
     private FileHubMapper fileHubMapper;
+
+    public ServerResponse getItemOptions() {
+        Map<String, String> itemLevel = new LinkedHashMap<>();
+        itemLevel.put("1", "无");
+        itemLevel.put("2", "校级");
+        itemLevel.put("3", "省区级");
+        itemLevel.put("4", "国家级");
+
+        Map<String, String> itemType = new LinkedHashMap<>();
+        itemType.put("1", "创新训练");
+        itemType.put("2", "创业训练");
+        itemType.put("3", "创业实践");
+
+        Map<String, String> itemStatus = new LinkedHashMap<>();
+        itemStatus.put("1", "申请中");
+        itemStatus.put("2", "立项评审");
+        itemStatus.put("3", "已立项");
+        itemStatus.put("4", "立项失败");
+        itemStatus.put("5", "中期检查");
+        itemStatus.put("6", "待结题");
+        itemStatus.put("7", "结题评审");
+        itemStatus.put("8", "结题成功");
+        itemStatus.put("9", "结题失败");
+
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put("itemLevel", itemLevel);
+        result.put("itemType", itemType);
+        result.put("itemStatus", itemStatus);
+        return ServerResponse.createBySuccess(result);
+    }
     
     public ServerResponse getItemListByUserNum(int pageNum, int pageSize, String userNumAdmin, int roleId,
                                                ItemAdminDto itemAdminDto, List<Integer> integerList) {
@@ -118,6 +150,7 @@ public class ItemAdminService {
             if (result <= 0) {
                 return ServerResponse.createByErrorMessage("删除FileHub表失败");
             }
+            return ServerResponse.createBySuccessMessage("批量删除项目成功！");
         }
         return ServerResponse.createByErrorMessage("对不起，目前你暂时没有权限执行删除操作！");
     }
@@ -349,6 +382,9 @@ public class ItemAdminService {
     }
     
     public ServerResponse checkIsReviewWithItemNum(String itemNum, String userNum, int reviewLevel) {
+        if (userNum == null || userNum.trim().isEmpty()) {
+            return ServerResponse.createByErrorMessage("登录状态已失效，请重新登录后再试！");
+        }
         int result = userItemMapper.selectUserItemWithItemNumAndUserNum(itemNum, userNum, reviewLevel);
         if (result <= 0) {
             return ServerResponse.createBySuccess();

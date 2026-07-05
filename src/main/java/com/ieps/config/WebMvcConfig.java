@@ -42,9 +42,5 @@ public class WebMvcConfig implements WebMvcConfigurer {
                         "/pages/item/static/**",
                         "/pages/show/static/**")
                 .addResourceLocations("classpath:/static/static/");
-
-        // 上传文件访问路径
-        registry.addResourceHandler("/upload/**")
-                .addResourceLocations("file:./upload/");
     }
 }

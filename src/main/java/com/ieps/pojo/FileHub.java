@@ -21,6 +21,15 @@ public class FileHub {
     // 文件名
     private String fileName;
 
+    // 对象存储 Key
+    private String objectKey;
+
+    // 存储提供方
+    private String storageProvider;
+
+    // 内容类型
+    private String contentType;
+
     // 文件大小
     private Integer fileSize;
 
@@ -76,6 +85,30 @@ public class FileHub {
 
     public void setFileName(String fileName) {
         this.fileName = fileName;
+    }
+
+    public String getObjectKey() {
+        return objectKey;
+    }
+
+    public void setObjectKey(String objectKey) {
+        this.objectKey = objectKey;
+    }
+
+    public String getStorageProvider() {
+        return storageProvider;
+    }
+
+    public void setStorageProvider(String storageProvider) {
+        this.storageProvider = storageProvider;
+    }
+
+    public String getContentType() {
+        return contentType;
+    }
+
+    public void setContentType(String contentType) {
+        this.contentType = contentType;
     }
 
     public Integer getFileSize() {

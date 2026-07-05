@@ -1,5 +1,6 @@
 package com.ieps.controller;
 
+import com.ieps.common.Const;
 import com.ieps.common.ServerResponse;
 import com.ieps.pojo.User;
 import com.ieps.service.UserService;
@@ -9,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * Created by ljw
@@ -28,9 +29,13 @@ public class UserController {
     
     @RequestMapping(value = {"/modifyPwd", "/modifyPwd.do"}, method = RequestMethod.POST)
     @ResponseBody
-    public ServerResponse modifyPwd(User user) {
-//        System.out.println(user.toString());
-        
+    public ServerResponse modifyPwd(User user, HttpServletRequest request) {
+        User currentUser = (User) request.getAttribute(Const.REQUEST_CURRENT_USER);
+        if (currentUser == null) {
+            return ServerResponse.createByErrorMessage("登录状态已失效，请重新登录后再试！");
+        }
+
+        user.setUserNum(currentUser.getUserNum());
         return userService.modifyPwd(user);
     }
     

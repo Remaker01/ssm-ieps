@@ -1,7 +1,5 @@
 package com.ieps.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ieps.common.Const;
 import com.ieps.common.ServerResponse;
 import com.ieps.pojo.RolePerm;
@@ -31,9 +29,6 @@ public class LoginController {
     @Autowired
     private RolePermService rolePermService;
 
-    @Autowired
-    private ObjectMapper objectMapper;
-    
     @Autowired
     private JwtUtil jwtUtil;
     
@@ -79,23 +74,25 @@ public class LoginController {
     @ResponseBody
     public ServerResponse getMenu(String userNum, Integer roleId, HttpServletRequest request) {
         User user = (User) request.getAttribute(Const.REQUEST_CURRENT_USER);
+        Integer effectiveRoleId = roleId;
+        if (user != null && user.getRoleId() != null) {
+            effectiveRoleId = user.getRoleId();
+        }
+        if (effectiveRoleId == null) {
+            return ServerResponse.createByErrorMessage("无法识别当前用户角色，请重新登录后再试！");
+        }
     
         // if (user != null && !user.getUserNum().equals(userNum)) {
         //     return ServerResponse.createByErrorMessage("安全检查不通过，用户已过时或不存在！");
         // }
         
-        ServerResponse<List<RolePerm>> perm = rolePermService.getMenu(roleId);
+        ServerResponse<List<RolePerm>> perm = rolePermService.getMenu(effectiveRoleId);
         
         if (perm.getStatus() != 0) {
             return ServerResponse.createByErrorMessage(perm.getMsg());
         }
         
-        try {
-            return ServerResponse.createBySuccess(perm.getMsg(),
-                    objectMapper.writeValueAsString(perm.getData().get(0).getPermList()));
-        } catch (JsonProcessingException e) {
-            return ServerResponse.createByErrorMessage("菜单数据序列化失败");
-        }
+        return ServerResponse.createBySuccess(perm.getMsg(), perm.getData().get(0).getPermList());
     }
     
     /**
@@ -125,12 +122,8 @@ public class LoginController {
         if (activeUser == null) {
             return ServerResponse.createByErrorMessage("登录状态已失效，请重新登录后再试！");
         }
-        
-        if (!activeUser.getUserNum().equals(userNum)) {
-            return ServerResponse.createByErrorMessage("安全检查不通过，当前仅允许校验自己的密码！");
-        }
-    
-        return userService.checkUserPwdWithUserNum(userNum, userPwd);
+
+        return userService.checkUserPwdWithUserNum(activeUser.getUserNum(), userPwd);
     }
     
     /**

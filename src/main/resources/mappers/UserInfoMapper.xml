@@ -301,6 +301,12 @@
         AND userNum != #{userNum}
     </select>
 
+    <select id="selectAllUserInfoForMigration" resultType="UserInfo">
+        SELECT iui.user_num AS userNum, iui.user_img AS userImg
+        FROM ieps_user_info iui
+        ORDER BY iui.id ASC
+    </select>
+
     <select id="selectUserInfoWithItemNum" parameterType="string" resultType="UserAdminDto">
         SELECT iui.id  AS id, iui.user_num AS userNum, iui.user_name AS userName, iui.user_img AS userImg,
         iui.photo_num AS photoNum, iui.email AS email, iui.title AS title, iui.sex AS sex, iui.academy AS academy,

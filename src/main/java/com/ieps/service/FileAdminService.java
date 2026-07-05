@@ -8,11 +8,13 @@ import com.ieps.common.ServerResponse;
 import com.ieps.mapper.FileHubMapper;
 import com.ieps.mapper.UserInfoMapper;
 import com.ieps.pojo.FileHub;
+import com.ieps.pojo.UserInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.util.List;
 
 /**
@@ -20,12 +22,20 @@ import java.util.List;
  */
 @Service
 public class FileAdminService {
-    
+
+    private static final Logger logger = LoggerFactory.getLogger(FileAdminService.class);
+
     @Autowired
     private FileHubMapper fileHubMapper;
     
     @Autowired
     private UserInfoMapper userInfoMapper;
+
+    @Autowired
+    private StoragePathService storagePathService;
+
+    @Autowired
+    private CosStorageService cosStorageService;
     
     public ServerResponse getFileListByUserNum(int pageNum, int pageSize, String userNumAdmin, int roleId, FileHub fileHub) {
         PageHelper.startPage(pageNum, pageSize);
@@ -42,18 +52,14 @@ public class FileAdminService {
         return ServerResponse.createBySuccess(pageInfo);
     }
     
-    private static ServerResponse deleteServerFile(String filePath, String[] fileNames) {
-        File file = null;
-        for (int i = 0; i < fileNames.length; i++) {
-            file = new File(filePath + fileNames[i]);
-            if (!file.exists()) {
-                return ServerResponse.createByErrorMessage("文件不存在，请检查数据库！");
-            }
-            if (!file.isFile()) {
-                return ServerResponse.createByErrorMessage("不是文件，未知是文件夹还是目录，请检查数据库！");
-            }
-            if (!file.delete()) {
-                return ServerResponse.createByErrorMessage("删除文件失败！");
+    private ServerResponse deleteServerFile(String[] fileNames) {
+        for (String fileName : fileNames) {
+            FileHub fileHub = fileHubMapper.selectByFileName(fileName);
+            if (fileHub != null) {
+                logger.info("Deleting COS object for fileName={}, objectKey={}", fileName, fileHub.getObjectKey());
+                cosStorageService.deleteObjectQuietly(fileHub.getObjectKey());
+            } else {
+                logger.warn("Skip deleting COS object because file record was not found, fileName={}", fileName);
             }
         }
         return ServerResponse.createBySuccess("删除文件成功！");
@@ -63,12 +69,12 @@ public class FileAdminService {
         String[] fileNames = {fileName};
         if (Const.ROLEID_COLLEGE == roleId) {
             if (fileHubMapper.deleteByPrimaryKey(id) > 0) {
-                return deleteServerFile(filePath, fileNames);
+                return deleteServerFile(fileNames);
             }
         } else if (Const.ROLEID_ACADEMY == roleId) {
             if (!Const.USERNUM_COLLEGE.equals(userNum)) {
                 if (fileHubMapper.deleteByPrimaryKey(id) > 0) {
-                    return deleteServerFile(filePath, fileNames);
+                    return deleteServerFile(fileNames);
                 }
             } else {
                 return ServerResponse.createByErrorMessage("对不起，目前你没有权限删除该文件记录！");
@@ -80,13 +86,13 @@ public class FileAdminService {
     public ServerResponse batchRemoveFile(String filePath, String[] fileNames, String[] userNums, Integer[] ids, int roleId) {
         if (Const.ROLEID_COLLEGE == roleId) {
             if (fileHubMapper.batchDeleteFileByIds(ids) > 0) {
-                return deleteServerFile(filePath, fileNames);
+                return deleteServerFile(fileNames);
             }
         } else if (Const.ROLEID_ACADEMY == roleId) {
             for (int i = 0; i < ids.length; i++) {
                 if (!Const.USERNUM_COLLEGE.equals(userNums[i])) {
                     if (fileHubMapper.deleteByPrimaryKey(ids[i]) > 0) {
-                        return deleteServerFile(filePath, fileNames);
+                        return deleteServerFile(fileNames);
                     }
                 }
             }
@@ -95,45 +101,52 @@ public class FileAdminService {
         return ServerResponse.createByErrorMessage("删除该文件失败，请重试！");
     }
     
-    private boolean saveFile(MultipartFile file, String path, long currentTime) {
-        if (!file.isEmpty()) {
-            try {
-                File filePath = new File(path);
-                if (!filePath.exists())
-                    filePath.mkdirs();
-                String savePath = path + currentTime + "-" + file.getOriginalFilename();
-                file.transferTo(new File(savePath));
-                return true;
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        return false;
-    }
-    
     public ServerResponse batchUploadFile(MultipartFile[] files, String userNum, String filePath, int fileKind, String typeNum) {
         String fileName = "";
+        int fileCount = files == null ? 0 : files.length;
+        logger.info("Start backend relay upload. userNum={}, fileKind={}, typeNum={}, fileCount={}",
+                userNum, fileKind, typeNum, fileCount);
         if (files != null && files.length > 0) {
             for (int i = 0; i < files.length; i++) {
                 MultipartFile file = files[i];
-                long currentTime = System.currentTimeMillis();
-                if (saveFile(file, filePath, currentTime)) {
-                    FileHub fileHub = new FileHub();
-                    if (typeNum == null || typeNum == "") {
-                        typeNum = " -1";
-                    }
-                    fileHub.setFileKind(fileKind);
-                    fileHub.setTypeNum(typeNum);
-                    fileHub.setFileName(currentTime + "-" + file.getOriginalFilename());
-                    fileHub.setFileSize((int) file.getSize());
-                    fileHub.setUserNum(userNum);
-                    fileHub.setAcademy(userInfoMapper.selectByUserNum(userNum).getAcademy());
-                    fileName = fileHub.getFileName();
-                    fileHubMapper.insertSelective(fileHub);
+                if (file.isEmpty()) {
+                    logger.warn("Skip empty multipart file during upload. userNum={}, fileKind={}, typeNum={}, index={}",
+                            userNum, fileKind, typeNum, i);
+                    continue;
                 }
+                String normalizedTypeNum = typeNum == null || typeNum.trim().isEmpty() ? "-1" : typeNum.trim();
+                String storedFileName = storagePathService.safeStoredFileName(file.getOriginalFilename());
+                String objectKey = storagePathService.buildAttachmentObjectKey(fileKind, normalizedTypeNum, userNum, storedFileName);
+                try {
+                    cosStorageService.uploadMultipartFile(file, objectKey);
+                } catch (Exception e) {
+                    logger.error("Failed backend relay upload. userNum={}, fileKind={}, typeNum={}, originalFileName={}, objectKey={}",
+                            userNum, fileKind, normalizedTypeNum, file.getOriginalFilename(), objectKey, e);
+                    return ServerResponse.createByErrorMessage("上传文件失败：" + e.getMessage());
+                }
+
+                FileHub fileHub = new FileHub();
+                fileHub.setFileKind(fileKind);
+                fileHub.setTypeNum(normalizedTypeNum);
+                fileHub.setFileName(storedFileName);
+                fileHub.setObjectKey(objectKey);
+                fileHub.setStorageProvider("cos");
+                fileHub.setContentType(file.getContentType());
+                fileHub.setFileSize((int) file.getSize());
+                fileHub.setUserNum(userNum);
+                UserInfo userInfo = userInfoMapper.selectByUserNum(userNum);
+                fileHub.setAcademy(userInfo == null ? null : userInfo.getAcademy());
+                fileName = fileHub.getFileName();
+                fileHubMapper.insertSelective(fileHub);
+                logger.info("Backend relay upload succeeded. userNum={}, fileKind={}, typeNum={}, originalFileName={}, storedFileName={}, objectKey={}, size={}",
+                        userNum, fileKind, normalizedTypeNum, file.getOriginalFilename(), storedFileName, objectKey, file.getSize());
             }
+            logger.info("Backend relay upload finished. userNum={}, fileKind={}, typeNum={}, lastStoredFileName={}",
+                    userNum, fileKind, typeNum, fileName);
             return ServerResponse.createBySuccess(fileName);
         }
+        logger.warn("Backend relay upload failed because no files were provided. userNum={}, fileKind={}, typeNum={}",
+                userNum, fileKind, typeNum);
         return ServerResponse.createByErrorMessage("上传文件失败");
     }
     
@@ -170,6 +183,10 @@ public class FileAdminService {
             return ServerResponse.createByErrorMessage("对不起，你还没有上传项目附件呢");
         }
         return ServerResponse.createBySuccess(fileHub);
+    }
+
+    public FileHub getFileByFileName(String fileName) {
+        return fileHubMapper.selectByFileName(fileName);
     }
     
 }

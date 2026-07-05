@@ -41,6 +41,8 @@ public interface UserInfoMapper {
     List<UserInfo> selectUserInfoByAcademy(String academy);
     
     List<UserInfo> selectUserInfoLikeUserName(@Param("userNum") String userNum, @Param("userName") String userName);
+
+    List<UserInfo> selectAllUserInfoForMigration();
     
     
     //  通过项目编号 查看项目详情  项目负责人 组员 指导老师

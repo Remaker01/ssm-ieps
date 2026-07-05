@@ -25,6 +25,8 @@ public interface UserItemMapper {
     int insertUserItemWithItemNumAndUserNum(@Param("userNum") String userNum, @Param("itemNum") String itemNum, @Param("identity") int identity);
 
     int selectUserItemWithItemNumAndUserNum(@Param("itemNum")String itemNum, @Param("userNum") String userNum, @Param("reviewLevel") int reviewLevel);
+
+    int countByItemNumAndUserNum(@Param("itemNum") String itemNum, @Param("userNum") String userNum);
     
     int deleteUsetItemWithReviews(String itemNum);
     

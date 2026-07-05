@@ -22,6 +22,10 @@ public interface FileHubMapper {
     
     
     FileHub selectByFileName(String fileName);
+
+    FileHub selectStorageFileById(Integer id);
+
+    List<FileHub> selectAllStorageFiles();
     
     // 学校管理员  文件管理列表
     List<FileHub> selectAllFileHub(FileHub fileHub);

@@ -2,22 +2,11 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.ieps.mapper.FileHubMapper" >
 
-  <resultMap id="BaseResultMap" type="com.ieps.pojo.FileHub" >
-    <constructor >
-      <idArg column="id" jdbcType="INTEGER" javaType="java.lang.Integer" />
-      <arg column="type_num" jdbcType="VARCHAR" javaType="java.lang.String" />
-      <arg column="user_num" jdbcType="VARCHAR" javaType="java.lang.String" />
-      <arg column="file_name" jdbcType="VARCHAR" javaType="java.lang.String" />
-      <arg column="file_size" jdbcType="INTEGER" javaType="java.lang.Integer" />
-      <arg column="file_kind" jdbcType="INTEGER" javaType="java.lang.Integer" />
-      <arg column="create_time" jdbcType="TIMESTAMP" javaType="java.util.Date" />
-      <arg column="update_time" jdbcType="TIMESTAMP" javaType="java.util.Date" />
-    </constructor>
-  </resultMap>
   <sql id="Base_Column_List" >
-    id, type_num,  user_num, academy, file_name, file_size, file_kind, create_time, update_time
+    id, type_num, user_num, academy, file_name, object_key, storage_provider, content_type,
+    file_size, file_kind, create_time, update_time
   </sql>
-  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+  <select id="selectByPrimaryKey" resultType="com.ieps.pojo.FileHub" parameterType="java.lang.Integer" >
     select
     <include refid="Base_Column_List" />
     from ieps_file_hub
@@ -28,9 +17,10 @@
     where id = #{id,jdbcType=INTEGER}
   </delete>
   <insert id="insert" parameterType="com.ieps.pojo.FileHub" >
-    insert into ieps_file_hub (type_num, user_num, academy, file_name,
+    insert into ieps_file_hub (type_num, user_num, academy, file_name, object_key, storage_provider, content_type,
     file_size, file_kind, create_time, update_time)
     values (#{typeNum,jdbcType=VARCHAR}, #{userNum,jdbcType=VARCHAR}, #{academy,jdbcType=VARCHAR}, #{fileName,jdbcType=VARCHAR},
+    #{objectKey,jdbcType=VARCHAR}, #{storageProvider,jdbcType=VARCHAR}, #{contentType,jdbcType=VARCHAR},
     #{fileSize,jdbcType=INTEGER}, #{fileKind,jdbcType=INTEGER}, now(), now())
   </insert>
   <insert id="insertSelective" parameterType="com.ieps.pojo.FileHub" >
@@ -47,6 +37,15 @@
       </if>
       <if test="fileName != null" >
         file_name,
+      </if>
+      <if test="objectKey != null" >
+        object_key,
+      </if>
+      <if test="storageProvider != null" >
+        storage_provider,
+      </if>
+      <if test="contentType != null" >
+        content_type,
       </if>
       <if test="fileSize != null" >
         file_size,
@@ -73,6 +72,15 @@
       </if>
       <if test="fileName != null" >
         #{fileName,jdbcType=VARCHAR},
+      </if>
+      <if test="objectKey != null" >
+        #{objectKey,jdbcType=VARCHAR},
+      </if>
+      <if test="storageProvider != null" >
+        #{storageProvider,jdbcType=VARCHAR},
+      </if>
+      <if test="contentType != null" >
+        #{contentType,jdbcType=VARCHAR},
       </if>
       <if test="fileSize != null" >
         #{fileSize,jdbcType=INTEGER},
@@ -103,6 +111,15 @@
       <if test="fileName != null" >
         file_name = #{fileName,jdbcType=VARCHAR},
       </if>
+      <if test="objectKey != null" >
+        object_key = #{objectKey,jdbcType=VARCHAR},
+      </if>
+      <if test="storageProvider != null" >
+        storage_provider = #{storageProvider,jdbcType=VARCHAR},
+      </if>
+      <if test="contentType != null" >
+        content_type = #{contentType,jdbcType=VARCHAR},
+      </if>
       <if test="fileSize != null" >
         file_size = #{fileSize,jdbcType=INTEGER},
       </if>
@@ -124,6 +141,9 @@
     user_num = #{userNum,jdbcType=VARCHAR},
     academy = #{academy,jdbcType=VARCHAR},
     file_name = #{fileName,jdbcType=VARCHAR},
+    object_key = #{objectKey,jdbcType=VARCHAR},
+    storage_provider = #{storageProvider,jdbcType=VARCHAR},
+    content_type = #{contentType,jdbcType=VARCHAR},
     file_size = #{fileSize,jdbcType=INTEGER},
     file_kind = #{fileKind,jdbcType=INTEGER},
     create_time = #{createTime,jdbcType=TIMESTAMP},
@@ -137,16 +157,31 @@
 
 
 
-  <select id="selectByFileName" parameterType="string" resultType="FileHub">
+  <select id="selectByFileName" parameterType="string" resultType="com.ieps.pojo.FileHub">
     SELECT
     <include refid="Base_Column_List"/>
     FROM ieps_file_hub
     WHERE file_name=#{fileName}
   </select>
 
+  <select id="selectStorageFileById" parameterType="int" resultType="com.ieps.pojo.FileHub">
+    SELECT
+    <include refid="Base_Column_List"/>
+    FROM ieps_file_hub
+    WHERE id=#{id}
+  </select>
+
+  <select id="selectAllStorageFiles" resultType="com.ieps.pojo.FileHub">
+    SELECT
+    <include refid="Base_Column_List"/>
+    FROM ieps_file_hub
+    ORDER BY id ASC
+  </select>
+
 
   <select id="selectAllFileHub" resultType="FileHub">
-    SELECT id, type_num, user_num AS userNum, academy AS academy, file_name AS fileName, file_size AS fileSize, file_kind AS fileKind
+    SELECT id, type_num, user_num AS userNum, academy AS academy, file_name AS fileName, object_key AS objectKey,
+    storage_provider AS storageProvider, content_type AS contentType, file_size AS fileSize, file_kind AS fileKind
     FROM ieps_file_hub
     <where>
       <if test="userNum != null and userNum != -1">
@@ -166,7 +201,8 @@
 
 
   <select id="selectAllFileByUserNum" resultType="FileHub">
-    SELECT id, type_num, user_num AS userNum, academy AS academy, file_name AS fileName, file_size AS fileSize, file_kind AS fileKind
+    SELECT id, type_num, user_num AS userNum, academy AS academy, file_name AS fileName, object_key AS objectKey,
+    storage_provider AS storageProvider, content_type AS contentType, file_size AS fileSize, file_kind AS fileKind
     FROM ieps_file_hub
     WHERE user_num = #{userNumCollege}
     OR academy =
@@ -207,7 +243,8 @@
 
 
   <select id="selectAllFileByAdminWithKind" resultType="FileHub">
-    SELECT id, type_num, user_num AS userNum, academy AS academy, file_name AS fileName, file_size AS fileSize,
+    SELECT id, type_num, user_num AS userNum, academy AS academy, file_name AS fileName, object_key AS objectKey,
+    storage_provider AS storageProvider, content_type AS contentType, file_size AS fileSize,
     file_kind AS fileKind, create_time AS createTime, update_time AS updateTime
     FROM ieps_file_hub
     WHERE file_kind = #{fileKind}
@@ -220,7 +257,8 @@
   </select>
 
   <select id="selectFileWithItemNum" parameterType="string" resultType="FileHub">
-    SELECT id, type_num, user_num AS userNum, academy AS academy, file_name AS fileName, file_size AS fileSize,
+    SELECT id, type_num, user_num AS userNum, academy AS academy, file_name AS fileName, object_key AS objectKey,
+    storage_provider AS storageProvider, content_type AS contentType, file_size AS fileSize,
     file_kind AS fileKind, create_time AS createTime, update_time AS updateTime
     FROM ieps_file_hub
     WHERE type_num = #{itemNum}
