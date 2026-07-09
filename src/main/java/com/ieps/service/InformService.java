@@ -41,9 +41,7 @@ public class InformService {
             informList = informMapper.selectAll();
         } else {
             UserInfo userInfo = userInfoMapper.selectByUserNum(userNum);
-            List<String> subjectList = Lists.newArrayList();
-            subjectList.add(userInfo.getAcademy());
-            subjectList.add(Const.ACADEMY_COLLEGE);
+            List<String> subjectList = List.of(userInfo.getAcademy(), Const.ACADEMY_COLLEGE);
             informList = informMapper.selectAllInformList(subjectList);
         }
         PageInfo pageInfo = new PageInfo(informList);
@@ -58,9 +56,7 @@ public class InformService {
         if (roleId == Const.ROLEID_COLLEGE) {
             informList = informMapper.selectAllWithCondition(inform);
         } else {
-            List<String> subjectList = Lists.newArrayList();
-            subjectList.add(userInfo.getAcademy());
-            subjectList.add(Const.ACADEMY_COLLEGE);
+            List<String> subjectList = List.of(userInfo.getAcademy(), Const.ACADEMY_COLLEGE);
             informList = informMapper.selectAllInformListWithCondition(subjectList, inform);
         }
         PageInfo pageInfo = new PageInfo(informList);

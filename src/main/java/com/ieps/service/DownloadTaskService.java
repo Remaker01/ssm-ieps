@@ -21,9 +21,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.stream.Collectors;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -266,15 +266,13 @@ public class DownloadTaskService {
     }
 
     private List<String> normalizeFileNames(String[] fileNames) {
-        List<String> normalized = new ArrayList<>();
         if (fileNames == null) {
-            return normalized;
+            return List.of();
         }
-        Arrays.stream(fileNames)
+        return Arrays.stream(fileNames)
                 .filter(StringUtils::hasText)
                 .map(String::trim)
-                .forEach(normalized::add);
-        return normalized;
+                .collect(Collectors.toUnmodifiableList());
     }
 
     private Map<String, FileHub> resolveAccessibleFiles(User currentUser, List<String> fileNames) {
@@ -302,7 +300,7 @@ public class DownloadTaskService {
 
     private List<String> splitSourceFiles(String sourceFiles) {
         if (!StringUtils.hasText(sourceFiles)) {
-            return new ArrayList<>();
+            return List.of();
         }
         return normalizeFileNames(sourceFiles.split("\\n"));
     }

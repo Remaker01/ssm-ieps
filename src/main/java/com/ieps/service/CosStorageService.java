@@ -106,7 +106,7 @@ public class CosStorageService {
     }
 
     public void deleteObjectQuietly(String objectKey) {
-        if (objectKey == null || objectKey.trim().isEmpty()) {
+        if (objectKey == null || objectKey.isBlank()) {
             return;
         }
         try {
@@ -181,7 +181,7 @@ public class CosStorageService {
     private ObjectMetadata buildObjectMetadata(long contentLength, String contentType) {
         ObjectMetadata objectMetadata = new ObjectMetadata();
         objectMetadata.setContentLength(contentLength);
-        if (contentType != null && !contentType.trim().isEmpty()) {
+        if (contentType != null && !contentType.isBlank()) {
             objectMetadata.setContentType(contentType);
         }
         return objectMetadata;
