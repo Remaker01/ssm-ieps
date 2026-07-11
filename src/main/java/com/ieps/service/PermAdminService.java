@@ -25,7 +25,7 @@ public class PermAdminService {
     @Autowired
     private UserRoleMapper userRoleMapper;
     
-    public ServerResponse getPermList(int pageNum, int pageSize, Integer roleId, Perm perm) {
+    public ServerResponse<PageInfo<Perm>> getPermList(int pageNum, int pageSize, Integer roleId, Perm perm) {
         
         PageHelper.startPage(pageNum, pageSize);
         
@@ -35,13 +35,13 @@ public class PermAdminService {
             return ServerResponse.createByErrorMessage("加载菜单出错，请重试！");
         }
         
-        PageInfo pageInfo = new PageInfo(permList);
+        PageInfo<Perm> pageInfo = new PageInfo<>(permList);
         pageInfo.setList(permList);
         
         return ServerResponse.createBySuccess(pageInfo);
     }
     
-    public ServerResponse getPerm() {
+    public ServerResponse<List<Perm>> getPerm() {
         List<Perm> permList = permMapper.selectAllPerm();
         
         if (permList.size() == 0) {
@@ -51,7 +51,7 @@ public class PermAdminService {
         return ServerResponse.createBySuccess(permList);
     }
     
-    public ServerResponse removePermById(int roleId, Perm perm) {
+    public ServerResponse<String> removePermById(int roleId, Perm perm) {
         if (roleId == Const.ROLEID_COLLEGE) {
             if (permMapper.deletePermById(perm.getPermId(), perm.getPermType()) > 0) {
                 return ServerResponse.createBySuccessMessage("删除" + perm.getPermId() + "成功");
@@ -68,7 +68,7 @@ public class PermAdminService {
         return ServerResponse.createBySuccess(permMapper.selectAllMenu());
     }
     
-    public ServerResponse getPermByPermId(Integer permId) {
+    public ServerResponse<Perm> getPermByPermId(Integer permId) {
         Perm perm = permMapper.selectByPrimaryKey(permId);
         if (perm == null) {
             return ServerResponse.createByErrorMessage("查找父节点信息失败，请重新尝试！");
@@ -77,7 +77,7 @@ public class PermAdminService {
         return ServerResponse.createBySuccess(perm);
     }
     
-    public ServerResponse modifyPermById(Integer roleId, Perm perm) {
+    public ServerResponse<?> modifyPermById(Integer roleId, Perm perm) {
         if (roleId == Const.ROLEID_COLLEGE) {
             if (permMapper.updateByPrimaryKeySelective(perm) > 0) {
                 return ServerResponse.createBySuccess();
@@ -90,7 +90,7 @@ public class PermAdminService {
         
     }
     
-    public ServerResponse addPerm(Integer roleId, Perm perm) {
+    public ServerResponse<?> addPerm(Integer roleId, Perm perm) {
         
         System.out.println(perm);
         
@@ -112,7 +112,7 @@ public class PermAdminService {
         return ServerResponse.createByErrorMessage("对不起，你没有权限操作！");
     }
     
-    public ServerResponse batchRemovePerm(Integer roleId, Integer[] permIds) {
+    public ServerResponse<?> batchRemovePerm(Integer roleId, Integer[] permIds) {
         if (roleId == Const.ROLEID_COLLEGE) {
             if (permMapper.batchDeletePerm(permIds) > 0) {
                 return ServerResponse.createBySuccess();
@@ -124,7 +124,7 @@ public class PermAdminService {
         return ServerResponse.createByErrorMessage("对不起，你没有权限操作！");
     }
     
-    public ServerResponse addRolePerm(Integer[] permIds, Integer roleId, int roleAdminId) {
+    public ServerResponse<?> addRolePerm(Integer[] permIds, Integer roleId, int roleAdminId) {
         
         if (roleAdminId == Const.ROLEID_COLLEGE) {
             
@@ -141,7 +141,7 @@ public class PermAdminService {
         
     }
     
-    public ServerResponse addRolePermWithUserNum(Integer[] permIds, Integer roleId, String userNum) {
+    public ServerResponse<?> addRolePermWithUserNum(Integer[] permIds, Integer roleId, String userNum) {
         
         if (roleId == Const.ROLEID_COLLEGE) {
             

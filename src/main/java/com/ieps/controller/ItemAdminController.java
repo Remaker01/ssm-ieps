@@ -1,11 +1,13 @@
 package com.ieps.controller;
 
-import com.google.common.collect.Lists;
+import com.github.pagehelper.PageInfo;
+import java.util.ArrayList;
 import com.ieps.common.Const;
 import com.ieps.common.ServerResponse;
 import com.ieps.dto.ItemAdminDto;
 import com.ieps.pojo.Review;
 import com.ieps.pojo.User;
+import com.ieps.pojo.UserInfo;
 import com.ieps.service.ItemAdminService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -62,7 +64,7 @@ public class ItemAdminController {
      */
     @RequestMapping({"/getItemListByUserNum", "/getItemListByUserNum.do"})
     @ResponseBody
-    public ServerResponse getItemListByUserNum(@RequestParam(value = "page", defaultValue = "1") int page, ItemAdminDto itemAdminDto,
+    public ServerResponse<PageInfo<ItemAdminDto>> getItemListByUserNum(@RequestParam(value = "page", defaultValue = "1") int page, ItemAdminDto itemAdminDto,
                                                @RequestParam(value = "limit", defaultValue = "10") int limit,
                                                @RequestParam(value = "userNumAdmin", required = false) String userNumAdmin,
                                                @RequestParam(value = "roleId", required = false) Integer roleId,
@@ -75,7 +77,7 @@ public class ItemAdminController {
 
         // <!-- 项目状态：1：申请中；2：立项评审；3：已立项；4：立项失败；5：中期检查; 6: 待结题；7：结题评审；8：结题成功；9：结题失败-->
     
-        List<Integer> integerList = Lists.newArrayList();
+        List<Integer> integerList = new ArrayList<>();
         if (itemStatusF != null) {
             integerList.add(itemStatusF);
         }
@@ -104,7 +106,7 @@ public class ItemAdminController {
      */
     @RequestMapping({"/getItemListByUserNumAndItemStatus", "/getItemListByUserNumAndItemStatus.do"})
     @ResponseBody
-    public ServerResponse getItemListByUserNumAndItemStatus(@RequestParam(value = "page", defaultValue = "1") int page, ItemAdminDto itemAdminDto,
+    public ServerResponse<PageInfo<ItemAdminDto>> getItemListByUserNumAndItemStatus(@RequestParam(value = "page", defaultValue = "1") int page, ItemAdminDto itemAdminDto,
                                                @RequestParam(value = "limit", defaultValue = "5") int limit,
                                                @RequestParam(value = "userNumAdmin", required = false) String userNumAdmin,
                                                @RequestParam(value = "roleId", required = false) Integer roleId, HttpServletRequest request) {
@@ -128,7 +130,7 @@ public class ItemAdminController {
      */
     @RequestMapping({"/removeItemById", "/removeItemById.do"})
     @ResponseBody
-    public ServerResponse removeItemById(@RequestParam(value = "userNum", required = false) String userNum,
+    public ServerResponse<String> removeItemById(@RequestParam(value = "userNum", required = false) String userNum,
                                          @RequestParam(value = "roleId", required = false) Integer roleId,
                                          HttpServletRequest request, String itemNum) {
         int effectiveRoleId = resolveCurrentRoleId(request, roleId);
@@ -150,7 +152,7 @@ public class ItemAdminController {
      */
     @RequestMapping({"/batchRemoveItem", "/batchRemoveItem.do"})
     @ResponseBody
-    public ServerResponse batchRemoveItem(@RequestParam(value = "userNum", required = false) String userNum,
+    public ServerResponse<String> batchRemoveItem(@RequestParam(value = "userNum", required = false) String userNum,
                                           @RequestParam(value = "roleId", required = false) Integer roleId,
                                           HttpServletRequest request, String[] itemNums) {
         int effectiveRoleId = resolveCurrentRoleId(request, roleId);
@@ -173,7 +175,7 @@ public class ItemAdminController {
      */
     @RequestMapping({"/modifyItemLevelByItemNum", "/modifyItemLevelByItemNum.do"})
     @ResponseBody
-    public ServerResponse modifyItemLevelByItemNum(@RequestParam(value = "userNum", required = false) String userNum,
+    public ServerResponse<Integer> modifyItemLevelByItemNum(@RequestParam(value = "userNum", required = false) String userNum,
                                                    @RequestParam(value = "roleId", required = false) Integer roleId,
                                           HttpServletRequest request, String itemNum, @RequestParam("itemLevel") int itemlevel) {
         int effectiveRoleId = resolveCurrentRoleId(request, roleId);
@@ -196,7 +198,7 @@ public class ItemAdminController {
      */
     @RequestMapping({"/modifyItemTypeByItemNum", "/modifyItemTypeByItemNum.do"})
     @ResponseBody
-    public ServerResponse modifyItemTypeByItemNum(@RequestParam(value = "userNum", required = false) String userNum,
+    public ServerResponse<Integer> modifyItemTypeByItemNum(@RequestParam(value = "userNum", required = false) String userNum,
                                                    @RequestParam(value = "roleId", required = false) Integer roleId,
                                                    HttpServletRequest request, String itemNum, @RequestParam("itemType") int itemType) {
         int effectiveRoleId = resolveCurrentRoleId(request, roleId);
@@ -219,7 +221,7 @@ public class ItemAdminController {
      */
     @RequestMapping({"/modifyItemStatusByItemNum", "/modifyItemStatusByItemNum.do"})
     @ResponseBody
-    public ServerResponse modifyItemStatusByItemNum(@RequestParam(value = "userNum", required = false) String userNum,
+    public ServerResponse<Integer> modifyItemStatusByItemNum(@RequestParam(value = "userNum", required = false) String userNum,
                                                   @RequestParam(value = "roleId", required = false) Integer roleId,
                                                   HttpServletRequest request, String itemNum, @RequestParam("itemStatus") int itemStatus) {
         int effectiveRoleId = resolveCurrentRoleId(request, roleId);
@@ -241,7 +243,7 @@ public class ItemAdminController {
      */
     @RequestMapping({"/modifyItemByItemNum", "/modifyItemByItemNum.do"})
     @ResponseBody
-    public ServerResponse modifyItemByItemNum(@RequestParam(value = "userNum", required = false) String userNum,
+    public ServerResponse<String> modifyItemByItemNum(@RequestParam(value = "userNum", required = false) String userNum,
                                               @RequestParam(value = "roleId", required = false) Integer roleId,
                                                     HttpServletRequest request, ItemAdminDto itemAdminDto) {
         int effectiveRoleId = resolveCurrentRoleId(request, roleId);
@@ -264,7 +266,7 @@ public class ItemAdminController {
      */
     @RequestMapping({"/onekeyModifyItemTypeWithItemNums", "/onekeyModifyItemTypeWithItemNums.do"})
     @ResponseBody
-    public ServerResponse onekeyModifyItemTypeWithItemNums(@RequestParam(value = "userNum", required = false) String userNum,
+    public ServerResponse<String> onekeyModifyItemTypeWithItemNums(@RequestParam(value = "userNum", required = false) String userNum,
                                                            @RequestParam(value = "roleId", required = false) Integer roleId,
                                               HttpServletRequest request, String[] itemNums, int itemType) {
         int effectiveRoleId = resolveCurrentRoleId(request, roleId);
@@ -287,7 +289,7 @@ public class ItemAdminController {
      */
     @RequestMapping({"/onekeyModifyItemStatusWithItemNums", "/onekeyModifyItemStatusWithItemNums.do"})
     @ResponseBody
-    public ServerResponse onekeyModifyItemStatusWithItemNums(@RequestParam(value = "userNum", required = false) String userNum,
+    public ServerResponse<String> onekeyModifyItemStatusWithItemNums(@RequestParam(value = "userNum", required = false) String userNum,
                                                              @RequestParam(value = "roleId", required = false) Integer roleId,
                                                            HttpServletRequest request, String[] itemNums, Integer itemStatus) {
         int effectiveRoleId = resolveCurrentRoleId(request, roleId);
@@ -310,7 +312,7 @@ public class ItemAdminController {
      */
     @RequestMapping({"/onekeyModifyItemLevelWithItemNums", "/onekeyModifyItemLevelWithItemNums.do"})
     @ResponseBody
-    public ServerResponse onekeyModifyItemLevelWithItemNums(@RequestParam(value = "userNum", required = false) String userNum,
+    public ServerResponse<String> onekeyModifyItemLevelWithItemNums(@RequestParam(value = "userNum", required = false) String userNum,
                                                             @RequestParam(value = "roleId", required = false) Integer roleId,
                                                            HttpServletRequest request, String[] itemNums, int itemLevel) {
         int effectiveRoleId = resolveCurrentRoleId(request, roleId);
@@ -334,7 +336,7 @@ public class ItemAdminController {
      */
     @RequestMapping({"/addItemAndUserInfo", "/addItemAndUserInfo.do"})
     @ResponseBody
-    public ServerResponse addItemAndUserInfo(@RequestParam(value = "userNum", required = false) String userNum,
+    public ServerResponse<String> addItemAndUserInfo(@RequestParam(value = "userNum", required = false) String userNum,
                                              @RequestParam(value = "roleId", required = false) Integer roleId, HttpServletRequest request,
                                              @RequestParam("userNums") String[] userNums, @RequestParam("userNames") String[] userNames, ItemAdminDto itemAdminDto) {
         int effectiveRoleId = resolveCurrentRoleId(request, roleId);
@@ -359,7 +361,7 @@ public class ItemAdminController {
      */
     @RequestMapping({"/getReviewLeaderByRoleIdAndUserNum", "/getReviewLeaderByRoleIdAndUserNum.do"})
     @ResponseBody
-    public ServerResponse getReviewLeaderByRoleIdAndUserNum(@RequestParam(value = "userNum", required = false) String userNum,
+    public ServerResponse<List<UserInfo>> getReviewLeaderByRoleIdAndUserNum(@RequestParam(value = "userNum", required = false) String userNum,
                                                             @RequestParam(value = "roleId", required = false) Integer roleId,
                                                             HttpServletRequest request) {
         String effectiveUserNum = resolveCurrentUserNum(request, userNum);
@@ -385,7 +387,7 @@ public class ItemAdminController {
      */
     @RequestMapping({"/chooseUserItemWithLeader", "/chooseUserItemWithLeader.do"})
     @ResponseBody
-    public ServerResponse chooseUserItemWithLeader(@RequestParam(value = "userNumAdmin", required = false) String userNumAdmin,
+    public ServerResponse<String> chooseUserItemWithLeader(@RequestParam(value = "userNumAdmin", required = false) String userNumAdmin,
                                                    @RequestParam(value = "roleId", required = false) Integer roleId,
                                                    @RequestParam("userNum") String userNum, @RequestParam("userName") String userName,
                                                    @RequestParam("itemNum") String itemNum, @RequestParam("itemStatus") int itemStatus,
@@ -401,7 +403,7 @@ public class ItemAdminController {
     
     @RequestMapping(value = {"/batchAddReviewTeam", "/batchAddReviewTeam.do"}, method = RequestMethod.POST)
     @ResponseBody
-    public ServerResponse batchAddReviewTeam(@RequestParam(value = "userNumAdmin", required = false) String userNumAdmin,
+    public ServerResponse<String> batchAddReviewTeam(@RequestParam(value = "userNumAdmin", required = false) String userNumAdmin,
                                              @RequestParam(value = "roleId", required = false) Integer roleId,
                                              @RequestParam("userNum") String userNum, @RequestParam("userName") String userName,
                                              @RequestParam("itemNums") String[] itemNums, @RequestParam("itemStatus") int itemStatus,
@@ -423,7 +425,7 @@ public class ItemAdminController {
      */
     @RequestMapping({"/addReviewByExport", "/addReviewByExport.do"})
     @ResponseBody
-    public ServerResponse addReviewByExport(@RequestParam(value = "roleId", required = false) Integer roleId, Review review, HttpServletRequest request) {
+    public ServerResponse<String> addReviewByExport(@RequestParam(value = "roleId", required = false) Integer roleId, Review review, HttpServletRequest request) {
         int effectiveRoleId = resolveCurrentRoleId(request, roleId);
         
         // if (!user.getUserNum().equals(userNumAdmin)) {
@@ -446,7 +448,7 @@ public class ItemAdminController {
      */
     @RequestMapping({"/getFinishedItemList", "/getFinishedItemList.do"})
     @ResponseBody
-    public ServerResponse getFinishedItemList(@RequestParam(value = "pageNum",defaultValue = "1") int pageNum,
+    public ServerResponse<PageInfo<ItemAdminDto>> getFinishedItemList(@RequestParam(value = "pageNum",defaultValue = "1") int pageNum,
                                               @RequestParam(value = "pageSize",defaultValue = "10") int pageSize,
                                               String itemName, String itemDate) {
         return itemAdminService.getFinishedItem(pageNum, pageSize, itemName, itemDate);
@@ -460,7 +462,7 @@ public class ItemAdminController {
      */
     @RequestMapping({"/checkIsReviewWithItemNumAndUserNum", "/checkIsReviewWithItemNumAndUserNum.do"})
     @ResponseBody
-    public ServerResponse checkIsReviewWithItemNumAndUserNum(String itemNum,
+    public ServerResponse<?> checkIsReviewWithItemNumAndUserNum(String itemNum,
                                                              @RequestParam(value = "userNum", required = false) String userNum,
                                                              int reviewLevel, HttpServletRequest request) {
         String effectiveUserNum = resolveCurrentUserNum(request, userNum);
@@ -474,7 +476,7 @@ public class ItemAdminController {
      */
     @RequestMapping({"/getItemStatusWithItemNum", "/getItemStatusWithItemNum.do"})
     @ResponseBody
-    public ServerResponse getItemStatusWithItemNum(String itemNum) {
+    public ServerResponse<ItemAdminDto> getItemStatusWithItemNum(String itemNum) {
         return itemAdminService.getItemStatusWithItemNum(itemNum);
     }
     
@@ -484,7 +486,7 @@ public class ItemAdminController {
      */
     @RequestMapping({"/getItemDate", "/getItemDate.do"})
     @ResponseBody
-    public ServerResponse getItemDate() {
+    public ServerResponse<List<String>> getItemDate() {
         return itemAdminService.getItemDate();
     }
     
@@ -495,14 +497,14 @@ public class ItemAdminController {
      */
     @RequestMapping({"/getItemDetailWithItemNum", "/getItemDetailWithItemNum.do"})
     @ResponseBody
-    public ServerResponse getItemDetailWithItemNum(String itemNum) {
+    public ServerResponse<ItemAdminDto> getItemDetailWithItemNum(String itemNum) {
         return itemAdminService.getItemDetailWithItemId(itemNum);
     }
     
     
     @RequestMapping({"/removeUserItemWithReview", "/removeUserItemWithReview.do"})
     @ResponseBody
-    public ServerResponse removeUserItemWithReview(String itemNum,
+    public ServerResponse<?> removeUserItemWithReview(String itemNum,
                                                    @RequestParam(value = "roleId", required = false) Integer roleId,
                                                    HttpServletRequest request) {
         int effectiveRoleId = resolveCurrentRoleId(request, roleId);

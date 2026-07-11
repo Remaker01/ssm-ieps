@@ -51,7 +51,7 @@ public class UserInfoService {
         return ServerResponse.createBySuccess(userInfo);
     }
     
-    public ServerResponse modifyUserInfo(UserInfo userInfo) {
+    public ServerResponse<String> modifyUserInfo(UserInfo userInfo) {
         int result = userInfoMapper.updateByUserNumSelective(userInfo);
         if (result == 0) {
             return ServerResponse.createByErrorMessage("你还没有修改任何信息");
@@ -61,7 +61,7 @@ public class UserInfoService {
     }
     
     public ServerResponse<String> getVerifyCode(String userNum, String verifyNum) {
-        ServerResponse verifyNumCheck = checkVerifyNum(userNum, verifyNum);
+        ServerResponse<?> verifyNumCheck = checkVerifyNum(userNum, verifyNum);
         if (verifyNumCheck.getStatus() != 0) {
             return ServerResponse.createByErrorMessage(verifyNumCheck.getMsg());
         }
@@ -96,7 +96,7 @@ public class UserInfoService {
         return ServerResponse.createBySuccessMessage("验证码已发送，请及时输入验证");
     }
     
-    public ServerResponse checkVerifyNum(String userNum, String verifyNum) {
+    public ServerResponse<?> checkVerifyNum(String userNum, String verifyNum) {
         int result = 0;
         
         if (verifyNum.lastIndexOf("@") != -1) {
@@ -118,7 +118,7 @@ public class UserInfoService {
             return ServerResponse.createByErrorMessage("请输入验证码后再继续！");
         }
 
-        ServerResponse verifyNumCheck = checkVerifyNum(userNum, verifyNum);
+        ServerResponse<?> verifyNumCheck = checkVerifyNum(userNum, verifyNum);
         if (verifyNumCheck.getStatus() != 0) {
             return ServerResponse.createByErrorMessage(verifyNumCheck.getMsg());
         }
@@ -156,7 +156,7 @@ public class UserInfoService {
         return ServerResponse.createBySuccess("验证通过，请继续下一步！", forgetPwdToken);
     }
     
-    public ServerResponse getUserInfoWithItemNum(String itemNum) {
+    public ServerResponse<List<UserAdminDto>> getUserInfoWithItemNum(String itemNum) {
         List<UserAdminDto> userAdminDtoList = userInfoMapper.selectUserInfoWithItemNum(itemNum);
         if (userAdminDtoList.size() == 0) {
             return ServerResponse.createByError();

@@ -23,13 +23,13 @@ public class UserController {
     
     @RequestMapping(value = {"/forget-password", "/forgetPwd", "/forgetPwd.do"}, method = RequestMethod.POST)
     @ResponseBody
-    public ServerResponse forgetPwd(String userNum, String userPwd, String forgetPwdToken) {
+    public ServerResponse<String> forgetPwd(String userNum, String userPwd, String forgetPwdToken) {
         return userService.forgetPwd(userNum, userPwd, forgetPwdToken);
     }
     
     @RequestMapping(value = {"/modifyPwd", "/modifyPwd.do"}, method = RequestMethod.POST)
     @ResponseBody
-    public ServerResponse modifyPwd(User user, HttpServletRequest request) {
+    public ServerResponse<String> modifyPwd(User user, HttpServletRequest request) {
         User currentUser = (User) request.getAttribute(Const.REQUEST_CURRENT_USER);
         if (currentUser == null) {
             return ServerResponse.createByErrorMessage("登录状态已失效，请重新登录后再试！");
@@ -41,13 +41,13 @@ public class UserController {
     
     @RequestMapping(value = {"/checkUser", "/checkUser.do"}, method = RequestMethod.GET)
     @ResponseBody
-    public ServerResponse checkUser(String userNum) {
+    public ServerResponse<?> checkUser(String userNum) {
         return userService.checkUser(userNum);
     }
     
     @RequestMapping(value = {"/getUserPwdWithUserNum", "/getUserPwdWithUserNum.do"}, method = RequestMethod.GET)
     @ResponseBody
-    public ServerResponse getUserPwdWithUserNum(String userNum) {
+    public ServerResponse<String> getUserPwdWithUserNum(String userNum) {
         return userService.getUserPwdWithUserNum(userNum);
     }
     

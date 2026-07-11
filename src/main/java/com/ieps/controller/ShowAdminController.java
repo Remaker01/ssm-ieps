@@ -1,11 +1,15 @@
 package com.ieps.controller;
 
 import com.ieps.common.ServerResponse;
+import com.ieps.dto.UserAdminDto;
+import com.ieps.pojo.Item;
 import com.ieps.service.ShowAdminService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import java.util.List;
 
 /**
  * Created by ljw
@@ -23,7 +27,7 @@ public class ShowAdminController {
      */
     @RequestMapping({"/getAcademyStuSex", "/getAcademyStuSex.do"})
     @ResponseBody
-    public ServerResponse getAcademyStuSex(String itemDate) {
+    public ServerResponse<List<UserAdminDto>> getAcademyStuSex(String itemDate) {
     
         return showAdminService.getAcademyStuSex(itemDate);
     }
@@ -34,7 +38,7 @@ public class ShowAdminController {
      */
     @RequestMapping({"/getItemsWithYear", "/getItemsWithYear.do"})
     @ResponseBody
-    public ServerResponse getItemsWithYear() {
+    public ServerResponse<List<Item>> getItemsWithYear() {
         
         return showAdminService.getItemsWithYear();
     }

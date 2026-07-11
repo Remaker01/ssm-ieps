@@ -1,5 +1,6 @@
 package com.ieps.controller;
 
+import com.github.pagehelper.PageInfo;
 import com.ieps.common.ServerResponse;
 import com.ieps.pojo.Perm;
 import com.ieps.service.PermAdminService;
@@ -25,7 +26,7 @@ public class PermAdminController {
     
     @RequestMapping({"/getPermListWithCondition", "/getPermListWithCondition.do"})
     @ResponseBody
-    public ServerResponse<List<Perm>> getPermListWithCondition(@RequestParam(value = "page", defaultValue = "1") int page,
+    public ServerResponse<PageInfo<Perm>> getPermListWithCondition(@RequestParam(value = "page", defaultValue = "1") int page,
                                                                @RequestParam(value = "limit", defaultValue = "5") int limit,
                                                                @RequestParam("userNum") String userNum, @RequestParam("roleId") Integer roleId,
                                                                Perm perm) {
@@ -47,7 +48,7 @@ public class PermAdminController {
      */
     @RequestMapping({"/getPermWithCondition", "/getPermWithCondition.do"})
     @ResponseBody
-    public ServerResponse getPermWithCondition() {
+    public ServerResponse<List<Perm>> getPermWithCondition() {
         return permAdminService.getPerm();
     }
     
@@ -61,7 +62,7 @@ public class PermAdminController {
      */
     @RequestMapping({"/removePermById", "/removePermById.do"})
     @ResponseBody
-    public ServerResponse<List<Perm>> removePermById(@RequestParam("userNum") String userNum, @RequestParam("roleId") int roleId,
+    public ServerResponse<String> removePermById(@RequestParam("userNum") String userNum, @RequestParam("roleId") int roleId,
                                                      Perm perm) {
         
         // User user = (User) session.getAttribute("activeUser");
@@ -119,7 +120,7 @@ public class PermAdminController {
      */
     @RequestMapping({"/modifyPemrById", "/modifyPemrById.do"})
     @ResponseBody
-    public ServerResponse modifyPemrById(@RequestParam("userNum") String userNum, @RequestParam("roleId") int roleId,
+    public ServerResponse<?> modifyPemrById(@RequestParam("userNum") String userNum, @RequestParam("roleId") int roleId,
                                                 Perm perm) {
         
         // User user = (User) session.getAttribute("activeUser");
@@ -140,7 +141,7 @@ public class PermAdminController {
      */
     @RequestMapping({"/addPerm", "/addPerm.do"})
     @ResponseBody
-    public ServerResponse addPerm(@RequestParam("userNum") String userNum, @RequestParam("roleId") int roleId,
+    public ServerResponse<?> addPerm(@RequestParam("userNum") String userNum, @RequestParam("roleId") int roleId,
                                                Perm perm) {
         
         // User user = (User) session.getAttribute("activeUser");
@@ -161,7 +162,7 @@ public class PermAdminController {
      */
     @RequestMapping({"/batchRemovePerm", "/batchRemovePerm.do"})
     @ResponseBody
-    public ServerResponse batchRemovePerm(@RequestParam("userNum") String userNum, @RequestParam("roleId") int roleId,
+    public ServerResponse<?> batchRemovePerm(@RequestParam("userNum") String userNum, @RequestParam("roleId") int roleId,
                                   Integer[] permIds) {
         
         // User user = (User) session.getAttribute("activeUser");
@@ -182,7 +183,7 @@ public class PermAdminController {
      */
     @RequestMapping(value = {"/addRolePerm", "/addRolePerm.do"}, method = RequestMethod.POST)
     @ResponseBody
-    public ServerResponse addRolePerm(Integer[] permIds, Integer roleId, String userNum, int roleAdminId) {
+    public ServerResponse<?> addRolePerm(Integer[] permIds, Integer roleId, String userNum, int roleAdminId) {
         
         // User user = (User) session.getAttribute("activeUser");
         //
@@ -205,7 +206,7 @@ public class PermAdminController {
      */
     @RequestMapping(value = {"/addRolePermWithUserNum", "/addRolePermWithUserNum.do"}, method = RequestMethod.POST)
     @ResponseBody
-    public ServerResponse addRolePermWithUserNum(Integer[] permIds, Integer roleId, String userNum, String userAdminNum) {
+    public ServerResponse<?> addRolePermWithUserNum(Integer[] permIds, Integer roleId, String userNum, String userAdminNum) {
         
         // User user = (User) session.getAttribute("activeUser");
         //

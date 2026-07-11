@@ -1,5 +1,6 @@
 package com.ieps.controller;
 
+import com.github.pagehelper.PageInfo;
 import com.ieps.common.ServerResponse;
 import com.ieps.pojo.Inform;
 import com.ieps.pojo.User;
@@ -12,7 +13,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-// HttpSession no longer needed after JWT migration
+import java.net.URL;
+import java.net.URLEncoder;
 import java.util.List;
 
 /**
@@ -49,7 +51,7 @@ public class InformAdminController {
      */
     @RequestMapping({"/getAllInformList", "/getAllInformList.do"})
     @ResponseBody
-    public ServerResponse<List<Inform>> getAllInformList(@RequestParam(value = "page",defaultValue = "1") int page,
+    public ServerResponse<PageInfo<Inform>> getAllInformList(@RequestParam(value = "page",defaultValue = "1") int page,
                                  @RequestParam(value = "limit",defaultValue = "10") int limit,
                                  @RequestParam(value = "userNum", required = false) String userNum, @RequestParam("roleId") Integer roleId) {
     
@@ -69,7 +71,7 @@ public class InformAdminController {
      */
     @RequestMapping({"/searchInformListWithCondition", "/searchInformListWithCondition.do"})
     @ResponseBody
-    public ServerResponse<List<Inform>> searchInformListWithCondition(@RequestParam(value = "page", defaultValue = "1") int page,
+    public ServerResponse<PageInfo<Inform>> searchInformListWithCondition(@RequestParam(value = "page", defaultValue = "1") int page,
                                                          @RequestParam(value = "limit", defaultValue = "5") int limit,
                                                          @RequestParam("userNum") String userNum, @RequestParam("roleId") Integer roleId,
                                                          Inform inform) {
@@ -87,7 +89,7 @@ public class InformAdminController {
      */
     @RequestMapping(value = {"/removeInformById", "/removeInformById.do"}, method = RequestMethod.GET)
     @ResponseBody
-    public ServerResponse removeInformById(@RequestParam("userNum") String userNum, @RequestParam("id") Integer id,
+    public ServerResponse<String> removeInformById(@RequestParam("userNum") String userNum, @RequestParam("id") Integer id,
                                            @RequestParam("roleId") Integer roleId) {
         
         return informService.removeInformById(id, roleId);
@@ -102,7 +104,7 @@ public class InformAdminController {
      */
     @RequestMapping(value = {"/modifyInformById", "/modifyInformById.do"}, method = RequestMethod.POST)
     @ResponseBody
-    public ServerResponse modifyInformById(@RequestParam("userNum") String userNum, Inform inform) {
+    public ServerResponse<String> modifyInformById(@RequestParam("userNum") String userNum, Inform inform) {
         
         return informService.modifyInformById(inform);
     }
@@ -117,7 +119,7 @@ public class InformAdminController {
      */
     @RequestMapping(value = {"/addInform", "/addInform.do"}, method = RequestMethod.POST)
     @ResponseBody
-    public ServerResponse addInform(@RequestParam("userNum") String userNum, @RequestParam("roleId") Integer roleId,
+    public ServerResponse<String> addInform(@RequestParam("userNum") String userNum, @RequestParam("roleId") Integer roleId,
                                     Inform inform) {
         
         inform.setPublisher(userNum);
@@ -137,7 +139,7 @@ public class InformAdminController {
      */
     @RequestMapping({"/batchRemoveInform", "/batchRemoveInform.do"})
     @ResponseBody
-    public ServerResponse batchRemoveInform(@RequestParam("ids") Integer[] ids, @RequestParam("roleId") Integer roleId,
+    public ServerResponse<String> batchRemoveInform(@RequestParam("ids") Integer[] ids, @RequestParam("roleId") Integer roleId,
                                             @RequestParam("userNum") String userNum) {
         
         return informService.batchRemoveInform(ids, roleId);
@@ -154,7 +156,7 @@ public class InformAdminController {
      */
     @RequestMapping(value = {"/getInformListByAdminWithUserNum", "/getInformListByAdminWithUserNum.do"}, method = RequestMethod.GET)
     @ResponseBody
-    public ServerResponse getInformListByAdminWithUserNum(@RequestParam(value = "pageNum",defaultValue = "1") int pageNum,
+    public ServerResponse<PageInfo<Inform>> getInformListByAdminWithUserNum(@RequestParam(value = "pageNum",defaultValue = "1") int pageNum,
                                                           @RequestParam(value = "pageSize",defaultValue = "7") int pageSize,
                                                           String head, String pubdate) {
         return informService.getInformListByAdmin(pageNum, pageSize, head, pubdate);
@@ -167,7 +169,7 @@ public class InformAdminController {
      */
     @RequestMapping(value = {"/goInformListWithHead", "/goInformListWithHead.do"}, method = RequestMethod.GET)
     @ResponseBody
-    public ServerResponse goInformListWithHead(Integer id) {
+    public ServerResponse<Inform> goInformListWithHead(Integer id) {
         return informService.getInformListByAdminWithHead(id);
     }
     
@@ -178,7 +180,7 @@ public class InformAdminController {
      */
     @RequestMapping(value = {"/getInformDetailById", "/getInformDetailById.do"}, method = RequestMethod.GET)
     @ResponseBody
-    public ServerResponse getInformDetailById(Integer id) {
+    public ServerResponse<Inform> getInformDetailById(Integer id) {
         return informService.getInformDetailById(id);
     }
     

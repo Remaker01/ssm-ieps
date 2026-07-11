@@ -2,7 +2,7 @@ package com.ieps.service;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.google.common.collect.Lists;
+import java.util.ArrayList;
 import com.ieps.common.Const;
 import com.ieps.common.ServerResponse;
 import com.ieps.mapper.RoleMapper;
@@ -21,12 +21,12 @@ public class RoleAdminService {
     @Autowired
     private RoleMapper roleMapper;
     
-    public ServerResponse getRoleList(int pageNum, int pageSize, String userNum, int roleAdminId, Role role) {
+    public ServerResponse<PageInfo<Role>> getRoleList(int pageNum, int pageSize, String userNum, int roleAdminId, Role role) {
         
         // 开始分页
         PageHelper.startPage(pageNum, pageSize);
         
-        List<Role> roleList = Lists.newArrayList();
+        List<Role> roleList = new ArrayList<>();
         
         if (Const.ROLEID_ACADEMY == roleAdminId || Const.ROLEID_COLLEGE == roleAdminId) {
             roleList = roleMapper.selectAllRoleWithRoleAdminId(roleAdminId);
@@ -37,13 +37,13 @@ public class RoleAdminService {
         }
         
         // 设置分页
-        PageInfo pageInfo = new PageInfo(roleList);
+        PageInfo<Role> pageInfo = new PageInfo<>(roleList);
         pageInfo.setList(roleList);
         
         return ServerResponse.createBySuccess(pageInfo);
     }
     
-    public ServerResponse batchRemoveRole(int[] roleIds, int roleAdminId) {
+    public ServerResponse<String> batchRemoveRole(int[] roleIds, int roleAdminId) {
         if (Const.ROLEID_COLLEGE == roleAdminId) {
             int result = roleMapper.batchDeleteRoleWithRoleIds(roleIds);
             if (result <= 0) {
@@ -56,7 +56,7 @@ public class RoleAdminService {
         return ServerResponse.createByErrorMessage("对不起，你没有权限执行该操作！");
     }
     
-    public ServerResponse removeRoleByRoleId(int roleId, int roleAdminId) {
+    public ServerResponse<String> removeRoleByRoleId(int roleId, int roleAdminId) {
         if (Const.ROLEID_COLLEGE == roleAdminId) {
             int result = roleMapper.deleteByPrimaryKey(roleId);
             if (result <= 0) {

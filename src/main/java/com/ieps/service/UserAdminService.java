@@ -3,7 +3,7 @@ package com.ieps.service;
 import cn.hutool.core.bean.BeanUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.google.common.collect.Lists;
+import java.util.ArrayList;
 import com.ieps.common.Const;
 import com.ieps.common.ServerResponse;
 import com.ieps.dto.UserAdminDto;
@@ -50,11 +50,11 @@ public class UserAdminService {
      * @param roleId
      * @return
      */
-    public ServerResponse getAllUserList(int pageNum, int pageSize, String userNum, int roleId) {
+    public ServerResponse<PageInfo<UserAdminDto>> getAllUserList(int pageNum, int pageSize, String userNum, int roleId) {
         
         PageHelper.startPage(pageNum, pageSize);
         
-        List<UserAdminDto> userAdminDtoList = Lists.newArrayList();
+        List<UserAdminDto> userAdminDtoList = new ArrayList<>();
         
         if (Const.ROLEID_COLLEGE == roleId) {
             userAdminDtoList = userMapper.selectAllUser(userNum);
@@ -67,7 +67,7 @@ public class UserAdminService {
         }
         decorateUserImages(userAdminDtoList);
         
-        PageInfo pageInfo = new PageInfo(userAdminDtoList);
+        PageInfo<UserAdminDto> pageInfo = new PageInfo<>(userAdminDtoList);
         
         return ServerResponse.createBySuccess(pageInfo);
     }
@@ -81,10 +81,10 @@ public class UserAdminService {
      * @param userInfo
      * @return
      */
-    public ServerResponse searchUserAdminListWithCondition(int pageNum, int pageSize, String userNum, int roleId, UserInfo userInfo) {
+    public ServerResponse<PageInfo<UserAdminDto>> searchUserAdminListWithCondition(int pageNum, int pageSize, String userNum, int roleId, UserInfo userInfo) {
         PageHelper.startPage(pageNum, pageSize);
         
-        List<UserAdminDto> userAdminDtoList = Lists.newArrayList();
+        List<UserAdminDto> userAdminDtoList = new ArrayList<>();
         
         if (Const.ROLEID_COLLEGE == roleId) {
             userAdminDtoList = userMapper.selectAllUserWithCondition(userNum, userInfo);
@@ -97,7 +97,7 @@ public class UserAdminService {
         }
         decorateUserImages(userAdminDtoList);
         
-        PageInfo pageInfo = new PageInfo(userAdminDtoList);
+        PageInfo<UserAdminDto> pageInfo = new PageInfo<>(userAdminDtoList);
         
         return ServerResponse.createBySuccess(pageInfo);
     }
@@ -108,7 +108,7 @@ public class UserAdminService {
      * @param sex
      * @return
      */
-    public ServerResponse modifySexWithUserNum(String userNum, Integer sex) {
+    public ServerResponse<String> modifySexWithUserNum(String userNum, Integer sex) {
         if (userInfoMapper.updateSexByUserNum(userNum, sex) > 0) {
             return ServerResponse.createBySuccessMessage("修改该用户性别成功！");
         }
@@ -122,7 +122,7 @@ public class UserAdminService {
      * @param status
      * @return
      */
-    public ServerResponse modifyStatusWithUserNum(String userNum, Integer status) {
+    public ServerResponse<String> modifyStatusWithUserNum(String userNum, Integer status) {
         if (userMapper.updateStatusByUserNum(userNum, status) > 0) {
             return ServerResponse.createBySuccessMessage("修改该用户状态成功！");
         }
@@ -135,7 +135,7 @@ public class UserAdminService {
      * @param userInfo
      * @return
      */
-    public ServerResponse modifyUserByUserNum(UserInfo userInfo) {
+    public ServerResponse<String> modifyUserByUserNum(UserInfo userInfo) {
         if (userInfoMapper.updateByUserNumSelective(userInfo) > 0) {
             return ServerResponse.createBySuccessMessage("修改用户信息成功！");
         }
@@ -148,7 +148,7 @@ public class UserAdminService {
      * @param userNum
      * @return
      */
-    public ServerResponse removeUserByUserNum(String userNum) {
+    public ServerResponse<String> removeUserByUserNum(String userNum) {
         
         if (userMapper.deleteByUserNum(userNum) > 0) {
             userMapper.deleteByUserNum(userNum);
@@ -167,7 +167,7 @@ public class UserAdminService {
      * @param roleId
      * @return
      */
-    public ServerResponse addUserAdmin(UserAdminDto userAdminDto, int roleId) {
+    public ServerResponse<String> addUserAdmin(UserAdminDto userAdminDto, int roleId) {
         
         User user = new User();
         user.setUserNum(userAdminDto.getUserNum());
@@ -198,7 +198,7 @@ public class UserAdminService {
      * @param userNums
      * @return
      */
-    public ServerResponse batchRemoveUser(String[] userNums) {
+    public ServerResponse<String> batchRemoveUser(String[] userNums) {
         if (userMapper.deleteUserByUserNum(userNums) > 0) {
             userInfoMapper.deleteUserInfoByUserNum(userNums);
             userRoleMapper.deleteUserRoleByUserNum(userNums);
@@ -214,7 +214,7 @@ public class UserAdminService {
      * @param userName
      * @return
      */
-    public ServerResponse getUserInfoByUserName(String userName) {
+    public ServerResponse<UserInfo> getUserInfoByUserName(String userName) {
         UserInfo userInfo = userInfoMapper.selectUserInfoByUserName(userName);
         if (userInfo == null) {
             return ServerResponse.createByErrorMessage("抱歉，没有相关的用户信息，请重新输入！");
@@ -228,7 +228,7 @@ public class UserAdminService {
      * @param roleId
      * @return
      */
-    public ServerResponse getAllRoleIdWithRoleIdByAdmin(Integer roleId) {
+    public ServerResponse<List<Role>> getAllRoleIdWithRoleIdByAdmin(Integer roleId) {
         List<Role> roleList = roleMapper.selectAllRoleWithRoleAdminId(roleId);
         if (roleList.size() == 0) {
             return ServerResponse.createByErrorMessage("抱歉，暂无数据，请稍后再试！");
@@ -244,7 +244,7 @@ public class UserAdminService {
      * @param roleIdAdmin
      * @return
      */
-    public ServerResponse batchAddUser(UserAdminDto userAdminDto, Integer roleId, int roleIdAdmin) {
+    public ServerResponse<String> batchAddUser(UserAdminDto userAdminDto, Integer roleId, int roleIdAdmin) {
         
         int count = 0;
         int successCount = 0;

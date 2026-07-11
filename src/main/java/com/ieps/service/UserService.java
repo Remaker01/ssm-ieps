@@ -33,7 +33,7 @@ public class UserService {
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
     
-    public ServerResponse login(String userNum, String userPwd) {
+    public ServerResponse<User> login(String userNum, String userPwd) {
         User storedUser = userMapper.selectByUserNum(userNum);
         if (storedUser == null) {
             return ServerResponse.createByErrorMessage("登录失败，请重新登录！");
@@ -73,7 +73,7 @@ public class UserService {
     }
     
     // 注册
-    public ServerResponse register(User user, UserInfo userInfo, Integer roleId) {
+    public ServerResponse<String> register(User user, UserInfo userInfo, Integer roleId) {
         if (!user.getUserPwd().equals(user.getRePassword())) {
             return ServerResponse.createByErrorMessage("前后两次密码不一致，请重新输入！");
         }
@@ -110,7 +110,7 @@ public class UserService {
         return ServerResponse.createBySuccessMessage("注册" + user.getUserNum() + "账号成功，返回首页！");
     }
     
-    public ServerResponse checkUserPwdWithUserNum(String userNum, String userPwd) {
+    public ServerResponse<String> checkUserPwdWithUserNum(String userNum, String userPwd) {
         User user = userMapper.selectByUserNum(userNum);
         if (user == null) {
             return ServerResponse.createByErrorMessage("用户名与密码不匹配,请重新输入！");
@@ -128,7 +128,7 @@ public class UserService {
     }
     
     
-    public ServerResponse forgetPwd(String userNum, String userPwd, String forgetPwdToken) {
+    public ServerResponse<String> forgetPwd(String userNum, String userPwd, String forgetPwdToken) {
         if (forgetPwdToken == null || forgetPwdToken.trim().isEmpty()) {
             return ServerResponse.createByErrorMessage("请先完成验证码校验后再重置密码！");
         }
@@ -161,7 +161,7 @@ public class UserService {
         return ServerResponse.createBySuccessMessage("重置密码成功，请使用新密码重新登录！");
     }
     
-    public ServerResponse modifyPwd(User user) {
+    public ServerResponse<String> modifyPwd(User user) {
         User storedUser = userMapper.selectByUserNum(user.getUserNum());
         if (storedUser == null) {
             return ServerResponse.createByErrorMessage("账号与旧密码不匹配，请重新填写！");
@@ -191,7 +191,7 @@ public class UserService {
         return ServerResponse.createBySuccessMessage("修改密码成功，请重新登录！");
     }
     
-    public ServerResponse checkUser(String userNum) {
+    public ServerResponse<?> checkUser(String userNum) {
         User user = userMapper.selectByUserNum(userNum);
         if (user == null) {
             return ServerResponse.createBySuccess();
@@ -200,7 +200,7 @@ public class UserService {
         return ServerResponse.createByErrorMessage("用户已存在，请重新填写账号！");
     }
     
-    public ServerResponse getUserPwdWithUserNum(String userNum) {
+    public ServerResponse<String> getUserPwdWithUserNum(String userNum) {
         return ServerResponse.createByErrorMessage("出于安全考虑，系统不再提供密码读取接口。");
     }
     

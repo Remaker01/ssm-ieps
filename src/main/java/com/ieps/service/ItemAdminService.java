@@ -2,7 +2,7 @@ package com.ieps.service;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.google.common.collect.Lists;
+import java.util.ArrayList;
 import com.ieps.common.Const;
 import com.ieps.common.ServerResponse;
 import com.ieps.dto.ItemAdminDto;
@@ -40,40 +40,36 @@ public class ItemAdminService {
     @Autowired
     private FileHubMapper fileHubMapper;
 
-    public ServerResponse getItemOptions() {
-        Map<String, String> itemLevel = new LinkedHashMap<>();
-        itemLevel.put("1", "无");
-        itemLevel.put("2", "校级");
-        itemLevel.put("3", "省区级");
-        itemLevel.put("4", "国家级");
+    public ServerResponse<Map<String, Object>> getItemOptions() {
+        Map<String, String> itemLevel = Map.of(
+                "1", "无",
+                "2", "校级",
+                "3", "省区级",
+                "4", "国家级"
+        );
 
-        Map<String, String> itemType = new LinkedHashMap<>();
-        itemType.put("1", "创新训练");
-        itemType.put("2", "创业训练");
-        itemType.put("3", "创业实践");
+        Map<String, String> itemType = Map.of("1", "创新训练", "2", "创业训练", "3", "创业实践");
 
-        Map<String, String> itemStatus = new LinkedHashMap<>();
-        itemStatus.put("1", "申请中");
-        itemStatus.put("2", "立项评审");
-        itemStatus.put("3", "已立项");
-        itemStatus.put("4", "立项失败");
-        itemStatus.put("5", "中期检查");
-        itemStatus.put("6", "待结题");
-        itemStatus.put("7", "结题评审");
-        itemStatus.put("8", "结题成功");
-        itemStatus.put("9", "结题失败");
+        Map<String, String> itemStatus = Map.of(
+                "1", "申请中",
+                "2", "立项评审",
+                "3", "已立项",
+                "4", "立项失败",
+                "5", "中期检查",
+                "6", "待结题",
+                "7", "结题评审",
+                "8", "结题成功",
+                "9", "结题失败"
+        );
 
-        Map<String, Object> result = new LinkedHashMap<>();
-        result.put("itemLevel", itemLevel);
-        result.put("itemType", itemType);
-        result.put("itemStatus", itemStatus);
+        Map<String, Object> result = Map.of("itemLevel", itemLevel, "itemType", itemType, "itemStatus", itemStatus);
         return ServerResponse.createBySuccess(result);
     }
     
-    public ServerResponse getItemListByUserNum(int pageNum, int pageSize, String userNumAdmin, int roleId,
+    public ServerResponse<PageInfo<ItemAdminDto>> getItemListByUserNum(int pageNum, int pageSize, String userNumAdmin, int roleId,
                                                ItemAdminDto itemAdminDto, List<Integer> integerList) {
         PageHelper.startPage(pageNum, pageSize);
-        List<ItemAdminDto> itemAdminDtoList = Lists.newArrayList();
+        List<ItemAdminDto> itemAdminDtoList = new ArrayList<>();
         if (Const.USERNUM_COLLEGE.equals(userNumAdmin)) {
             itemAdminDtoList = itemMapper.selectAllItem(itemAdminDto, integerList);
         } else if (Const.ROLEID_ACADEMY == roleId) {
@@ -85,13 +81,13 @@ public class ItemAdminService {
         } else if (Const.ROLEID_STU == roleId) {
             itemAdminDtoList = itemMapper.selectAllItemByStuWithUserNum(userNumAdmin, itemAdminDto, integerList);
         }
-        PageInfo pageInfo = new PageInfo(itemAdminDtoList);
+        PageInfo<ItemAdminDto> pageInfo = new PageInfo<>(itemAdminDtoList);
         return ServerResponse.createBySuccess(pageInfo);
     }
     
-    public ServerResponse getItemListByUserNumAndItemStatus(int pageNum, int pageSize, String userNumAdmin, int roleId, ItemAdminDto itemAdminDto) {
+    public ServerResponse<PageInfo<ItemAdminDto>> getItemListByUserNumAndItemStatus(int pageNum, int pageSize, String userNumAdmin, int roleId, ItemAdminDto itemAdminDto) {
         PageHelper.startPage(pageNum, pageSize);
-        List<ItemAdminDto> itemAdminDtoList = Lists.newArrayList();
+        List<ItemAdminDto> itemAdminDtoList = new ArrayList<>();
         if (Const.USERNUM_COLLEGE.equals(userNumAdmin)) {
             itemAdminDtoList = itemMapper.selectAllItemWithItemStatus(itemAdminDto);
         } else if (Const.ROLEID_ACADEMY == roleId) {
@@ -103,11 +99,11 @@ public class ItemAdminService {
         } else if (Const.ROLEID_STU == roleId) {
             itemAdminDtoList = itemMapper.selectAllItemByStuWithUserNumAndItemStatus(userNumAdmin, itemAdminDto);
         }
-        PageInfo pageInfo = new PageInfo(itemAdminDtoList);
+        PageInfo<ItemAdminDto> pageInfo = new PageInfo<>(itemAdminDtoList);
         return ServerResponse.createBySuccess(pageInfo);
     }
     
-    public ServerResponse removeItemByItemNum(int roleId, String itemNum) {
+    public ServerResponse<String> removeItemByItemNum(int roleId, String itemNum) {
         if (Const.ROLEID_ACADEMY == roleId || Const.ROLEID_COLLEGE == roleId) {
             String[] itemNums = new String[1];
             itemNums[0] = itemNum;
@@ -132,7 +128,7 @@ public class ItemAdminService {
         return ServerResponse.createByErrorMessage("对不起，目前你暂时没有权限执行删除操作！");
     }
     
-    public ServerResponse batchRemoveItemByItemNums(int roleId, String[] itemNums) {
+    public ServerResponse<String> batchRemoveItemByItemNums(int roleId, String[] itemNums) {
         if (Const.ROLEID_ACADEMY == roleId || Const.ROLEID_COLLEGE == roleId) {
             int result = itemMapper.deleteItemByItemNums(itemNums);
             if (result <= 0) {
@@ -155,28 +151,28 @@ public class ItemAdminService {
         return ServerResponse.createByErrorMessage("对不起，目前你暂时没有权限执行删除操作！");
     }
     
-    public ServerResponse modifyItemLevelByItemNum(int roleId, String itemNum, int itemLevel) {
+    public ServerResponse<Integer> modifyItemLevelByItemNum(int roleId, String itemNum, int itemLevel) {
         if (Const.ROLEID_COLLEGE != roleId) {
             return ServerResponse.createByErrorMessage("对不起，目前你没有权限修改项目的级别！");
         }
         return ServerResponse.createBySuccess("恭喜你，修改项目编号：" + itemNum + "的级别成功！", itemInfoMapper.updateItemLevelByItemNum(itemNum, itemLevel));
     }
     
-    public ServerResponse modifyItemTypeByItemNum(int roleId, String itemNum, int itemType) {
+    public ServerResponse<Integer> modifyItemTypeByItemNum(int roleId, String itemNum, int itemType) {
         if (Const.ROLEID_COLLEGE != roleId && Const.ROLEID_ACADEMY != roleId) {
             return ServerResponse.createByErrorMessage("对不起，目前你没有权限修改项目的类型！");
         }
         return ServerResponse.createBySuccess("恭喜你，修改项目编号：" + itemNum + "的类型成功！", itemInfoMapper.updateItemTypeByItemNum(itemNum, itemType));
     }
     
-    public ServerResponse modifyItemStatusByItemNum(int roleId, String itemNum, int itemStatus) {
+    public ServerResponse<Integer> modifyItemStatusByItemNum(int roleId, String itemNum, int itemStatus) {
         if (Const.ROLEID_COLLEGE != roleId && Const.ROLEID_ACADEMY != roleId) {
             return ServerResponse.createByErrorMessage("对不起，目前你没有权限修改项目的状态！");
         }
         return ServerResponse.createBySuccess("恭喜你，修改项目编号：" + itemNum + "的状态成功！", itemMapper.updateItemStatusByItemNum(itemNum, itemStatus));
     }
     
-    public ServerResponse modifyItemByItemNum(int roleId, ItemAdminDto itemAdminDto) {
+    public ServerResponse<String> modifyItemByItemNum(int roleId, ItemAdminDto itemAdminDto) {
         int result = 0;
         ItemAdminDto itemAdminDtoTmp = itemMapper.selectItemByItemNum(itemAdminDto.getItemNum());
         if (itemAdminDtoTmp.getLeaderName() != itemAdminDto.getLeaderName() && itemAdminDtoTmp.getTutorName() != itemAdminDto.getTutorName()) {
@@ -206,7 +202,7 @@ public class ItemAdminService {
         return ServerResponse.createBySuccessMessage("恭喜你，修改项目信息成功！");
     }
     
-    public ServerResponse onekeyModifyItemTypeWithItemNums(int roleId, int itemType, String[] itemNums) {
+    public ServerResponse<String> onekeyModifyItemTypeWithItemNums(int roleId, int itemType, String[] itemNums) {
         if (Const.ROLEID_COLLEGE != roleId && Const.ROLEID_ACADEMY != roleId) {
             return ServerResponse.createByErrorMessage("对不起，目前你没有权限一键修改项目类型！");
         }
@@ -216,7 +212,7 @@ public class ItemAdminService {
         return ServerResponse.createBySuccessMessage("恭喜你，一键修改项目类型成功！");
     }
     
-    public ServerResponse onekeyModifyItemStatusWithItemNums(int roleId, int itemStatus, String[] itemNums) {
+    public ServerResponse<String> onekeyModifyItemStatusWithItemNums(int roleId, int itemStatus, String[] itemNums) {
         if (Const.ROLEID_COLLEGE != roleId && Const.ROLEID_ACADEMY != roleId) {
             return ServerResponse.createByErrorMessage("对不起，目前你没有权限一键修改项目状态！");
         }
@@ -226,7 +222,7 @@ public class ItemAdminService {
         return ServerResponse.createBySuccessMessage("恭喜你，一键修改项目状态成功！");
     }
     
-    public ServerResponse onekeyModifyItemLevelWithItemNums(int roleId, int itemLevel, String[] itemNums) {
+    public ServerResponse<String> onekeyModifyItemLevelWithItemNums(int roleId, int itemLevel, String[] itemNums) {
         if (Const.ROLEID_COLLEGE != roleId && Const.ROLEID_ACADEMY != roleId) {
             return ServerResponse.createByErrorMessage("对不起，目前你没有权限一键修改项目级别！");
         }
@@ -236,7 +232,7 @@ public class ItemAdminService {
         return ServerResponse.createBySuccessMessage("恭喜你，一键修改项目级别成功！");
     }
     
-    public ServerResponse addItemAndUserInfo(ItemAdminDto itemAdminDto, String[] userNums, String[] userNams) {
+    public ServerResponse<String> addItemAndUserInfo(ItemAdminDto itemAdminDto, String[] userNums, String[] userNams) {
         itemAdminDto.setItemStatus(1);
         int result = itemMapper.insertItemWithItemAdminDto(itemAdminDto);
         if (result <= 0) {
@@ -260,7 +256,7 @@ public class ItemAdminService {
         return ServerResponse.createBySuccessMessage("插入申请表信息成功！");
     }
     
-    public ServerResponse getReviewLeaderByRoleIdAndUserNum(String userNum, int roleId) {
+    public ServerResponse<List<UserInfo>> getReviewLeaderByRoleIdAndUserNum(String userNum, int roleId) {
         if (roleId == Const.ROLEID_ACADEMY || roleId == Const.ROLEID_COLLEGE) {
             UserInfo userInfo = userInfoMapper.selectByUserNum(userNum);
             if (userInfo == null) {
@@ -275,7 +271,7 @@ public class ItemAdminService {
         return ServerResponse.createByErrorMessage("对不起，目前你还没有权限指派评审！");
     }
     
-    public ServerResponse addUserItemWithLeader(int roleId, String userNum, String userName, String itemNum, Integer itemStatus) {
+    public ServerResponse<String> addUserItemWithLeader(int roleId, String userNum, String userName, String itemNum, Integer itemStatus) {
         if (roleId == Const.ROLEID_ACADEMY) {
             String userNameTemp = userName.substring(0, userName.lastIndexOf("组员"));
             List<UserInfo> userInfoList = userInfoMapper.selectUserInfoLikeUserName(userNum, userNameTemp);
@@ -316,7 +312,7 @@ public class ItemAdminService {
         return ServerResponse.createBySuccessMessage("恭喜您，选择评审组长及其组员成功！");
     }
     
-    public ServerResponse batchAddReviewTeam(int roleId, String userNum, String userName, String[] itemNums, int itemStatus) {
+    public ServerResponse<String> batchAddReviewTeam(int roleId, String userNum, String userName, String[] itemNums, int itemStatus) {
         if (roleId == Const.ROLEID_ACADEMY) {
             String userNameTemp = userName.substring(0, userName.lastIndexOf("组员"));
             List<UserInfo> userInfoList = userInfoMapper.selectUserInfoLikeUserName(userNum, userNameTemp);
@@ -361,7 +357,7 @@ public class ItemAdminService {
         return ServerResponse.createBySuccessMessage("恭喜您，批量指派评审组长及其组员成功！");
     }
     
-    public ServerResponse addReviewByExport(int roleId, Review review) {
+    public ServerResponse<String> addReviewByExport(int roleId, Review review) {
         if (Const.ROLEID_ACADEMY_EXPERT == roleId || Const.ROLEID_COLLEGE_EXPERT == roleId) {
             if (reviewMapper.insert(review) <= 0) {
                 return ServerResponse.createByErrorMessage("对不起，插入评审结果失败，请重新填写！");
@@ -371,17 +367,17 @@ public class ItemAdminService {
         return ServerResponse.createByErrorMessage("对不起，目前你没有权限进行评审操作！");
     }
     
-    public ServerResponse getFinishedItem(int pageNum, int pageSize, String itemName, String itemDate) {
+    public ServerResponse<PageInfo<ItemAdminDto>> getFinishedItem(int pageNum, int pageSize, String itemName, String itemDate) {
         PageHelper.startPage(pageNum, pageSize);
         List<ItemAdminDto> itemAdminDtoList = itemMapper.selectFinishedItemWithItemStatus("1", itemName, itemDate);
         if (itemAdminDtoList.size() == 0) {
             return ServerResponse.createByErrorMessage("暂无数据！");
         }
-        PageInfo pageInfo = new PageInfo(itemAdminDtoList);
+        PageInfo<ItemAdminDto> pageInfo = new PageInfo<>(itemAdminDtoList);
         return ServerResponse.createBySuccess(pageInfo);
     }
     
-    public ServerResponse checkIsReviewWithItemNum(String itemNum, String userNum, int reviewLevel) {
+    public ServerResponse<?> checkIsReviewWithItemNum(String itemNum, String userNum, int reviewLevel) {
         if (userNum == null || userNum.trim().isEmpty()) {
             return ServerResponse.createByErrorMessage("登录状态已失效，请重新登录后再试！");
         }
@@ -392,7 +388,7 @@ public class ItemAdminService {
         return ServerResponse.createByErrorMessage("对不起，不能再重复评审同状态的同一项目，请及时上传评审结果！");
     }
     
-    public ServerResponse getItemStatusWithItemNum(String itemNum) {
+    public ServerResponse<ItemAdminDto> getItemStatusWithItemNum(String itemNum) {
         ItemAdminDto itemAdminDto = itemMapper.selectItemByItemNum(itemNum);
         if (itemAdminDto == null) {
             return ServerResponse.createByErrorMessage("对不起哦，该项目不能被修改状态！");
@@ -400,7 +396,7 @@ public class ItemAdminService {
         return ServerResponse.createBySuccess(itemAdminDto);
     }
     
-    public ServerResponse getItemDate() {
+    public ServerResponse<List<String>> getItemDate() {
         List<String> itemDateList = itemMapper.selectAllItemDate();
         if (itemDateList.size() == 0) {
             return ServerResponse.createByError();
@@ -408,12 +404,12 @@ public class ItemAdminService {
         return ServerResponse.createBySuccess(itemDateList);
     }
     
-    public ServerResponse getItemDetailWithItemId(String itemNum) {
+    public ServerResponse<ItemAdminDto> getItemDetailWithItemId(String itemNum) {
         ItemAdminDto itemAdminDto = itemMapper.selectItemDetailWithItemId(itemNum);
         return ServerResponse.createBySuccess(itemAdminDto);
     }
     
-    public ServerResponse removeUserItemWithReview(String itemNum, int roleId) {
+    public ServerResponse<?> removeUserItemWithReview(String itemNum, int roleId) {
         if (roleId != Const.ROLEID_COLLEGE && roleId != Const.ROLEID_ACADEMY) {
             return ServerResponse.createByErrorMessage("对不起，身份验证失败！");
         }

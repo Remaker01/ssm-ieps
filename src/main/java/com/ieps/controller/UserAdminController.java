@@ -1,8 +1,10 @@
 package com.ieps.controller;
 
+import com.github.pagehelper.PageInfo;
 import com.ieps.common.Const;
 import com.ieps.common.ServerResponse;
 import com.ieps.pojo.Inform;
+import com.ieps.pojo.Role;
 import com.ieps.pojo.User;
 import com.ieps.pojo.UserInfo;
 import com.ieps.service.UserAdminService;
@@ -27,7 +29,7 @@ public class UserAdminController {
     
     @RequestMapping({"/getUserAdminList", "/getUserAdminList.do"})
     @ResponseBody
-    public ServerResponse<List<Inform>> getUserAdminList(@RequestParam(value = "page", defaultValue = "1") int page,
+    public ServerResponse<PageInfo<UserAdminDto>> getUserAdminList(@RequestParam(value = "page", defaultValue = "1") int page,
                                                          @RequestParam(value = "limit", defaultValue = "5") int limit,
                                                          @RequestParam("userNum") String userNum, @RequestParam("roleId") int roleId) {
         
@@ -46,7 +48,7 @@ public class UserAdminController {
      */
     @RequestMapping({"/searchUserAdminListWithCondition", "/searchUserAdminListWithCondition.do"})
     @ResponseBody
-    public ServerResponse<List<Inform>> searchUserAdminListWithCondition(@RequestParam(value = "page", defaultValue = "1") int page,
+    public ServerResponse<PageInfo<UserAdminDto>> searchUserAdminListWithCondition(@RequestParam(value = "page", defaultValue = "1") int page,
                                                                          @RequestParam(value = "limit", defaultValue = "5") int limit,
                                                                          @RequestParam("userNumAdmin") String userNum, UserInfo userInfo,
                                                                          @RequestParam("roleId") int roleId) {
@@ -64,7 +66,7 @@ public class UserAdminController {
      */
     @RequestMapping({"/modifySexWithUserNum", "/modifySexWithUserNum.do"})
     @ResponseBody
-    public ServerResponse modifySexWithUserNum(@RequestParam("userNum") String userNum,
+    public ServerResponse<String> modifySexWithUserNum(@RequestParam("userNum") String userNum,
                                                @RequestParam("roleId") int roleId, @RequestParam("sex") Integer sex) {
         
         if (roleId == Const.ROLEID_COLLEGE || roleId == Const.ROLEID_ACADEMY) {
@@ -84,7 +86,7 @@ public class UserAdminController {
      */
     @RequestMapping({"/modifyStatusWithUserNum", "/modifyStatusWithUserNum.do"})
     @ResponseBody
-    public ServerResponse modifyStatusWithUserNum(@RequestParam("userNum") String userNum,
+    public ServerResponse<String> modifyStatusWithUserNum(@RequestParam("userNum") String userNum,
                                                   @RequestParam("roleId") int roleId, @RequestParam("status") Integer status) {
         
         if (roleId == Const.ROLEID_COLLEGE || roleId == Const.ROLEID_ACADEMY) {
@@ -103,7 +105,7 @@ public class UserAdminController {
      */
     @RequestMapping(value = {"/modifyUserByUserNum", "/modifyUserByUserNum.do"}, method = RequestMethod.POST)
     @ResponseBody
-    public ServerResponse modifyUserByUserNum(UserInfo userInfo, int roleId) {
+    public ServerResponse<String> modifyUserByUserNum(UserInfo userInfo, int roleId) {
         
         if (roleId == Const.ROLEID_COLLEGE || roleId == Const.ROLEID_ACADEMY) {
             return userAdminService.modifyUserByUserNum(userInfo);
@@ -121,7 +123,7 @@ public class UserAdminController {
      */
     @RequestMapping({"/removeUserByUserNum", "/removeUserByUserNum.do"})
     @ResponseBody
-    public ServerResponse removeUserByUserNum(String userNum, int roleId) {
+    public ServerResponse<String> removeUserByUserNum(String userNum, int roleId) {
         
         if (roleId == Const.ROLEID_COLLEGE || roleId == Const.ROLEID_ACADEMY) {
             return userAdminService.removeUserByUserNum(userNum);
@@ -140,7 +142,7 @@ public class UserAdminController {
      */
     @RequestMapping({"/addUserAdmin", "/addUserAdmin.do"})
     @ResponseBody
-    public ServerResponse addUserAdmin(UserAdminDto userAdminDto, int roleId, int adminRoleId) {
+    public ServerResponse<String> addUserAdmin(UserAdminDto userAdminDto, int roleId, int adminRoleId) {
         
         if (adminRoleId <= roleId) {
             return ServerResponse.createByErrorMessage("对不起，你没有权限创建该角色的操作！");
@@ -162,7 +164,7 @@ public class UserAdminController {
      */
     @RequestMapping({"/batchRemoveUser", "/batchRemoveUser.do"})
     @ResponseBody
-    public ServerResponse batchRemoveUser(@RequestParam("userNums") String[] userNums, int roleId) {
+    public ServerResponse<String> batchRemoveUser(@RequestParam("userNums") String[] userNums, int roleId) {
         
         if (roleId == Const.ROLEID_COLLEGE || roleId == Const.ROLEID_ACADEMY) {
             return userAdminService.batchRemoveUser(userNums);
@@ -179,7 +181,7 @@ public class UserAdminController {
      */
     @RequestMapping({"/getUserInfoByUserName", "/getUserInfoByUserName.do"})
     @ResponseBody
-    public ServerResponse getUserInfoByUserName(@RequestParam("userName") String userName) {
+    public ServerResponse<UserInfo> getUserInfoByUserName(@RequestParam("userName") String userName) {
         
         return userAdminService.getUserInfoByUserName(userName);
     }
@@ -192,7 +194,7 @@ public class UserAdminController {
      */
     @RequestMapping({"/getAllRoleIdWithRoleIdByAdmin", "/getAllRoleIdWithRoleIdByAdmin.do"})
     @ResponseBody
-    public ServerResponse getAllRoleIdWithRoleIdByAdmin(Integer roleId) {
+    public ServerResponse<List<Role>> getAllRoleIdWithRoleIdByAdmin(Integer roleId) {
         
         return userAdminService.getAllRoleIdWithRoleIdByAdmin(roleId);
     }
@@ -207,7 +209,7 @@ public class UserAdminController {
      */
     @RequestMapping({"/batchAddUser", "/batchAddUser.do"})
     @ResponseBody
-    public ServerResponse batchAddUser(UserAdminDto userAdminDto, @RequestParam("roleId") Integer roleId,
+    public ServerResponse<String> batchAddUser(UserAdminDto userAdminDto, @RequestParam("roleId") Integer roleId,
                                        @RequestParam("roleIdAdmin") int roleIdAdmin) {
         
         return userAdminService.batchAddUser(userAdminDto, roleId, roleIdAdmin);

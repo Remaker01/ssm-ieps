@@ -49,7 +49,7 @@ public class LoginController {
      */
     @RequestMapping(value = {"/login", "/login.do"}, method = RequestMethod.POST)
     @ResponseBody
-    public ServerResponse login(String userNum, String userPwd) {
+    public ServerResponse<?> login(String userNum, String userPwd) {
    
         ServerResponse<User> response = userService.login(userNum, userPwd);
         
@@ -72,7 +72,7 @@ public class LoginController {
      */
     @RequestMapping(value = {"/getMenu", "/getMenu.do"}, method = RequestMethod.POST)
     @ResponseBody
-    public ServerResponse getMenu(String userNum, Integer roleId, HttpServletRequest request) {
+    public ServerResponse<?> getMenu(String userNum, Integer roleId, HttpServletRequest request) {
         User user = (User) request.getAttribute(Const.REQUEST_CURRENT_USER);
         Integer effectiveRoleId = roleId;
         if (user != null && user.getRoleId() != null) {
@@ -104,7 +104,7 @@ public class LoginController {
      */
     @RequestMapping(value = {"/register", "/register.do"}, method = RequestMethod.POST)
     @ResponseBody
-    public ServerResponse register(User user, UserInfo userInfo, int roleId) {
+    public ServerResponse<String> register(User user, UserInfo userInfo, int roleId) {
         return userService.register(user, userInfo, roleId);
     }
     
@@ -117,7 +117,7 @@ public class LoginController {
      */
     @RequestMapping(value = {"/checkUserPwdWithUserNum", "/checkUserPwdWithUserNum.do"}, method = RequestMethod.POST)
     @ResponseBody
-    public ServerResponse checkUserPwdWithUserNum(String userNum, String userPwd, HttpServletRequest request) {
+    public ServerResponse<String> checkUserPwdWithUserNum(String userNum, String userPwd, HttpServletRequest request) {
         User activeUser = (User) request.getAttribute(Const.REQUEST_CURRENT_USER);
         if (activeUser == null) {
             return ServerResponse.createByErrorMessage("登录状态已失效，请重新登录后再试！");

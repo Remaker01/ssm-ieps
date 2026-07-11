@@ -23,7 +23,7 @@ public class ShowAdminService {
     private ItemMapper itemMapper;
     
     
-    public ServerResponse getAcademyStuSex(String itemDate) {
+    public ServerResponse<List<UserAdminDto>> getAcademyStuSex(String itemDate) {
         List<UserAdminDto> userAdminDtoList = itemMapper.selectStuUserInfoWithAcademy(itemDate);
     
         System.out.println(userAdminDtoList);
@@ -34,7 +34,7 @@ public class ShowAdminService {
         return ServerResponse.createBySuccess(userAdminDtoList);
     }
     
-    public ServerResponse getItemsWithYear() {
+    public ServerResponse<List<Item>> getItemsWithYear() {
         
         List<Item> itemList = itemMapper.selectItemsWithYear();
         if (itemList.size() == 0) {

@@ -44,7 +44,7 @@ public class UserInfoController {
     
     @RequestMapping({"/checkVerifyNum", "/checkVerifyNum.do"})
     @ResponseBody
-    public ServerResponse checkVerifyNum(String userNum, String verifyNum) {
+    public ServerResponse<?> checkVerifyNum(String userNum, String verifyNum) {
         return userInfoService.checkVerifyNum(userNum, verifyNum);
     }
     
@@ -56,7 +56,7 @@ public class UserInfoController {
 
     @RequestMapping(value = {"/checkVerifyCode", "/checkVerifyCode.do"}, method = RequestMethod.POST)
     @ResponseBody
-    public ServerResponse checkVerifyCode(String userNum, String verifyNum, String verifyCode) {
+    public ServerResponse<String> checkVerifyCode(String userNum, String verifyNum, String verifyCode) {
         return userInfoService.checkVerifyCode(userNum, verifyNum, verifyCode);
     }
     
@@ -77,7 +77,7 @@ public class UserInfoController {
     
     @RequestMapping(value = {"/modifyUserInfo", "/modifyUserInfo.do"}, method = RequestMethod.POST)
     @ResponseBody
-    public ServerResponse modifyUserInfo(UserInfo userInfo, HttpServletRequest request) {
+    public ServerResponse<String> modifyUserInfo(UserInfo userInfo, HttpServletRequest request) {
         String effectiveUserNum = resolveCurrentUserNum(request, userInfo.getUserNum());
         if (effectiveUserNum == null || effectiveUserNum.trim().isEmpty()) {
             return ServerResponse.createByErrorMessage("登录状态已失效，请重新登录后再试！");
@@ -94,7 +94,7 @@ public class UserInfoController {
     
     @RequestMapping(value = {"/changeUserImg", "/changeUserImg.do"}, method = RequestMethod.POST)
     @ResponseBody
-    public ServerResponse changeUserImg(@RequestParam("file") MultipartFile file, String userNum,
+    public ServerResponse<?> changeUserImg(@RequestParam("file") MultipartFile file, String userNum,
                                         HttpServletRequest request) {
         String effectiveUserNum = resolveCurrentUserNum(request, userNum);
         if (effectiveUserNum == null || effectiveUserNum.trim().isEmpty()) {
@@ -122,7 +122,7 @@ public class UserInfoController {
             userInfo.setUserNum(effectiveUserNum);
             userInfo.setUserImg(objectKey);
 
-            ServerResponse response = userInfoService.modifyUserInfo(userInfo);
+            ServerResponse<?> response = userInfoService.modifyUserInfo(userInfo);
             if (response.getStatus() != 0) {
                 logger.warn("Avatar upload persisted to COS but failed to update user profile. userNum={}, objectKey={}, message={}",
                         effectiveUserNum, objectKey, response.getMsg());
@@ -141,7 +141,7 @@ public class UserInfoController {
     
     @RequestMapping(value = {"/getUserInfoWithItemNum", "/getUserInfoWithItemNum.do"}, method = RequestMethod.GET)
     @ResponseBody
-    public ServerResponse getUserInfoWithItemNum(String itemNum, HttpServletRequest request) {
+    public ServerResponse<?> getUserInfoWithItemNum(String itemNum, HttpServletRequest request) {
         User user = (User) request.getAttribute(com.ieps.common.Const.REQUEST_CURRENT_USER);
         
        /* if (!user.getUserNum().equals(userInfo.getUserNum())) {

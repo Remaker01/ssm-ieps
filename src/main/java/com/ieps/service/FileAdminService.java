@@ -2,7 +2,7 @@ package com.ieps.service;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.google.common.collect.Lists;
+import java.util.ArrayList;
 import com.ieps.common.Const;
 import com.ieps.common.ServerResponse;
 import com.ieps.mapper.FileHubMapper;
@@ -37,9 +37,9 @@ public class FileAdminService {
     @Autowired
     private CosStorageService cosStorageService;
     
-    public ServerResponse getFileListByUserNum(int pageNum, int pageSize, String userNumAdmin, int roleId, FileHub fileHub) {
+    public ServerResponse<PageInfo<FileHub>> getFileListByUserNum(int pageNum, int pageSize, String userNumAdmin, int roleId, FileHub fileHub) {
         PageHelper.startPage(pageNum, pageSize);
-        List<FileHub> fileHubList = Lists.newArrayList();
+        List<FileHub> fileHubList = new ArrayList<>();
         if (Const.ROLEID_COLLEGE == roleId) {
             fileHubList = fileHubMapper.selectAllFileHub(fileHub);
         } else if (Const.ROLEID_ACADEMY == roleId) {
@@ -48,11 +48,11 @@ public class FileAdminService {
         if (fileHubList.size() == 0) {
             return ServerResponse.createByErrorMessage("对不起，可能暂无数据，请稍候再试！");
         }
-        PageInfo pageInfo = new PageInfo(fileHubList);
+        PageInfo<FileHub> pageInfo = new PageInfo<>(fileHubList);
         return ServerResponse.createBySuccess(pageInfo);
     }
     
-    private ServerResponse deleteServerFile(String[] fileNames) {
+    private ServerResponse<String> deleteServerFile(String[] fileNames) {
         for (String fileName : fileNames) {
             FileHub fileHub = fileHubMapper.selectByFileName(fileName);
             if (fileHub != null) {
@@ -65,7 +65,7 @@ public class FileAdminService {
         return ServerResponse.createBySuccess("删除文件成功！");
     }
     
-    public ServerResponse removeFileById(String filePath, String fileName, String userNum, Integer id, int roleId) {
+    public ServerResponse<String> removeFileById(String filePath, String fileName, String userNum, Integer id, int roleId) {
         String[] fileNames = {fileName};
         if (Const.ROLEID_COLLEGE == roleId) {
             if (fileHubMapper.deleteByPrimaryKey(id) > 0) {
@@ -83,7 +83,7 @@ public class FileAdminService {
         return ServerResponse.createByErrorMessage("删除该文件失败，请重试！");
     }
     
-    public ServerResponse batchRemoveFile(String filePath, String[] fileNames, String[] userNums, Integer[] ids, int roleId) {
+    public ServerResponse<String> batchRemoveFile(String filePath, String[] fileNames, String[] userNums, Integer[] ids, int roleId) {
         if (Const.ROLEID_COLLEGE == roleId) {
             if (fileHubMapper.batchDeleteFileByIds(ids) > 0) {
                 return deleteServerFile(fileNames);
@@ -101,7 +101,7 @@ public class FileAdminService {
         return ServerResponse.createByErrorMessage("删除该文件失败，请重试！");
     }
     
-    public ServerResponse batchUploadFile(MultipartFile[] files, String userNum, String filePath, int fileKind, String typeNum) {
+    public ServerResponse<String> batchUploadFile(MultipartFile[] files, String userNum, String filePath, int fileKind, String typeNum) {
         String fileName = "";
         int fileCount = files == null ? 0 : files.length;
         logger.info("Start backend relay upload. userNum={}, fileKind={}, typeNum={}, fileCount={}",
@@ -150,7 +150,7 @@ public class FileAdminService {
         return ServerResponse.createByErrorMessage("上传文件失败");
     }
     
-    public ServerResponse modifyFileKindWithUserNum(int roleId, FileHub fileHub) {
+    public ServerResponse<?> modifyFileKindWithUserNum(int roleId, FileHub fileHub) {
         if (Const.ROLEID_COLLEGE == roleId) {
             if (fileHubMapper.updateByPrimaryKeySelective(fileHub) > 0) {
                 return ServerResponse.createBySuccess();
@@ -167,17 +167,17 @@ public class FileAdminService {
         return ServerResponse.createByErrorMessage("修改该文件的类型属性失败，请重试！");
     }
     
-    public ServerResponse getFileListByAdmin(int pageNum, int pageSize, String fileName, String updateTime) {
+    public ServerResponse<PageInfo<FileHub>> getFileListByAdmin(int pageNum, int pageSize, String fileName, String updateTime) {
         PageHelper.startPage(pageNum, pageSize);
         List<FileHub> fileHubList = fileHubMapper.selectAllFileByAdminWithKind(Const.FIRST_FILE_KIND, fileName, updateTime);
         if (fileHubList.size() == 0) {
             return ServerResponse.createByErrorMessage("没有文件，数据为空！");
         }
-        PageInfo pageInfo = new PageInfo(fileHubList);
+        PageInfo<FileHub> pageInfo = new PageInfo<>(fileHubList);
         return ServerResponse.createBySuccess(pageInfo);
     }
     
-    public ServerResponse getFileWithItemNum(String itemNum) {
+    public ServerResponse<FileHub> getFileWithItemNum(String itemNum) {
         FileHub fileHub = fileHubMapper.selectFileWithItemNum(itemNum);
         if (fileHub == null) {
             return ServerResponse.createByErrorMessage("对不起，你还没有上传项目附件呢");

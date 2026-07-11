@@ -1,5 +1,6 @@
 package com.ieps.controller;
 
+import com.github.pagehelper.PageInfo;
 import com.ieps.common.ServerResponse;
 import com.ieps.pojo.Role;
 import com.ieps.pojo.User;
@@ -33,7 +34,7 @@ public class RoleAdminController {
      */
     @RequestMapping({"/getRoleListByAdmin", "/getRoleListByAdmin.do"})
     @ResponseBody
-    public ServerResponse getRoleListByAdmin(@RequestParam(value = "page", defaultValue = "1") int page, Role role,
+    public ServerResponse<PageInfo<Role>> getRoleListByAdmin(@RequestParam(value = "page", defaultValue = "1") int page, Role role,
                                              @RequestParam(value = "limit", defaultValue = "10") int limit,
                                              String userNum, int roleAdminId) {
         
@@ -50,7 +51,7 @@ public class RoleAdminController {
      */
     @RequestMapping({"/batchRemoveRole", "/batchRemoveRole.do"})
     @ResponseBody
-    public ServerResponse batchRemoveRole(int[] roleIds, String userNum, int roleAdminId, HttpServletRequest request) {
+    public ServerResponse<String> batchRemoveRole(int[] roleIds, String userNum, int roleAdminId, HttpServletRequest request) {
         
         User user = (User) request.getAttribute(com.ieps.common.Const.REQUEST_CURRENT_USER);
     
@@ -73,7 +74,7 @@ public class RoleAdminController {
      */
     @RequestMapping({"/removeRoleByRoleId", "/removeRoleByRoleId.do"})
     @ResponseBody
-    public ServerResponse removeRoleByRoleId(int roleId, String userNum, int roleAdminId, HttpServletRequest request) {
+    public ServerResponse<String> removeRoleByRoleId(int roleId, String userNum, int roleAdminId, HttpServletRequest request) {
         
         User user = (User) request.getAttribute(com.ieps.common.Const.REQUEST_CURRENT_USER);
         
@@ -85,5 +86,4 @@ public class RoleAdminController {
         
         return roleAdminService.removeRoleByRoleId(roleId, roleAdminId);
     }
-    
 }

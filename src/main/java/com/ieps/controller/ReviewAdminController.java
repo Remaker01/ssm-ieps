@@ -1,5 +1,6 @@
 package com.ieps.controller;
 
+import com.github.pagehelper.PageInfo;
 import com.ieps.common.ServerResponse;
 import com.ieps.dto.ReviewAdminDto;
 import com.ieps.pojo.User;
@@ -32,7 +33,7 @@ public class ReviewAdminController {
      */
     @RequestMapping({"/getAllReviewWithItemNum", "/getAllReviewWithItemNum.do"})
     @ResponseBody
-    public ServerResponse getAllReviewWithItemNum(@RequestParam(value = "page", defaultValue = "1") int page, String itemNum,
+    public ServerResponse<PageInfo<ReviewAdminDto>> getAllReviewWithItemNum(@RequestParam(value = "page", defaultValue = "1") int page, String itemNum,
                                                   @RequestParam(value = "limit", defaultValue = "10") int limit,
                                                   @RequestParam("userNum") String userNum, HttpServletRequest request) {
     
@@ -52,7 +53,7 @@ public class ReviewAdminController {
     
     @RequestMapping({"/checkReview", "/checkReview.do"})
     @ResponseBody
-    public ServerResponse checkReview(ReviewAdminDto reviewAdminDto, HttpServletRequest request) {
+    public ServerResponse<String> checkReview(ReviewAdminDto reviewAdminDto, HttpServletRequest request) {
         
         
         User user = (User) request.getAttribute(com.ieps.common.Const.REQUEST_CURRENT_USER);
@@ -64,6 +65,4 @@ public class ReviewAdminController {
         return reviewAdminService.checkReview(reviewAdminDto);
         
     }
-    
-
 }

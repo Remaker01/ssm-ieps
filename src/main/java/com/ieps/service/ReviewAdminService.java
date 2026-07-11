@@ -20,7 +20,7 @@ public class ReviewAdminService {
     private ReviewMapper reviewMapper;
     
     
-    public ServerResponse getAllReviewListWithItemNum(int pageNum, int pageSize, String itemNum) {
+    public ServerResponse<PageInfo<ReviewAdminDto>> getAllReviewListWithItemNum(int pageNum, int pageSize, String itemNum) {
     
         PageHelper.startPage(pageNum, pageSize);
     
@@ -56,12 +56,12 @@ public class ReviewAdminService {
             }
         }
     
-        PageInfo pageInfo = new PageInfo(reviewAdminDtoList);
+        PageInfo<ReviewAdminDto> pageInfo = new PageInfo<>(reviewAdminDtoList);
         
         return ServerResponse.createBySuccess(pageInfo);
     }
     
-    public ServerResponse checkReview(ReviewAdminDto reviewAdminDto) {
+    public ServerResponse<String> checkReview(ReviewAdminDto reviewAdminDto) {
         List<ReviewAdminDto> reviewAdminDtoList = reviewMapper.selectReviewWithMultCondition(reviewAdminDto);
         if (reviewAdminDtoList.size() > 0 ) {
             return ServerResponse.createByErrorMessage("对不起，你已经上传了一次同类型的文件，请重新操作！");

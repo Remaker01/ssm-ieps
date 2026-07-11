@@ -1,9 +1,11 @@
 package com.ieps.controller;
 
+import com.github.pagehelper.PageInfo;
 import com.ieps.common.Const;
 import com.ieps.common.ServerResponse;
 import com.ieps.config.IepsCosProperties;
 import com.ieps.dto.CkeditorUploadFileDto;
+import com.ieps.dto.DownloadTaskDto;
 import com.ieps.pojo.FileHub;
 import com.ieps.pojo.User;
 import com.ieps.service.CosStorageService;
@@ -69,7 +71,7 @@ public class FileAdminController {
      */
     @RequestMapping({"/getFileListByUserNum", "/getFileListByUserNum.do"})
     @ResponseBody
-    public ServerResponse getFileListByUserNum(@RequestParam(value = "page", defaultValue = "1") int page, FileHub fileHub,
+    public ServerResponse<PageInfo<FileHub>> getFileListByUserNum(@RequestParam(value = "page", defaultValue = "1") int page, FileHub fileHub,
                                                @RequestParam(value = "limit", defaultValue = "5") int limit,
                                                @RequestParam("userNumAdmin") String userNumAdmin, @RequestParam("roleId") Integer roleId) {
         
@@ -89,7 +91,7 @@ public class FileAdminController {
      */
     @RequestMapping({"/removeFileById", "/removeFileById.do"})
     @ResponseBody
-    public ServerResponse removeFileById(@RequestParam("userNum") String userNum, HttpServletRequest request,
+    public ServerResponse<String> removeFileById(@RequestParam("userNum") String userNum, HttpServletRequest request,
                                          @RequestParam("id") Integer id, @RequestParam("userNumAdmin") String userNumAdmin,
                                          @RequestParam("roleId") Integer roleId, @RequestParam("fileName") String fileName) {
         return fileAdminService.removeFileById("", fileName, userNum, id, roleId);
@@ -108,7 +110,7 @@ public class FileAdminController {
      */
     @RequestMapping({"/batchRemoveFile", "/batchRemoveFile.do"})
     @ResponseBody
-    public ServerResponse batchRemoveFile(@RequestParam("userNum") String userNumAdmin, HttpServletRequest request,
+    public ServerResponse<String> batchRemoveFile(@RequestParam("userNum") String userNumAdmin, HttpServletRequest request,
                                           @RequestParam("userNums") String[] userNums, @RequestParam("ids") Integer[] ids,
                                           @RequestParam("roleId") Integer roleId, @RequestParam("fileNames") String[] fileNames) {
         return fileAdminService.batchRemoveFile("", fileNames, userNums, ids, roleId);
@@ -127,7 +129,7 @@ public class FileAdminController {
      */
     @RequestMapping(value = {"/batchUploadFile", "/batchUploadFile.do"}, method = RequestMethod.POST)
     @ResponseBody
-    public ServerResponse batchUploadFile(@RequestParam("files") MultipartFile[] files, String userNum, String itemNum,
+    public ServerResponse<String> batchUploadFile(@RequestParam("files") MultipartFile[] files, String userNum, String itemNum,
                                           HttpServletRequest request, int fileKind) {
         String effectiveUserNum = resolveCurrentUserNum(request, userNum);
         if (effectiveUserNum == null || effectiveUserNum.trim().isEmpty()) {
@@ -165,7 +167,7 @@ public class FileAdminController {
         logger.info("Receive CKEditor upload request. userNum={}, itemNum={}, fileKind={}, fileCount={}",
                 effectiveUserNum, itemNum, fileKind, fileCount);
 
-        ServerResponse response = fileAdminService.batchUploadFile(files, effectiveUserNum, "", fileKind, itemNum);
+        ServerResponse<?> response = fileAdminService.batchUploadFile(files, effectiveUserNum, "", fileKind, itemNum);
 
         if(response.getStatus() == 0) {
             String fileName = String.valueOf(response.getData());
@@ -225,7 +227,7 @@ public class FileAdminController {
      */
     @RequestMapping(value = {"/previewFile", "/previewFile.do"}, method = RequestMethod.GET)
     @ResponseBody
-    public ServerResponse previewFile(String fileName, HttpServletRequest request, HttpServletResponse response) {
+    public ServerResponse<?> previewFile(String fileName, HttpServletRequest request, HttpServletResponse response) {
         return ServerResponse.createByErrorMessage("预览功能已下线，请直接下载文件查看！");
     }
     
@@ -257,7 +259,7 @@ public class FileAdminController {
      */
     @RequestMapping(value = {"/modifyFileKindWithUserNum", "/modifyFileKindWithUserNum.do"}, method = RequestMethod.GET)
     @ResponseBody
-    public ServerResponse modifyFileKindWithUserNum(FileHub fileHub, @RequestParam("userNumAdmin") String userNumAdmin,
+    public ServerResponse<?> modifyFileKindWithUserNum(FileHub fileHub, @RequestParam("userNumAdmin") String userNumAdmin,
                                                     @RequestParam("roleId") int roleId) {
         
         return fileAdminService.modifyFileKindWithUserNum(roleId, fileHub);
@@ -274,7 +276,7 @@ public class FileAdminController {
      */
     @RequestMapping(value = {"/getFileListByAdminWithKind", "/getFileListByAdminWithKind.do"}, method = RequestMethod.GET)
     @ResponseBody
-    public ServerResponse getFileListByAdminWithKind(@RequestParam(value = "pageNum",defaultValue = "1") int pageNum,
+    public ServerResponse<PageInfo<FileHub>> getFileListByAdminWithKind(@RequestParam(value = "pageNum",defaultValue = "1") int pageNum,
                                                      @RequestParam(value = "pageSize",defaultValue = "8") int pageSize,
                                                      String fileName, String updateTime) {
         return fileAdminService.getFileListByAdmin(pageNum, pageSize, fileName, updateTime);
@@ -289,9 +291,9 @@ public class FileAdminController {
      */
     @RequestMapping(value = {"/downloadFileWithItemNum", "/downloadFileWithItemNum.do"}, method = RequestMethod.GET)
     @ResponseBody
-    public ServerResponse downloadFileWithItemNum(@RequestParam("itemNum") String itemNum, HttpServletRequest request,
+    public ServerResponse<FileHub> downloadFileWithItemNum(@RequestParam("itemNum") String itemNum, HttpServletRequest request,
                                                   HttpServletResponse response) {
-        ServerResponse fileResponse = fileAdminService.getFileWithItemNum(itemNum);
+        ServerResponse<FileHub> fileResponse = fileAdminService.getFileWithItemNum(itemNum);
         if (fileResponse.getStatus() != 0) {
             logger.warn("Item attachment download rejected because file was not found. itemNum={}", itemNum);
             return ServerResponse.createByErrorMessage("对不起，你还没有上传项目附件呢!请关闭窗口再重试！");
@@ -328,7 +330,7 @@ public class FileAdminController {
      */
     @RequestMapping(value = {"/onekeyDownloadFileCompat"}, method = RequestMethod.POST)
     @ResponseBody
-    public ServerResponse onekeyDownloadFile(@RequestParam("userNum") String userNum, @RequestParam("roleId") int roleId,
+    public ServerResponse<DownloadTaskDto> onekeyDownloadFile(@RequestParam("userNum") String userNum, @RequestParam("roleId") int roleId,
                                    HttpServletRequest request, String[] fileNames, HttpServletResponse response) throws IOException {
         User currentUser = (User) request.getAttribute(Const.REQUEST_CURRENT_USER);
         return downloadTaskService.createDownloadTask(currentUser, fileNames);
