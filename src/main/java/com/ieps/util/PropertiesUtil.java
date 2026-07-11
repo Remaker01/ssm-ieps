@@ -12,6 +12,7 @@ import java.util.Properties;
 /**
  * Created by ljw
  */
+@Deprecated(forRemoval = true)
 public class PropertiesUtil {
     private static Logger logger = LoggerFactory.getLogger(PropertiesUtil.class);
 

@@ -3,7 +3,7 @@ package com.ieps.exception;
 /**
  * Created by ljw
  */
-@Deprecated
+@Deprecated(forRemoval = true)
 public class CustomException extends Exception {
     private String message;
 

@@ -20,6 +20,7 @@ import java.nio.charset.Charset;
 /**
  * Created by ljw
  */
+@Deprecated(forRemoval = true)
 public class PreviewFileUtil {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();

@@ -10,6 +10,7 @@ import java.util.Date;
 /**
  * Created by ljw
  */
+@Deprecated(forRemoval = true)
 public class DateTimeUtil {
 
     //joda-time

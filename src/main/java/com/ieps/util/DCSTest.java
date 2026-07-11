@@ -22,6 +22,7 @@ import java.nio.charset.Charset;
  * @author ljw
  * @date 2019/06/08
  */
+@Deprecated(forRemoval = true)
 public class DCSTest {
     /**
      * 向指定 URL 发送POST方法的请求
