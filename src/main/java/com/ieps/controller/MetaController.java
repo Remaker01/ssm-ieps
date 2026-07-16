@@ -9,3 +9,19 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.Map;
+
+/**
+ * 前端运行时元数据接口
+ */
+@Controller
+public class MetaController {
+
+    @Autowired
+    private ItemAdminService itemAdminService;
+
+    @RequestMapping(value = "/meta/item-options", method = RequestMethod.GET)
+    @ResponseBody
+    public ServerResponse<Map<String, Object>> getItemOptions() {
+        return itemAdminService.getItemOptions();
+    }
+}
