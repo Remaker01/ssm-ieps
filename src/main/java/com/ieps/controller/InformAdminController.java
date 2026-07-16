@@ -3,7 +3,6 @@ package com.ieps.controller;
 import com.github.pagehelper.PageInfo;
 import com.ieps.common.ServerResponse;
 import com.ieps.pojo.Inform;
-import com.ieps.pojo.User;
 import com.ieps.service.InformService;
 import com.ieps.service.UserInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,8 +12,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.net.URL;
-import java.net.URLEncoder;
 import java.util.List;
 
 /**
