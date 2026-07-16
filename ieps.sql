@@ -25,7 +25,9 @@ CREATE TABLE `ieps_file_hub` (
   `update_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `idx_file_hub_type_num_kind` (`type_num`, `file_kind`),
-  KEY `idx_file_hub_user_num` (`user_num`)
+  KEY `idx_file_hub_user_num` (`user_num`),
+  KEY `idx_file_hub_file_kind` (`file_kind`),
+  KEY `idx_file_hub_file_name` (`file_name`)
 ) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
@@ -70,6 +72,7 @@ CREATE TABLE `ieps_inform` (
   PRIMARY KEY (`id`),
   KEY `idx_inform_publisher` (`publisher`),
   KEY `idx_inform_role_id` (`role_id`),
+  KEY `idx_inform_subject` (`subject`),
   KEY `idx_inform_pubdate` (`pubdate`)
 ) ENGINE=InnoDB AUTO_INCREMENT=400012 DEFAULT CHARSET=utf8;
 
@@ -178,7 +181,6 @@ CREATE TABLE `ieps_role_perm` (
   `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`),
-  KEY `idx_role_perm_role_id` (`role_id`),
   KEY `idx_role_perm_perm_id` (`perm_id`),
   KEY `idx_role_perm_role_perm` (`role_id`, `perm_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=320066 DEFAULT CHARSET=utf8;
@@ -235,7 +237,6 @@ CREATE TABLE `ieps_user_item` (
   `update_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`),
   KEY `idx_user_item_user_num` (`user_num`),
-  KEY `idx_user_item_item_num` (`item_num`),
   KEY `idx_user_item_identity` (`identity`),
   KEY `idx_user_item_item_identity` (`item_num`, `identity`)
 ) ENGINE=InnoDB AUTO_INCREMENT=743 DEFAULT CHARSET=utf8;
@@ -251,7 +252,6 @@ CREATE TABLE `ieps_user_role` (
   `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`),
-  KEY `idx_user_role_user_num` (`user_num`),
   KEY `idx_user_role_role_id` (`role_id`),
   KEY `idx_user_role_user_role` (`user_num`, `role_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=210394 DEFAULT CHARSET=utf8;
@@ -295,6 +295,21 @@ ALTER TABLE `ieps_user_role`
     FOREIGN KEY (`role_id`) REFERENCES `ieps_role` (`role_id`)
     ON UPDATE CASCADE ON DELETE CASCADE,
   ADD CONSTRAINT `fk_user_role_user_num`
+    FOREIGN KEY (`user_num`) REFERENCES `ieps_user` (`user_num`)
+    ON UPDATE CASCADE ON DELETE CASCADE;
+
+ALTER TABLE `ieps_file_hub`
+  ADD CONSTRAINT `fk_file_hub_user_num`
+    FOREIGN KEY (`user_num`) REFERENCES `ieps_user` (`user_num`)
+    ON UPDATE CASCADE ON DELETE CASCADE;
+
+ALTER TABLE `ieps_inform`
+  ADD CONSTRAINT `fk_inform_publisher`
+    FOREIGN KEY (`publisher`) REFERENCES `ieps_user` (`user_num`)
+    ON UPDATE CASCADE ON DELETE CASCADE;
+
+ALTER TABLE `ieps_review`
+  ADD CONSTRAINT `fk_review_user_num`
     FOREIGN KEY (`user_num`) REFERENCES `ieps_user` (`user_num`)
     ON UPDATE CASCADE ON DELETE CASCADE;
 

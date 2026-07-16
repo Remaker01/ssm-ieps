@@ -26,14 +26,13 @@ import java.util.Set;
 
 public final class RandomDataUtil {
 
-    private static final int DEFAULT_USER_COUNT = 1000;
+    private static final int DEFAULT_USER_COUNT = 2000;
     private static final int COLLEGE_EXPERT_GROUP_COUNT = 4;
     private static final int ACADEMY_GROUPS_PER_ACADEMY = 2;
     private static final int REVIEW_GROUP_SIZE = 3;
     private static final int TUTOR_COUNT = 150;
-    private static final int ITEM_COUNT = 240;
-    private static final int INFORM_COUNT = 24;
-    private static final int COMMON_FILE_COUNT = 18;
+    private static final int ITEM_COUNT = 800;
+    private static final int INFORM_COUNT = 60;
     private static final String DEFAULT_PASSWORD = Const.UNIFORM_USERPWD;
     private static final String DEFAULT_USER_IMG = Const.UNIFORM_USERIMG;
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -91,11 +90,6 @@ public final class RandomDataUtil {
             "关于创新创业项目过程检查的通知", "关于提交阶段材料的提醒", "关于开展项目培训的公告",
             "关于评审安排的通知", "关于经费填报的说明", "关于结题答辩的工作提示"
     );
-    private static final List<String> FILE_TEMPLATES = Arrays.asList(
-            "创新创业项目申报指南.pdf", "阶段评审安排.xlsx", "经费报销说明.docx",
-            "优秀案例汇编.pdf", "项目过程记录模板.docx", "答辩材料清单.xlsx"
-    );
-
     private RandomDataUtil() {
     }
 
@@ -108,8 +102,7 @@ public final class RandomDataUtil {
         System.out.println("Users=" + dataset.users.size()
                 + ", Items=" + dataset.items.size()
                 + ", Reviews=" + dataset.reviews.size()
-                + ", Informs=" + dataset.informs.size()
-                + ", Files=" + dataset.files.size());
+                + ", Informs=" + dataset.informs.size());
         System.out.println("Bootstrap admin: " + Const.USERNUM_COLLEGE + " / " + DEFAULT_PASSWORD);
     }
 
@@ -134,7 +127,6 @@ public final class RandomDataUtil {
         createAcademyUsers(context, userCount - fixedUserCount);
         createItems(context);
         createInforms(context);
-        createCommonFiles(context);
         return dataset;
     }
 
@@ -359,8 +351,6 @@ public final class RandomDataUtil {
                     addUserItem(context, member.userNum, item.itemNum, 1);
                 }
 
-                addProjectFile(context, item, leader, academy.name);
-
                 if (itemStatus >= 2) {
                     ReviewGroup academyGroup = academyGroups.get(context.nextAcademyReviewGroupIndex(academy.name));
                     addReviewGroupAssignments(context, item.itemNum, academyGroup, 5, 4);
@@ -377,20 +367,6 @@ public final class RandomDataUtil {
                 }
             }
         }
-    }
-
-    private static void addProjectFile(GenerationContext context, GeneratedItem item, GeneratedUser leader, String academy) {
-        int fileId = context.nextFileId();
-        context.dataset.files.add(new GeneratedFile(
-                fileId,
-                item.itemNum,
-                leader.userNum,
-                academy,
-                item.itemNum + "-proposal.pdf",
-                256000 + RANDOM.nextInt(512000),
-                2,
-                item.itemDate.plusDays(RANDOM.nextInt(15))
-        ));
     }
 
     private static void addReviewGroupAssignments(GenerationContext context, String itemNum, ReviewGroup group, int leaderIdentity, int memberIdentity) {
@@ -440,26 +416,6 @@ public final class RandomDataUtil {
                     "<p>" + title + "。请相关角色按照系统时间节点完成申报、评审、过程检查与材料归档工作。</p>",
                     null,
                     publishTime
-            ));
-        }
-    }
-
-    private static void createCommonFiles(GenerationContext context) {
-        List<GeneratedUser> publishers = new ArrayList<>();
-        publishers.add(context.collegeAdmin);
-        publishers.addAll(context.academyAdmins.values());
-        for (int index = 0; index < COMMON_FILE_COUNT; index++) {
-            GeneratedUser publisher = publishers.get(index % publishers.size());
-            String fileName = FILE_TEMPLATES.get(index % FILE_TEMPLATES.size());
-            context.dataset.files.add(new GeneratedFile(
-                    context.nextFileId(),
-                    "-1",
-                    publisher.userNum,
-                    publisher.academy,
-                    appendIndex(fileName, index + 1),
-                    128000 + RANDOM.nextInt(256000),
-                    1,
-                    randomDateTime(LocalDate.of(2024, 1, 15), LocalDate.of(2026, 6, 20))
             ));
         }
     }
@@ -648,15 +604,15 @@ public final class RandomDataUtil {
 
     private static List<Integer> buildStatusPool() {
         List<Integer> statuses = new ArrayList<>();
-        addRepeatedStatus(statuses, 1, 30);
-        addRepeatedStatus(statuses, 2, 25);
-        addRepeatedStatus(statuses, 3, 75);
-        addRepeatedStatus(statuses, 4, 20);
-        addRepeatedStatus(statuses, 5, 35);
-        addRepeatedStatus(statuses, 6, 20);
-        addRepeatedStatus(statuses, 7, 15);
-        addRepeatedStatus(statuses, 8, 15);
-        addRepeatedStatus(statuses, 9, 5);
+        addRepeatedStatus(statuses, 1, 100);
+        addRepeatedStatus(statuses, 2, 83);
+        addRepeatedStatus(statuses, 3, 250);
+        addRepeatedStatus(statuses, 4, 67);
+        addRepeatedStatus(statuses, 5, 117);
+        addRepeatedStatus(statuses, 6, 67);
+        addRepeatedStatus(statuses, 7, 50);
+        addRepeatedStatus(statuses, 8, 50);
+        addRepeatedStatus(statuses, 9, 17);
         return statuses;
     }
 
@@ -672,6 +628,20 @@ public final class RandomDataUtil {
             return fileName + "-" + index;
         }
         return fileName.substring(0, dotIndex) + "-" + index + fileName.substring(dotIndex);
+    }
+
+    private static void appendBatchInsert(StringBuilder sql, String table, String columns,
+                                           List<String> valueRows, int batchSize) {
+        sql.append("-- ").append(table).append("\n");
+        for (int i = 0; i < valueRows.size(); i += batchSize) {
+            int end = Math.min(i + batchSize, valueRows.size());
+            sql.append("INSERT INTO `").append(table).append("` ").append(columns).append(" VALUES\n");
+            for (int j = i; j < end; j++) {
+                sql.append("(").append(valueRows.get(j)).append(")");
+                sql.append(j == end - 1 ? ";\n" : ",\n");
+            }
+        }
+        sql.append('\n');
     }
 
     private static String renderSql(GeneratedDataset dataset) {
@@ -708,188 +678,112 @@ public final class RandomDataUtil {
         appendUserItemInserts(sql, dataset.userItems);
         appendReviewInserts(sql, dataset.reviews);
         appendInformInserts(sql, dataset.informs);
-        appendFileInserts(sql, dataset.files);
         sql.append("SET FOREIGN_KEY_CHECKS=1;\n");
         return sql.toString();
     }
 
     private static void appendRoleInserts(StringBuilder sql, List<RoleSeed> roles) {
-        sql.append("-- ieps_role\n");
-        for (RoleSeed role : roles) {
-            sql.append("INSERT INTO `ieps_role` (`role_id`, `role_name`, `role_desc`) VALUES (")
-                    .append(role.roleId).append(", ")
-                    .append(q(role.roleName)).append(", ")
-                    .append(q(role.roleDesc)).append(");\n");
+        List<String> rows = new ArrayList<>();
+        for (RoleSeed r : roles) {
+            rows.add(r.roleId + ", " + q(r.roleName) + ", " + q(r.roleDesc));
         }
-        sql.append('\n');
+        appendBatchInsert(sql, "ieps_role", "(`role_id`, `role_name`, `role_desc`)", rows, 500);
     }
 
     private static void appendPermInserts(StringBuilder sql, List<PermSeed> perms) {
-        sql.append("-- ieps_perm\n");
-        for (PermSeed perm : perms) {
-            sql.append("INSERT INTO `ieps_perm` (`perm_id`, `perm_name`, `perm_type`, `url`, `icon`, `parent_id`, `perm_code`, `perm_desc`) VALUES (")
-                    .append(perm.permId).append(", ")
-                    .append(q(perm.permName)).append(", ")
-                    .append(q(perm.permType)).append(", ")
-                    .append(q(perm.url)).append(", ")
-                    .append(q(perm.icon)).append(", ")
-                    .append(perm.parentId).append(", ")
-                    .append(q(perm.permCode)).append(", ")
-                    .append(q(perm.permDesc)).append(");\n");
+        List<String> rows = new ArrayList<>();
+        for (PermSeed p : perms) {
+            rows.add(p.permId + ", " + q(p.permName) + ", " + q(p.permType) + ", " + q(p.url)
+                    + ", " + q(p.icon) + ", " + p.parentId + ", " + q(p.permCode) + ", " + q(p.permDesc));
         }
-        sql.append('\n');
+        appendBatchInsert(sql, "ieps_perm", "(`perm_id`, `perm_name`, `perm_type`, `url`, `icon`, `parent_id`, `perm_code`, `perm_desc`)", rows, 500);
     }
 
     private static void appendRolePermInserts(StringBuilder sql, List<RolePermSeed> rolePerms) {
-        sql.append("-- ieps_role_perm\n");
-        for (RolePermSeed rolePerm : rolePerms) {
-            sql.append("INSERT INTO `ieps_role_perm` (`id`, `role_id`, `perm_id`) VALUES (")
-                    .append(rolePerm.id).append(", ")
-                    .append(rolePerm.roleId).append(", ")
-                    .append(rolePerm.permId).append(");\n");
+        List<String> rows = new ArrayList<>();
+        for (RolePermSeed rp : rolePerms) {
+            rows.add(rp.id + ", " + rp.roleId + ", " + rp.permId);
         }
-        sql.append('\n');
+        appendBatchInsert(sql, "ieps_role_perm", "(`id`, `role_id`, `perm_id`)", rows, 500);
     }
 
     private static void appendUserInserts(StringBuilder sql, List<GeneratedUser> users) {
-        sql.append("-- ieps_user\n");
-        for (GeneratedUser user : users) {
-            sql.append("INSERT INTO `ieps_user` (`user_num`, `user_pwd`, `user_status`) VALUES (")
-                    .append(q(user.userNum)).append(", ")
-                    .append(q(user.passwordHash)).append(", ")
-                    .append(user.userStatus).append(");\n");
+        List<String> rows = new ArrayList<>();
+        for (GeneratedUser u : users) {
+            rows.add(q(u.userNum) + ", " + q(u.passwordHash) + ", " + u.userStatus);
         }
-        sql.append('\n');
+        appendBatchInsert(sql, "ieps_user", "(`user_num`, `user_pwd`, `user_status`)", rows, 500);
     }
 
     private static void appendUserInfoInserts(StringBuilder sql, List<GeneratedUser> users) {
-        sql.append("-- ieps_user_info\n");
-        int userInfoId = 300001;
-        for (GeneratedUser user : users) {
-            sql.append("INSERT INTO `ieps_user_info` (`id`, `user_num`, `user_name`, `user_img`, `photo_num`, `email`, `title`, `sex`, `academy`, `grade`, `major`, `birth_date`) VALUES (")
-                    .append(userInfoId++).append(", ")
-                    .append(q(user.userNum)).append(", ")
-                    .append(q(user.userName)).append(", ")
-                    .append(q(DEFAULT_USER_IMG)).append(", ")
-                    .append(q(buildPhone(user.userNum))).append(", ")
-                    .append(q(buildEmail(user.userNum))).append(", ")
-                    .append(user.title).append(", ")
-                    .append(user.sex).append(", ")
-                    .append(q(user.academy)).append(", ")
-                    .append(q(user.grade)).append(", ")
-                    .append(q(user.major)).append(", ")
-                    .append(q(DATE_FORMATTER.format(user.birthDate))).append(");\n");
+        List<String> rows = new ArrayList<>();
+        int id = 300001;
+        for (GeneratedUser u : users) {
+            rows.add(id++ + ", " + q(u.userNum) + ", " + q(u.userName) + ", " + q(DEFAULT_USER_IMG)
+                    + ", " + q(buildPhone(u.userNum)) + ", " + q(buildEmail(u.userNum))
+                    + ", " + u.title + ", " + u.sex + ", " + q(u.academy)
+                    + ", " + q(u.grade) + ", " + q(u.major) + ", " + q(DATE_FORMATTER.format(u.birthDate)));
         }
-        sql.append('\n');
+        appendBatchInsert(sql, "ieps_user_info", "(`id`, `user_num`, `user_name`, `user_img`, `photo_num`, `email`, `title`, `sex`, `academy`, `grade`, `major`, `birth_date`)", rows, 500);
     }
 
     private static void appendUserRoleInserts(StringBuilder sql, List<GeneratedUser> users) {
-        sql.append("-- ieps_user_role\n");
-        int userRoleId = 210001;
-        for (GeneratedUser user : users) {
-            sql.append("INSERT INTO `ieps_user_role` (`id`, `user_num`, `role_id`) VALUES (")
-                    .append(userRoleId++).append(", ")
-                    .append(q(user.userNum)).append(", ")
-                    .append(user.roleId).append(");\n");
+        List<String> rows = new ArrayList<>();
+        int id = 210001;
+        for (GeneratedUser u : users) {
+            rows.add(id++ + ", " + q(u.userNum) + ", " + u.roleId);
         }
-        sql.append('\n');
+        appendBatchInsert(sql, "ieps_user_role", "(`id`, `user_num`, `role_id`)", rows, 500);
     }
 
     private static void appendItemInserts(StringBuilder sql, List<GeneratedItem> items) {
-        sql.append("-- ieps_item\n");
-        for (GeneratedItem item : items) {
-            sql.append("INSERT INTO `ieps_item` (`item_id`, `item_num`, `item_name`, `leader_num`, `leader_name`, `tutor_num`, `tutor_name`, `item_status`, `item_date`) VALUES (")
-                    .append(item.itemId).append(", ")
-                    .append(q(item.itemNum)).append(", ")
-                    .append(q(item.itemName)).append(", ")
-                    .append(q(item.leaderNum)).append(", ")
-                    .append(q(item.leaderName)).append(", ")
-                    .append(q(item.tutorNum)).append(", ")
-                    .append(q(item.tutorName)).append(", ")
-                    .append(item.itemStatus).append(", ")
-                    .append(q(DATE_TIME_FORMATTER.format(item.itemDate))).append(");\n");
+        List<String> rows = new ArrayList<>();
+        for (GeneratedItem it : items) {
+            rows.add(it.itemId + ", " + q(it.itemNum) + ", " + q(it.itemName)
+                    + ", " + q(it.leaderNum) + ", " + q(it.leaderName)
+                    + ", " + q(it.tutorNum) + ", " + q(it.tutorName)
+                    + ", " + it.itemStatus + ", " + q(DATE_TIME_FORMATTER.format(it.itemDate)));
         }
-        sql.append('\n');
+        appendBatchInsert(sql, "ieps_item", "(`item_id`, `item_num`, `item_name`, `leader_num`, `leader_name`, `tutor_num`, `tutor_name`, `item_status`, `item_date`)", rows, 500);
     }
 
     private static void appendItemInfoInserts(StringBuilder sql, List<GeneratedItem> items) {
-        sql.append("-- ieps_item_info\n");
-        int itemInfoId = 510001;
-        for (GeneratedItem item : items) {
-            sql.append("INSERT INTO `ieps_item_info` (`id`, `item_num`, `item_level`, `item_type`, `summary`, `college_funds`, `govern_funds`) VALUES (")
-                    .append(itemInfoId++).append(", ")
-                    .append(q(item.itemNum)).append(", ")
-                    .append(item.itemLevel).append(", ")
-                    .append(item.itemType).append(", ")
-                    .append(q(item.summary)).append(", ")
-                    .append(item.collegeFunds.toPlainString()).append(", ")
-                    .append(item.governFunds.toPlainString()).append(");\n");
+        List<String> rows = new ArrayList<>();
+        int id = 510001;
+        for (GeneratedItem it : items) {
+            rows.add(id++ + ", " + q(it.itemNum) + ", " + it.itemLevel + ", " + it.itemType
+                    + ", " + q(it.summary) + ", " + it.collegeFunds.toPlainString()
+                    + ", " + it.governFunds.toPlainString());
         }
-        sql.append('\n');
+        appendBatchInsert(sql, "ieps_item_info", "(`id`, `item_num`, `item_level`, `item_type`, `summary`, `college_funds`, `govern_funds`)", rows, 500);
     }
 
     private static void appendUserItemInserts(StringBuilder sql, List<UserItemSeed> userItems) {
-        sql.append("-- ieps_user_item\n");
-        for (UserItemSeed userItem : userItems) {
-            sql.append("INSERT INTO `ieps_user_item` (`id`, `user_num`, `item_num`, `identity`) VALUES (")
-                    .append(userItem.id).append(", ")
-                    .append(q(userItem.userNum)).append(", ")
-                    .append(q(userItem.itemNum)).append(", ")
-                    .append(userItem.identity).append(");\n");
+        List<String> rows = new ArrayList<>();
+        for (UserItemSeed ui : userItems) {
+            rows.add(ui.id + ", " + q(ui.userNum) + ", " + q(ui.itemNum) + ", " + ui.identity);
         }
-        sql.append('\n');
+        appendBatchInsert(sql, "ieps_user_item", "(`id`, `user_num`, `item_num`, `identity`)", rows, 500);
     }
 
     private static void appendReviewInserts(StringBuilder sql, List<ReviewSeed> reviews) {
-        sql.append("-- ieps_review\n");
-        for (ReviewSeed review : reviews) {
-            sql.append("INSERT INTO `ieps_review` (`id`, `user_num`, `item_num`, `review_score`, `review_option`, `review_type`, `review_level`, `review_time`) VALUES (")
-                    .append(review.id).append(", ")
-                    .append(q(review.userNum)).append(", ")
-                    .append(q(review.itemNum)).append(", ")
-                    .append(review.reviewScore.toPlainString()).append(", ")
-                    .append(q(review.reviewOption)).append(", ")
-                    .append(review.reviewType).append(", ")
-                    .append(review.reviewLevel).append(", ")
-                    .append(q(DATE_TIME_FORMATTER.format(review.reviewTime))).append(");\n");
+        List<String> rows = new ArrayList<>();
+        for (ReviewSeed rv : reviews) {
+            rows.add(rv.id + ", " + q(rv.userNum) + ", " + q(rv.itemNum) + ", "
+                    + rv.reviewScore.toPlainString() + ", " + q(rv.reviewOption) + ", "
+                    + rv.reviewType + ", " + rv.reviewLevel + ", " + q(DATE_TIME_FORMATTER.format(rv.reviewTime)));
         }
-        sql.append('\n');
+        appendBatchInsert(sql, "ieps_review", "(`id`, `user_num`, `item_num`, `review_score`, `review_option`, `review_type`, `review_level`, `review_time`)", rows, 500);
     }
 
     private static void appendInformInserts(StringBuilder sql, List<InformSeed> informs) {
-        sql.append("-- ieps_inform\n");
-        for (InformSeed inform : informs) {
-            sql.append("INSERT INTO `ieps_inform` (`id`, `head`, `publisher`, `role_id`, `subject`, `content`, `files`, `pubdate`) VALUES (")
-                    .append(inform.id).append(", ")
-                    .append(q(inform.head)).append(", ")
-                    .append(q(inform.publisher)).append(", ")
-                    .append(inform.roleId).append(", ")
-                    .append(q(inform.subject)).append(", ")
-                    .append(q(inform.content)).append(", ")
-                    .append(q(inform.files)).append(", ")
-                    .append(q(DATE_TIME_FORMATTER.format(inform.pubdate))).append(");\n");
+        List<String> rows = new ArrayList<>();
+        for (InformSeed inf : informs) {
+            rows.add(inf.id + ", " + q(inf.head) + ", " + q(inf.publisher) + ", " + inf.roleId
+                    + ", " + q(inf.subject) + ", " + q(inf.content) + ", " + q(inf.files)
+                    + ", " + q(DATE_TIME_FORMATTER.format(inf.pubdate)));
         }
-        sql.append('\n');
-    }
-
-    private static void appendFileInserts(StringBuilder sql, List<GeneratedFile> files) {
-        sql.append("-- ieps_file_hub\n");
-        for (GeneratedFile file : files) {
-            sql.append("INSERT INTO `ieps_file_hub` (`id`, `type_num`, `user_num`, `academy`, `file_name`, `object_key`, `storage_provider`, `content_type`, `file_size`, `file_kind`, `create_time`, `update_time`) VALUES (")
-                    .append(file.id).append(", ")
-                    .append(q(file.typeNum)).append(", ")
-                    .append(q(file.userNum)).append(", ")
-                    .append(q(file.academy)).append(", ")
-                    .append(q(file.fileName)).append(", ")
-                    .append(q(file.objectKey)).append(", ")
-                    .append(q(file.storageProvider)).append(", ")
-                    .append(q(file.contentType)).append(", ")
-                    .append(file.fileSize).append(", ")
-                    .append(file.fileKind).append(", ")
-                    .append(q(DATE_TIME_FORMATTER.format(file.createTime))).append(", ")
-                    .append(q(DATE_TIME_FORMATTER.format(file.createTime))).append(");\n");
-        }
-        sql.append('\n');
+        appendBatchInsert(sql, "ieps_inform", "(`id`, `head`, `publisher`, `role_id`, `subject`, `content`, `files`, `pubdate`)", rows, 500);
     }
 
     private static String buildPhone(String userNum) {
@@ -899,34 +793,6 @@ public final class RandomDataUtil {
 
     private static String buildEmail(String userNum) {
         return "u" + userNum + "@ieps.local";
-    }
-
-    private static String buildObjectKey(String typeNum, String userNum, String fileName, int fileKind, LocalDateTime createTime) {
-        String yearMonth = createTime.format(DateTimeFormatter.ofPattern("yyyyMM"));
-        if (fileKind == 1) {
-            return "files/public/" + yearMonth + "/" + fileName;
-        }
-        return "files/" + fileKind + "/" + typeNum + "/" + userNum + "/" + yearMonth + "/" + fileName;
-    }
-
-    private static String detectContentType(String fileName) {
-        String lowerCaseFileName = fileName.toLowerCase(Locale.ROOT);
-        if (lowerCaseFileName.endsWith(".pdf")) {
-            return "application/pdf";
-        }
-        if (lowerCaseFileName.endsWith(".doc")) {
-            return "application/msword";
-        }
-        if (lowerCaseFileName.endsWith(".docx")) {
-            return "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
-        }
-        if (lowerCaseFileName.endsWith(".xls")) {
-            return "application/vnd.ms-excel";
-        }
-        if (lowerCaseFileName.endsWith(".xlsx")) {
-            return "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-        }
-        return "application/octet-stream";
     }
 
     private static String q(String value) {
@@ -949,7 +815,6 @@ public final class RandomDataUtil {
         private final List<UserItemSeed> userItems = new ArrayList<>();
         private final List<ReviewSeed> reviews = new ArrayList<>();
         private final List<InformSeed> informs = new ArrayList<>();
-        private final List<GeneratedFile> files = new ArrayList<>();
     }
 
     private static final class GenerationContext {
@@ -970,7 +835,6 @@ public final class RandomDataUtil {
         private int userItemId = 700001;
         private int reviewId = 1;
         private int informId = 400001;
-        private int fileId = 1;
         private final Map<String, Integer> academyGroupCursor = new LinkedHashMap<>();
         private int collegeGroupCursor = 0;
 
@@ -1008,10 +872,6 @@ public final class RandomDataUtil {
 
         private int nextInformId() {
             return informId++;
-        }
-
-        private int nextFileId() {
-            return fileId++;
         }
 
         private int nextAcademyReviewGroupIndex(String academyName) {
@@ -1116,35 +976,6 @@ public final class RandomDataUtil {
             this.collegeFunds = collegeFunds;
             this.governFunds = governFunds;
             this.itemDate = itemDate;
-        }
-    }
-
-    private static final class GeneratedFile {
-        private final int id;
-        private final String typeNum;
-        private final String userNum;
-        private final String academy;
-        private final String fileName;
-        private final String objectKey;
-        private final String storageProvider;
-        private final String contentType;
-        private final int fileSize;
-        private final int fileKind;
-        private final LocalDateTime createTime;
-
-        private GeneratedFile(int id, String typeNum, String userNum, String academy,
-                              String fileName, int fileSize, int fileKind, LocalDateTime createTime) {
-            this.id = id;
-            this.typeNum = typeNum;
-            this.userNum = userNum;
-            this.academy = academy;
-            this.fileName = fileName;
-            this.objectKey = buildObjectKey(typeNum, userNum, fileName, fileKind, createTime);
-            this.storageProvider = "cos";
-            this.contentType = detectContentType(fileName);
-            this.fileSize = fileSize;
-            this.fileKind = fileKind;
-            this.createTime = createTime;
         }
     }
 

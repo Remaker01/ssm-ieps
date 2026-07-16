@@ -200,7 +200,7 @@ ssm-ieps/
 - 禁止将Git相关命令与其他命令混合在一起，但不同的Git命令可以一并使用
 
 ### 命令执行规范
-- Windows下如已安装Powershell 7，优先采用，尽量不要使用Powershell的旧版本，更不要使用cmd
+- Windows下如已安装Powershell 7，优先采用，尽量不要使用Powershell的旧版本，*更不要使用cmd（除非绝对必要）*
 - Powershell下不要使用`Pid`等内部变量
 
 ---
