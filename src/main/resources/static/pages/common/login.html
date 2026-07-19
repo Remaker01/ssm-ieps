@@ -124,8 +124,8 @@ const userNum = $('.userNum').val();
                             return;
                         } else{
                             layer.msg(result.msg);
-                            // 存储 JWT Token（从 result.data 获取）
-                            setToken(result.data);
+                            // 存储 Access Token 和 Refresh Token
+                            setLoginTokens(result.data.accessToken, result.data.refreshToken);
                             setTimeout(function(){
                                 $(window).attr('location', '/index');
                                 //登录返回，跳转首页

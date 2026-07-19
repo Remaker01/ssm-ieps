@@ -1,7 +1,9 @@
 package com.ieps.config;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
@@ -15,6 +17,9 @@ import org.springframework.web.servlet.view.InternalResourceViewResolver;
 @Configuration
 public class WebMvcConfig implements WebMvcConfigurer {
 
+    @Autowired
+    private DocsAccessInterceptor docsAccessInterceptor;
+
     /**
      * 配置视图解析器
      * 对应 springmvc.xml 中的 InternalResourceViewResolver 配置
@@ -27,6 +32,12 @@ public class WebMvcConfig implements WebMvcConfigurer {
         resolver.setSuffix(".html");
         resolver.setOrder(0);
         return resolver;
+    }
+
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(docsAccessInterceptor)
+                .addPathPatterns("/api-docs/**", "/docs/**");
     }
 
     /**

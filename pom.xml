@@ -211,6 +211,13 @@
             <artifactId>caffeine</artifactId>
         </dependency>
 
+        <!-- SpringDoc OpenAPI -->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-ui</artifactId>
+            <version>1.7.0</version>
+        </dependency>
+
         <!-- Commons 工具 -->
         <dependency>
             <groupId>commons-fileupload</groupId>

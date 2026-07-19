@@ -139,9 +139,9 @@
         const now = new Date();
         const dayNames = ["周日", "周一", "周二", "周三", "周四", "周五", "周六"];
         const parts = [
-            now.getFullYear() + "年" + String(now.getMonth() + 1).padStart(2, "0") + "月" + String(now.getDate()).padStart(2, "0") + "日",
+            now.getFullYear() + "年" + String(now.getMonth() + 1) + "月" + String(now.getDate()) + "日",
             dayNames[now.getDay()]
-        ];
+        ]; // 前面加个0感觉不太好看
         const topStatusText = document.getElementById("topStatusText");
         if (topStatusText) {
             topStatusText.textContent = "欢迎使用 IEPS 管理平台 · " + parts.join(" ");

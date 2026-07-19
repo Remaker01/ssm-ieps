@@ -65,6 +65,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         "/downloadFile", "/downloadFile.do",
         "/downloadFileWithItemNum", "/downloadFileWithItemNum.do",
 
+        // SpringDoc API 文档（访问控制由 DocsAccessInterceptor 负责）
+        "/api-docs/**", "/docs/**",
+
+        // Token 刷新接口（需携带过期 Access Token 或 Refresh Token）
+        "/refresh", "/refresh.do",
+
         // 静态资源
         "/static/**", "/pages/**", "/hub/**",
         "/favicon.ico", "/error",

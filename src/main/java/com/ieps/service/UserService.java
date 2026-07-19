@@ -203,6 +203,49 @@ public class UserService {
     public ServerResponse<String> getUserPwdWithUserNum(String userNum) {
         return ServerResponse.createByErrorMessage("出于安全考虑，系统不再提供密码读取接口。");
     }
-    
+
+    /**
+     * 根据用户编号获取用户基本信息（不含密码）
+     * 用于 Token 刷新时重建 User 对象
+     */
+    public User getUserByUserNum(String userNum) {
+        User user = userMapper.selectByUserNum(userNum);
+        if (user == null) return null;
+        User result = new User();
+        result.setUserNum(user.getUserNum());
+        result.setUserStatus(user.getUserStatus());
+        Integer roleId = userMapper.selectRoleIdByUserNum(userNum);
+        result.setRoleId(roleId);
+        return result;
+    }
+
+    // ======================== Refresh Token 管理 ========================
+
+    private static final String REDIS_REFRESH_PREFIX = "ieps:refresh:";
+
+    /**
+     * 存储 Refresh Token 到 Redis（以 jti 为 key）
+     */
+    public void storeRefreshToken(String userNum, String jti, long ttlSeconds) {
+        String key = REDIS_REFRESH_PREFIX + jti;
+        stringRedisTemplate.opsForValue().set(key, userNum, ttlSeconds, TimeUnit.SECONDS);
+    }
+
+    /**
+     * 校验 Refresh Token 在 Redis 中是否有效
+     * @return userNum 有效则返回用户编号，无效返回 null
+     */
+    public String validateRefreshTokenInRedis(String jti) {
+        String key = REDIS_REFRESH_PREFIX + jti;
+        return stringRedisTemplate.opsForValue().get(key);
+    }
+
+    /**
+     * 删除 Refresh Token（退出登录 / token 轮换时调用）
+     */
+    public void revokeRefreshToken(String jti) {
+        String key = REDIS_REFRESH_PREFIX + jti;
+        stringRedisTemplate.delete(key);
+    }
     
 }

@@ -16,27 +16,25 @@ import org.springframework.stereotype.Component;
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.UUID;
 
 /**
  * JWT 工具类
- * 负责 Token 的签发、解析与校验
+ * 负责 Access Token / Refresh Token 的签发、解析与校验
  */
 @Component
 public class JwtUtil {
     
     private static final Logger logger = LoggerFactory.getLogger(JwtUtil.class);
     
-    /**
-     * JWT 密钥（从配置文件中读取）
-     */
     @Value("${ieps.jwt.secret}")
     private String jwtSecret;
     
-    /**
-     * JWT 过期时间（毫秒），默认 30 分钟
-     */
-    @Value("${ieps.jwt.expiration:1800000}")
-    private long jwtExpiration;
+    @Value("${ieps.jwt.access-token-expiration:600000}")
+    private long accessTokenExpiration;
+    
+    @Value("${ieps.jwt.refresh-token-expiration:604800000}")
+    private long refreshTokenExpiration;
     
     /**
      * 构建签名密钥
@@ -53,14 +51,12 @@ public class JwtUtil {
     }
     
     /**
-     * 生成 JWT Token
-     *
-     * @param user 用户信息（包含 userNum、userStatus、roleId）
-     * @return JWT token 字符串
+     * 生成 Access Token（短时效，5-10 分钟）
+     * 携带用户身份信息，用于 API 鉴权
      */
-    public String generateToken(User user) {
+    public String generateAccessToken(User user) {
         Date now = new Date();
-        Date expiration = new Date(now.getTime() + jwtExpiration);
+        Date expiration = new Date(now.getTime() + accessTokenExpiration);
         
         return Jwts.builder()
                 .subject(user.getUserNum())
@@ -72,9 +68,98 @@ public class JwtUtil {
                 .signWith(getSigningKey())
                 .compact();
     }
+
+    /**
+     * 生成 Refresh Token（长效，7 天）
+     * 仅含用户编号和唯一 jti，不出现在 API 鉴权流程中，仅用于换取新的 Access Token
+     * @return { token, jti } 二元组
+     */
+    public String[] generateRefreshToken(User user) {
+        Date now = new Date();
+        Date expiration = new Date(now.getTime() + refreshTokenExpiration);
+        String jti = UUID.randomUUID().toString().replace("-", "");
+        
+        String token = Jwts.builder()
+                .subject(user.getUserNum())
+                .claim("userNum", user.getUserNum())
+                .claim("jti", jti)
+                .claim("type", "refresh")
+                .issuedAt(now)
+                .expiration(expiration)
+                .signWith(getSigningKey())
+                .compact();
+        
+        return new String[]{token, jti};
+    }
+
+    /**
+     * 兼容旧调用：等价于 generateAccessToken
+     */
+    public String generateToken(User user) {
+        return generateAccessToken(user);
+    }
+    
+    /**     * 校验 Refresh Token（检查签名、类型和过期时间）
+     *
+     * @param token Refresh Token 字符串
+     * @return true 有效，false 无效
+     */
+    public boolean validateRefreshToken(String token) {
+        try {
+            Claims claims = Jwts.parser()
+                    .verifyWith(getSigningKey())
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload();
+            
+            // 确保是 refresh 类型
+            return "refresh".equals(claims.get("type", String.class));
+        } catch (ExpiredJwtException e) {
+            logger.warn("Refresh Token 已过期: {}", e.getMessage());
+        } catch (SecurityException | MalformedJwtException e) {
+            logger.warn("Refresh Token 签名无效或格式错误: {}", e.getMessage());
+        } catch (UnsupportedJwtException e) {
+            logger.warn("不支持的 Refresh Token: {}", e.getMessage());
+        } catch (IllegalArgumentException e) {
+            logger.warn("Refresh Token 字符串为空: {}", e.getMessage());
+        }
+        return false;
+    }
     
     /**
-     * 从 Token 中提取 Claims
+     * 从 Refresh Token 中提取 jti
+     */
+    public String getJtiFromRefreshToken(String token) {
+        try {
+            Claims claims = Jwts.parser()
+                    .verifyWith(getSigningKey())
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload();
+            return claims.get("jti", String.class);
+        } catch (Exception e) {
+            logger.warn("从 Refresh Token 提取 jti 失败: {}", e.getMessage());
+            return null;
+        }
+    }
+    
+    /**
+     * 从 Token（access 或 refresh）中提取主题（userNum）
+     */
+    public String getSubject(String token) {
+        try {
+            return Jwts.parser()
+                    .verifyWith(getSigningKey())
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload()
+                    .getSubject();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+    
+    /**     * 从 Token 中提取 Claims
      *
      * @param token JWT token
      * @return Claims，若解析失败返回 null

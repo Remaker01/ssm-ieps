@@ -15,7 +15,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by ljw
@@ -54,10 +57,19 @@ public class LoginController {
         ServerResponse<User> response = userService.login(userNum, userPwd);
         
         if (response.isSuccess()) {
-            // 生成 JWT Token 并返回
             User loginUser = response.getData();
-            String token = jwtUtil.generateToken(loginUser);
-            return ServerResponse.createBySuccess("登录成功，请尽情享用！", token);
+            String accessToken = jwtUtil.generateAccessToken(loginUser);
+            String[] refreshResult = jwtUtil.generateRefreshToken(loginUser);
+            String refreshToken = refreshResult[0];
+            String jti = refreshResult[1];
+
+            // 将 Refresh Token 存入 Redis（7 天）
+            userService.storeRefreshToken(userNum, jti, 7 * 24 * 3600);
+            
+            Map<String, String> tokens = new HashMap<>();
+            tokens.put("accessToken", accessToken);
+            tokens.put("refreshToken", refreshToken);
+            return ServerResponse.createBySuccess("登录成功，请尽情享用！", tokens);
         }
         
         return response;
@@ -127,12 +139,25 @@ public class LoginController {
     }
     
     /**
-     * 退出系统（无状态 JWT，前端清除 token 即可）
-     * @return
+     * 退出系统
+     * GET 请求兼容旧逻辑（直接跳转登录页）
+     * POST 请求携带 refreshToken 进行服务端失效
      */
     @RequestMapping(value = {"/logout", "/logout.do"}, method = RequestMethod.GET)
     public String logout() {
         return "redirect:/login";
+    }
+    
+    @RequestMapping(value = {"/logout", "/logout.do"}, method = RequestMethod.POST)
+    @ResponseBody
+    public ServerResponse<String> logoutWithRevoke(String refreshToken) {
+        if (refreshToken != null && jwtUtil.validateRefreshToken(refreshToken)) {
+            String jti = jwtUtil.getJtiFromRefreshToken(refreshToken);
+            if (jti != null) {
+                userService.revokeRefreshToken(jti);
+            }
+        }
+        return ServerResponse.createBySuccessMessage("退出成功");
     }
 
     /**
@@ -166,6 +191,50 @@ public class LoginController {
      * 忘记密码页面
      * @return
      */
+    /**
+     * 换取新的 Access Token
+     * 前端在收到 401 时，携带 Refresh Token 调用此接口
+     */
+    @RequestMapping(value = {"/refresh", "/refresh.do"}, method = RequestMethod.POST)
+    @ResponseBody
+    public ServerResponse<?> refresh(String refreshToken) {
+        if (refreshToken == null || refreshToken.trim().isEmpty()) {
+            return ServerResponse.createByErrorMessage("Refresh Token 不能为空");
+        }
+
+        // 1. 校验 Refresh Token 签名和类型
+        if (!jwtUtil.validateRefreshToken(refreshToken)) {
+            return ServerResponse.createByErrorMessage("Refresh Token 无效或已过期，请重新登录");
+        }
+
+        // 2. 从 Redis 校验
+        String jti = jwtUtil.getJtiFromRefreshToken(refreshToken);
+        if (jti == null) {
+            return ServerResponse.createByErrorMessage("Refresh Token 格式异常，请重新登录");
+        }
+
+        String userNum = userService.validateRefreshTokenInRedis(jti);
+        if (userNum == null) {
+            return ServerResponse.createByErrorMessage("Refresh Token 已被吊销，请重新登录");
+        }
+
+        // 3. 获取最新用户信息并签发新的 Access Token
+        User freshUser = userService.getUserByUserNum(userNum);
+        if (freshUser == null) {
+            return ServerResponse.createByErrorMessage("用户不存在，请重新登录");
+        }
+        if (freshUser.getUserStatus() == 0) {
+            userService.revokeRefreshToken(jti);
+            return ServerResponse.createByErrorMessage("账号已被锁定，请联系管理员");
+        }
+
+        String newAccessToken = jwtUtil.generateAccessToken(freshUser);
+
+        Map<String, String> result = new HashMap<>();
+        result.put("accessToken", newAccessToken);
+        return ServerResponse.createBySuccess(result);
+    }
+
     @RequestMapping(value = {"/forget-password", "/goForgetPwd.do"}, method = RequestMethod.GET)
     public String goForgotPwd() {
         return "common/forgetPwd";
