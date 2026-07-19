@@ -10,6 +10,8 @@ import com.ieps.mapper.UserInfoMapper;
 import com.ieps.pojo.Inform;
 import com.ieps.pojo.UserInfo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -64,6 +66,7 @@ public class InformService {
         return ServerResponse.createBySuccess(pageInfo);
     }
     
+    @CacheEvict(value = "ieps-inform", allEntries = true)
     public ServerResponse<String> removeInformById(Integer id, Integer roleId) {
         if (roleId < informMapper.selectByPrimaryKey(id).getRoleId()) {
             return ServerResponse.createByErrorMessage("对不起，目前你还没有权限执行该行的删除操作！");
@@ -75,6 +78,7 @@ public class InformService {
         return ServerResponse.createBySuccessMessage("删除当前行：id" + id + " 成功!");
     }
     
+    @CacheEvict(value = "ieps-inform", allEntries = true)
     public ServerResponse<String> modifyInformById(Inform inform) {
         int result = informMapper.updateByPrimaryKeySelective(inform);
         if (result == 0) {
@@ -83,6 +87,7 @@ public class InformService {
         return ServerResponse.createBySuccessMessage("更新当前行：id" + inform.getId() + " 成功!");
     }
     
+    @CacheEvict(value = "ieps-inform", allEntries = true)
     public ServerResponse<String> addInform(Inform inform) {
         int result = informMapper.insert(inform);
         if (result == 0) {
@@ -91,6 +96,7 @@ public class InformService {
         return ServerResponse.createBySuccessMessage("插入数据成功!");
     }
     
+    @CacheEvict(value = "ieps-inform", allEntries = true)
     public ServerResponse<String> batchRemoveInform(Integer[] ids, Integer roleId) {
         for (int i = 0; i < ids.length; i++) {
             if (roleId < informMapper.selectByPrimaryKey(ids[i]).getRoleId()) {
@@ -122,6 +128,7 @@ public class InformService {
         return ServerResponse.createBySuccess(inform);
     }
     
+    @Cacheable(value = "ieps-inform", key = "#id")
     public ServerResponse<Inform> getInformDetailById(Integer id) {
         Inform inform = informMapper.selectByPrimaryKey(id);
         if (inform == null) {

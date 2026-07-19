@@ -9,6 +9,8 @@ import com.ieps.mapper.UserRoleMapper;
 import com.ieps.pojo.Perm;
 import com.ieps.pojo.UserRole;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -41,6 +43,7 @@ public class PermAdminService {
         return ServerResponse.createBySuccess(pageInfo);
     }
     
+    @Cacheable("ieps-perm")
     public ServerResponse<List<Perm>> getPerm() {
         List<Perm> permList = permMapper.selectAllPerm();
         
@@ -64,10 +67,12 @@ public class PermAdminService {
         
     }
     
+    @Cacheable("ieps-perm")
     public ServerResponse<List<Perm>> getAllMenu() {
         return ServerResponse.createBySuccess(permMapper.selectAllMenu());
     }
     
+    @Cacheable(value = "ieps-perm", key = "#permId")
     public ServerResponse<Perm> getPermByPermId(Integer permId) {
         Perm perm = permMapper.selectByPrimaryKey(permId);
         if (perm == null) {
@@ -77,6 +82,7 @@ public class PermAdminService {
         return ServerResponse.createBySuccess(perm);
     }
     
+    @CacheEvict(value = "ieps-perm", allEntries = true)
     public ServerResponse<?> modifyPermById(Integer roleId, Perm perm) {
         if (roleId == Const.ROLEID_COLLEGE) {
             if (permMapper.updateByPrimaryKeySelective(perm) > 0) {
@@ -90,6 +96,7 @@ public class PermAdminService {
         
     }
     
+    @CacheEvict(value = "ieps-perm", allEntries = true)
     public ServerResponse<?> addPerm(Integer roleId, Perm perm) {
         
         System.out.println(perm);
@@ -112,6 +119,7 @@ public class PermAdminService {
         return ServerResponse.createByErrorMessage("对不起，你没有权限操作！");
     }
     
+    @CacheEvict(value = "ieps-perm", allEntries = true)
     public ServerResponse<?> batchRemovePerm(Integer roleId, Integer[] permIds) {
         if (roleId == Const.ROLEID_COLLEGE) {
             if (permMapper.batchDeletePerm(permIds) > 0) {
@@ -124,6 +132,7 @@ public class PermAdminService {
         return ServerResponse.createByErrorMessage("对不起，你没有权限操作！");
     }
     
+    @CacheEvict(value = "ieps-role-perm", allEntries = true)
     public ServerResponse<?> addRolePerm(Integer[] permIds, Integer roleId, int roleAdminId) {
         
         if (roleAdminId == Const.ROLEID_COLLEGE) {
@@ -141,6 +150,7 @@ public class PermAdminService {
         
     }
     
+    @CacheEvict(value = "ieps-role-perm", allEntries = true)
     public ServerResponse<?> addRolePermWithUserNum(Integer[] permIds, Integer roleId, String userNum) {
         
         if (roleId == Const.ROLEID_COLLEGE) {

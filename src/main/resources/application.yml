@@ -53,9 +53,7 @@ spring:
 
   # 缓存配置
   cache:
-    type: ehcache
-    ehcache:
-      config: classpath:ehcache/ehcache.xml
+    type: caffeine
 
   # 邮件配置
   mail:

@@ -205,10 +205,10 @@
             <version>1.2</version>
         </dependency>
 
-        <!-- EhCache -->
+        <!-- Caffeine 缓存 -->
         <dependency>
-            <groupId>net.sf.ehcache</groupId>
-            <artifactId>ehcache</artifactId>
+            <groupId>com.github.ben-manes.caffeine</groupId>
+            <artifactId>caffeine</artifactId>
         </dependency>
 
         <!-- Commons 工具 -->

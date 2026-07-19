@@ -8,6 +8,7 @@ import com.ieps.common.ServerResponse;
 import com.ieps.mapper.RoleMapper;
 import com.ieps.pojo.Role;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -43,6 +44,7 @@ public class RoleAdminService {
         return ServerResponse.createBySuccess(pageInfo);
     }
     
+    @CacheEvict(value = "ieps-role", allEntries = true)
     public ServerResponse<String> batchRemoveRole(int[] roleIds, int roleAdminId) {
         if (Const.ROLEID_COLLEGE == roleAdminId) {
             int result = roleMapper.batchDeleteRoleWithRoleIds(roleIds);
@@ -56,6 +58,7 @@ public class RoleAdminService {
         return ServerResponse.createByErrorMessage("对不起，你没有权限执行该操作！");
     }
     
+    @CacheEvict(value = "ieps-role", allEntries = true)
     public ServerResponse<String> removeRoleByRoleId(int roleId, int roleAdminId) {
         if (Const.ROLEID_COLLEGE == roleAdminId) {
             int result = roleMapper.deleteByPrimaryKey(roleId);

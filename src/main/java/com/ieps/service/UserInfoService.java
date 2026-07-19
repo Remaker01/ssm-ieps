@@ -9,6 +9,8 @@ import com.ieps.pojo.UserInfo;
 import com.ieps.util.MailUtil;
 import com.ieps.util.miaodiyun.IndustrySMS;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -34,6 +36,7 @@ public class UserInfoService {
     @Autowired
     private StorageService storageService;
     
+    @Cacheable(value = "ieps-user-info", key = "#userNum")
     public ServerResponse<UserInfo> findByUserNum(String userNum) {
         if (userNum == null || userNum.isEmpty() || "undefined".equals(userNum)) {
             return ServerResponse.createByErrorMessage("用户不存在，请重新登录！");
@@ -51,6 +54,7 @@ public class UserInfoService {
         return ServerResponse.createBySuccess(userInfo);
     }
     
+    @CacheEvict(value = "ieps-user-info", key = "#userInfo.userNum")
     public ServerResponse<String> modifyUserInfo(UserInfo userInfo) {
         int result = userInfoMapper.updateByUserNumSelective(userInfo);
         if (result == 0) {

@@ -4,6 +4,7 @@ import com.ieps.common.ServerResponse;
 import com.ieps.mapper.RolePermMapper;
 import com.ieps.pojo.RolePerm;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,6 +17,7 @@ public class RolePermService {
     @Autowired
     private RolePermMapper rolePermMapper;
     
+    @Cacheable(value = "ieps-role-perm", key = "#roleId")
     public ServerResponse<List<RolePerm>> getMenu(Integer roleId) {
         
         List<RolePerm> rolePermList = rolePermMapper.getPerm(roleId);

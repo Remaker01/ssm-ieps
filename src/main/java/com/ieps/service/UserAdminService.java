@@ -17,6 +17,7 @@ import com.ieps.pojo.UserInfo;
 import com.ieps.pojo.UserRole;
 import com.ieps.util.PasswordUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -228,6 +229,7 @@ public class UserAdminService {
      * @param roleId
      * @return
      */
+    @Cacheable("ieps-role")
     public ServerResponse<List<Role>> getAllRoleIdWithRoleIdByAdmin(Integer roleId) {
         List<Role> roleList = roleMapper.selectAllRoleWithRoleAdminId(roleId);
         if (roleList.size() == 0) {

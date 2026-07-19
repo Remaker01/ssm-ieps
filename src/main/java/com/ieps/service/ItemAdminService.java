@@ -10,6 +10,7 @@ import com.ieps.mapper.*;
 import com.ieps.pojo.Review;
 import com.ieps.pojo.UserInfo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -39,6 +40,7 @@ public class ItemAdminService {
     @Autowired
     private FileHubMapper fileHubMapper;
 
+    @Cacheable("ieps-item-options")
     public ServerResponse<Map<String, Object>> getItemOptions() {
         Map<String, String> itemLevel = Map.of(
                 "1", "无",
