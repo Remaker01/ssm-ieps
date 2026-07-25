@@ -1,33 +1,50 @@
 # ssm-ieps
 
-大学生创新创业项目管理系统（IEPS），当前为 `Spring Boot 2.7.18 + MyBatis + Layui` 的半前后端分离项目：后端提供页面路由和 JSON API，前端使用静态 HTML + AJAX 调用。
+大学生创新创业项目管理系统（IEPS），`Spring Boot 2.7.18 + MyBatis + Layui` 半前后端分离项目。
 
-## 当前状态
+> **Fork 自** [jiawuliang/ssm-ieps](https://github.com/jiawuliang/ssm-ieps)（1.0.1），主要改造如下：
+> - **架构更新**：传统SSM → Spring Boot
+> - **鉴权重构**：Session → JWT 双 Token（Access + Refresh），Redis 持久化刷新
+> - **缓存替换**：Caffeine 本地缓存替代 Ehcache，提升热点数据查询性能
+> - **文件上云**：对接腾讯云 COS 对象存储，支持分片上传、异步批量打包下载
+> - **安全加固**：PBKDF2WithHmacSHA256 哈希密码，Redis 验证码防刷三重保护
+> - **技术整理**：统一 Jackson，HikariCP，移除无用依赖；新增 Springdoc OpenAPI 接口文档
+> - **部署脚本**：`deploy/` + `scripts/*.ps1`，一键启停 Redis / Nginx / 后端
 
-- 鉴权已从旧的 `HttpSession` 方案迁移为 `JWT`。登录接口返回 token，前端通过 `src/main/resources/static/static/js/ieps-jwt.js` 统一存储、注入 `Authorization` 请求头，并在 `401` 时清理登录态和跳回登录页。
-- 控制器当前用户获取方式已统一为 `request.getAttribute(Const.REQUEST_CURRENT_USER)`，由 `JwtAuthenticationFilter` 完成 token 校验和用户注入。
-- Redis 目前用于忘记密码链路，而不是 Spring Session：
-  - 验证码存储在 Redis，带发送冷却、过期时间、失败次数控制。
-  - 验证码校验通过后，后端生成短时效 `forgetPwdToken` 写入 Redis，再用于 `/forget-password` 最终重置密码。
-- 数据源连接池已切换为 `HikariCP`，配置在 `src/main/resources/application.yml`。
-- JSON 处理已统一使用 Spring Boot 自带 `Jackson`，代码中通过 `ObjectMapper` 处理 JSON。
-- 密码策略已升级：
-  - 默认密码为 `Ieps@123`
-  - 新注册、修改密码、忘记密码重置都走统一密码复杂度校验
-  - 持久化密码使用 `PBKDF2WithHmacSHA256`
+## 关键配置
 
-## 近期改造摘要
+```yaml
+# 数据源（默认 localhost:3306/ieps）
+spring.datasource.url
+spring.datasource.username
+spring.datasource.password
 
-- 新增 JWT 基础设施：`JwtUtil`、`JwtAuthenticationFilter`、前端 `ieps-jwt.js`。
-- 登录页、注册页、首页已支持“检测到有效 token 自动跳转 `/index`”。
-- iframe 场景下的未登录跳转已统一改为 `window.top`，避免只在子页面内跳转。
-- 忘记密码流程已改为后端校验验证码，不再依赖前端持有验证码明文。
-- 多个前端 AJAX 调用已从旧回调形式整理为 `.done()` / `.fail()` 链式写法。
-- 修复了若干前端问题，包括 `setTimetout` 拼写错误，以及 `item/applyItem.html` 内脚本区误写 HTML 注释导致 JavaScript 不执行的问题。
-- `FileAdminController` 已做一轮清理和日志补强，文件预览/下载链路现在基于 Jackson 解析返回结果。
-- 部署脚本已整理为仓库内 `deploy/` 目录和 `scripts/*.ps1`，支持按需重建后端、发布前端、启动 Redis、重载 Nginx。
+# Redis（验证码防刷、Refresh Token 持久化）
+spring.redis.host
+spring.redis.port
+spring.redis.database
 
-## 运行与部署
+# JWT 双 Token
+ieps.jwt.secret              # 签名密钥
+ieps.jwt.access-token-expiration   # Access Token 过期（默认 10 分钟）
+ieps.jwt.refresh-token-expiration  # Refresh Token 过期（默认 7 天）
+
+# 腾讯云 COS（文件存储）
+ieps.storage.cos.secret-id
+ieps.storage.cos.secret-key
+ieps.storage.cos.bucket / region / app-id
+```
+
+完整配置见 `src/main/resources/application.yml`。
+
+## API 文档
+
+启动项目后访问：
+
+- Swagger UI：[http://127.0.0.1:8080/docs](http://127.0.0.1:8080/docs)
+- OpenAPI JSON：[http://127.0.0.1:8080/api-docs](http://127.0.0.1:8080/api-docs)
+
+## 构建与运行
 
 ### 本地开发
 
@@ -39,6 +56,7 @@ mvn spring-boot:run
 
 ```powershell
 mvn clean package -DskipTests
+java -jar target/ieps.jar --server.port=8080
 ```
 
 ### 一键启动
