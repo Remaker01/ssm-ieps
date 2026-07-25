@@ -132,64 +132,119 @@ var _refreshQueue = [];
 /**
  * 用 Refresh Token 换取新的 Access Token
  * 返回 Promise，刷新成功时 resolve，彻底失败时 reject
+ * 修复 $(document).ajaxError 全局事件与 Layui 的 jQuery 实例（layui.$）不兼容
  */
 function refreshAccessToken() {
     var refreshToken = getRefreshToken();
+    var promise = $.Deferred();
+
     if (!refreshToken) {
-        return Promise.reject(new Error('无 Refresh Token'));
+        promise.reject(new Error('无 Refresh Token'));
+        return promise.promise();  // 返回 promise 对象，支持 .done/.fail/.then
     }
 
-    return new Promise(function (resolve, reject) {
-        $.ajax({
-            url: '/refresh',
-            method: 'POST',
-            data: { refreshToken: refreshToken },
-            dataType: 'json',
-            success: function (res) {
-                if (res && res.status === 0 && res.data && res.data.accessToken) {
-                    setToken(res.data.accessToken);
-                    resolve(res.data.accessToken);
-                } else {
-                    reject(new Error('刷新失败：' + (res ? res.msg : '未知错误')));
-                }
-            },
-            error: function () {
-                reject(new Error('刷新请求网络异常'));
+    $.ajax({
+        url: '/refresh',
+        method: 'POST',
+        data: { refreshToken: refreshToken },
+        dataType: 'json',
+        success: function (res) {
+            if (res && res.status === 0 && res.data && res.data.accessToken) {
+                setToken(res.data.accessToken);
+                promise.resolve(res.data.accessToken);
+            } else {
+                promise.reject(new Error('刷新失败：' + (res ? res.msg : '未知错误')));
             }
-        });
+        },
+        error: function () {
+            promise.reject(new Error('刷新请求网络异常'));
+        }
     });
+
+    return promise.promise();
+}
+
+/**
+ * 用 Refresh Token 换取新的 Access Token（同步版本）
+ * 返回新的 Access Token，失败返回 null
+ * 用于同步请求上下文中的 token 刷新
+ */
+function refreshAccessTokenSync() {
+    var refreshToken = getRefreshToken();
+    if (!refreshToken) {
+        return null;
+    }
+
+    var newAccessToken = null;
+    $.ajax({
+        url: '/refresh',
+        method: 'POST',
+        data: { refreshToken: refreshToken },
+        dataType: 'json',
+        async: false,
+        success: function (res) {
+            if (res && res.status === 0 && res.data && res.data.accessToken) {
+                setToken(res.data.accessToken);
+                newAccessToken = res.data.accessToken;
+            }
+        },
+        error: function () {
+            newAccessToken = null;
+        }
+    });
+
+    return newAccessToken;
 }
 
 /**
  * 处理 401 响应：尝试刷新 Token，成功则重试所有排队请求
- * @param {Function} retryOriginal - 重试原始请求的回调
+ * @param {Object}  jqXHR       - jQuery XHR 对象
+ * @param {Object}  settings    - 原始 AJAX 配置（用于重试）
+ * @param {Object}  jqInstance  - 发起请求的 jQuery 实例（用于重试时保持兼容）
  */
-function handleUnauthorized(retryOriginal) {
+function handleUnauthorized(jqXHR, settings, jqInstance) {
+    var $jq = jqInstance || window.$;
+
+    // 如果是同步请求，直接清空 token 并返回错误
+    // 因为异步刷新无法在同步请求上下文中完成
+    if (settings.async === false) {
+        clearAllTokens();
+        if (!isPublicPath(window.top.location.pathname)) {
+            // 在同步上下文中，不立即跳转（避免阻塞），返回后让调用方处理
+            if (settings.url && settings.url.indexOf('/refresh') === -1) {
+                console.warn('同步请求遇到 401，Token 可能已过期，请重新登录');
+            }
+        }
+        return;
+    }
+
     if (_refreshing) {
-        // 已有刷新在进行中，将当前请求加入队列等待
-        _refreshQueue.push(retryOriginal);
+        _refreshQueue.push(function () { $jq.ajax(settings); });
         return;
     }
 
     _refreshing = true;
 
-    refreshAccessToken().then(function (newToken) {
-        // 刷新成功，重试当前请求
-        _refreshing = false;
-        if (retryOriginal) retryOriginal();
-        // 重试队列中等待的其他请求
-        var queue = _refreshQueue.slice();
-        _refreshQueue = [];
-        queue.forEach(function (cb) { if (cb) cb(); });
-    }).catch(function () {
-        // 刷新彻底失败：清除 token，跳转登录页
-        _refreshing = false;
-        _refreshQueue = [];
-        clearAllTokens();
-        if (!isPublicPath(window.top.location.pathname)) {
-            window.top.location.href = '/login';
-        }
-    });
+    refreshAccessToken()
+        .then(function (newToken) {
+            // 刷新成功
+            _refreshing = false;
+            // 重试当前请求
+            $jq.ajax(settings);
+            // 重试队列中等待的其他请求
+            var queue = _refreshQueue.slice();
+            _refreshQueue = [];
+            queue.forEach(function (cb) { if (cb) cb(); });
+        })
+        .fail(function () {
+            // 刷新失败
+            _refreshing = false;
+            _refreshQueue = [];
+            clearAllTokens();
+            if (!isPublicPath(window.top.location.pathname)) {
+                window.top.location.href = '/login';
+            }
+        });
 }
 
 // ======================== 页面鉴权 ========================
@@ -200,11 +255,8 @@ function topLocation() {
 
 function requireAuth() {
     if (!hasToken()) {
-        // 有 Refresh Token 时尝试恢复会话
         if (getRefreshToken()) {
-            handleUnauthorized(function () {
-                topLocation().href = topLocation().href;
-            });
+            handleUnauthorized();
             return false;
         }
         topLocation().href = '/login';
@@ -232,38 +284,21 @@ function redirectIfAuthenticated() {
 function setupAjaxAuth(jqInstance) {
     if (!jqInstance || !jqInstance.ajaxSetup) return;
 
-    // 保存原始的 statusCode 设置
     jqInstance.ajaxSetup({
         beforeSend: function (xhr) {
             var token = getToken();
             if (token) {
                 xhr.setRequestHeader('Authorization', 'Bearer ' + token);
             }
-        }
-    });
-
-    // 使用 ajaxPrefilter 拦截 401 响应以实现自动刷新
-    // 避免 statusCode 可能导致无限递归
-    $(document).ajaxError(function (event, jqXHR, settings, error) {
-        if (jqXHR.status === 401) {
-            // 跳过刷新接口自身的 401
-            if (settings.url === '/refresh' || settings.url === '/refresh.do') {
-                return;
-            }
-
-            // 阻止默认错误处理
-            event.stopPropagation();
-
-            // 保存原始请求的配置，用于刷新后重试
-            var originalSettings = settings;
-
-            handleUnauthorized(function () {
-                // 刷新成功后用新 Token 重试原始请求
-                var newToken = getToken();
-                if (newToken) {
-                    $.ajax(originalSettings);
+        },
+        statusCode: {
+            401: function (xhr, _ajaxOptions, thrownError) {
+                // 跳过刷新接口自身，避免递归
+                if (_ajaxOptions && (_ajaxOptions.url === '/refresh' || _ajaxOptions.url === '/refresh.do')) {
+                    return;
                 }
-            });
+                handleUnauthorized(xhr, this, jqInstance);
+            }
         }
     });
 }
@@ -293,3 +328,6 @@ window.setLoginTokens = function (accessToken, refreshToken) {
 window.clearLoginTokens = function () {
     clearAllTokens();
 };
+
+window.refreshAccessTokenSync = refreshAccessTokenSync;
+window.isPublicPath = isPublicPath;

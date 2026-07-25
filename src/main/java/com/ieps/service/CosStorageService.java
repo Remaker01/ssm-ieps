@@ -32,8 +32,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Date;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
@@ -219,9 +221,14 @@ public class CosStorageService {
                 return;
             }
             COSClient initializedCosClient = buildClient();
-            ExecutorService initializedTransferExecutor = Executors.newFixedThreadPool(
-                    Math.max(2, iepsCosProperties.getTransferThreadPoolSize()),
-                    new CosTransferThreadFactory());
+            int threadCount = Math.max(2, iepsCosProperties.getTransferThreadPoolSize());
+            // 有界队列 + CallerRunsPolicy：队列满时由调用线程执行，天然反压，避免 OOM
+            ExecutorService initializedTransferExecutor = new ThreadPoolExecutor(
+                    threadCount, threadCount,
+                    60L, TimeUnit.SECONDS,
+                    new LinkedBlockingQueue<>(32),
+                    new CosTransferThreadFactory(),
+                    new ThreadPoolExecutor.CallerRunsPolicy());
             TransferManager initializedTransferManager = new TransferManager(initializedCosClient, initializedTransferExecutor);
             TransferManagerConfiguration configuration = new TransferManagerConfiguration();
             configuration.setMultipartUploadThreshold(iepsCosProperties.getMultipartUploadThresholdBytes());

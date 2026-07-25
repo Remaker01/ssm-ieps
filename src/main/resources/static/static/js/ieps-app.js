@@ -65,13 +65,65 @@
         if (!$ || !$.extend) {
             throw new Error("jQuery 未加载，无法发起 IEPS 请求");
         }
+        
         var response = null;
-        request(method, url, data, $.extend(true, {
-            async: false,
-            success: function (result) {
-                response = result;
+        var maxRetries = 2;
+        var retryCount = 0;
+        
+        function doRequest() {
+            var jqxhr = $.ajax($.extend(true, {
+                url: normalizeUrl(url),
+                type: method,
+                data: data || {},
+                async: false,
+                success: function (result) {
+                    response = result;
+                },
+                statusCode: {
+                    401: function(xhr) {
+                        // 跳过刷新接口自身
+                        if (url === '/refresh' || url === '/refresh.do') {
+                            return;
+                        }
+                        
+                        // 尝试同步刷新 token 并重试
+                        if (retryCount < maxRetries && 
+                            typeof window.refreshAccessTokenSync === 'function') {
+                            var refreshResult = window.refreshAccessTokenSync();
+                            if (refreshResult) {
+                                retryCount++;
+                                doRequest();
+                            } else {
+                                clearTokensAndRedirect();
+                            }
+                        } else {
+                            clearTokensAndRedirect();
+                        }
+                    }
+                }
+            }, options || {}));
+            
+            return jqxhr;
+        }
+        
+        function clearTokensAndRedirect() {
+            if (typeof window.clearAllTokens === 'function') {
+                window.clearAllTokens();
+            } else if (typeof window.removeToken === 'function') {
+                window.removeToken();
+                if (typeof window.removeRefreshToken === 'function') {
+                    window.removeRefreshToken();
+                }
             }
-        }, options || {}));
+            var currentPath = window.location.pathname;
+            var isPublic = typeof window.isPublicPath === 'function' && 
+                            window.isPublicPath(currentPath);
+            if (!isPublic && window.top) {
+                window.top.location.href = '/login';
+            }
+        }
+        
+        doRequest();
         return response;
     }
 

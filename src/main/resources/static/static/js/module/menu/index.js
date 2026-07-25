@@ -135,12 +135,28 @@ layui.config({
         window.sessionStorage.removeItem("menu");
         menu = [];
         window.sessionStorage.removeItem("curmenu");
-        // JWT 退出：清除 Token
-        removeToken();
-        layer.msg(message);
-        setTimeout(function () {
-            $(window).attr('location', '/home');
-        }, 1000);
+        // JWT 退出：清除所有 Token（access + refresh）
+        if (typeof clearAllTokens === 'function') {
+            clearAllTokens();
+        } else if (typeof removeToken === 'function' && typeof removeRefreshToken === 'function') {
+            removeToken();
+            removeRefreshToken();
+        } else if (typeof removeToken === 'function') {
+            removeToken();
+        }
+        
+        // 通知后端退出（吊销 refresh token）
+        $.ajax({
+            url: '/logout',
+            type: 'POST',
+            async: false,
+            complete: function() {
+                layer.msg(message);
+                setTimeout(function () {
+                    $(window).attr('location', '/home');
+                }, 1000);
+            }
+        });
     }
 
     //隐藏左侧导航
