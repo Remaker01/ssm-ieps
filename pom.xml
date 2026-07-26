@@ -28,26 +28,14 @@
         <pagehelper.version>1.4.6</pagehelper.version>
         <kaptcha.version>2.3.2</kaptcha.version>
         <hutool.version>5.8.20</hutool.version>
-        <commons-email.version>1.5</commons-email.version>
         <httpclient.version>4.5.14</httpclient.version>
         <httpcore.version>4.4.16</httpcore.version>
         <httpmime.version>4.5.14</httpmime.version>
         <joda-time.version>2.12.5</joda-time.version>
-        <commons-fileupload.version>1.4</commons-fileupload.version>
-        <commons-io.version>2.11.0</commons-io.version>
-        <commons-codec.version>1.15</commons-codec.version>
-        <commons-lang3.version>3.12.0</commons-lang3.version>
         <jjwt.version>0.12.5</jjwt.version>
     </properties>
 
     <dependencies>
-
-        <dependency>
-            <groupId>com.memetix</groupId>
-            <artifactId>microsoft-translator-java-api</artifactId>
-            <version>0.6.2</version>
-            <type>jar</type>
-        </dependency>
 
         <!--  文件在线预览 start -->
         <dependency>
@@ -76,14 +64,6 @@
             <artifactId>hutool-all</artifactId>
             <version>${hutool.version}</version>
         </dependency>
-
-        <!-- 邮箱验证码 Start -->
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-email</artifactId>
-            <version>${commons-email.version}</version>
-        </dependency>
-        <!-- 邮箱验证码 End -->
 
         <!-- 手机验证码 Start-->
         <dependency>
@@ -183,26 +163,11 @@
             <version>${pagehelper.version}</version>
         </dependency>
 
-        <!-- MyBatis Generator -->
-        <dependency>
-            <groupId>org.mybatis.generator</groupId>
-            <artifactId>mybatis-generator-core</artifactId>
-            <version>1.4.0</version>
-            <scope>compile</scope>
-        </dependency>
-
         <!-- MySQL驱动 -->
         <dependency>
             <groupId>com.mysql</groupId>
             <artifactId>mysql-connector-j</artifactId>
             <version>8.0.33</version>
-        </dependency>
-
-        <!-- JSTL -->
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>jstl</artifactId>
-            <version>1.2</version>
         </dependency>
 
         <!-- Caffeine 缓存 -->
@@ -218,35 +183,9 @@
             <version>1.7.0</version>
         </dependency>
 
-        <!-- Commons 工具 -->
-        <dependency>
-            <groupId>commons-fileupload</groupId>
-            <artifactId>commons-fileupload</artifactId>
-            <version>${commons-fileupload.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-            <version>${commons-io.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>commons-collections</groupId>
-            <artifactId>commons-collections</artifactId>
-            <version>3.2.2</version>
-        </dependency>
-
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-        </dependency>
-
-        <!-- Guava -->
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>31.1-jre</version>
         </dependency>
 
         <dependency>
