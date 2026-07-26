@@ -10,6 +10,7 @@ import java.net.URLConnection;
 /**
  * Created by ljw
  */
+@Deprecated(forRemoval = true)
 public class TestTranslate {
     public static void main(String[] args) {
         // TODO Auto-generated method stub
