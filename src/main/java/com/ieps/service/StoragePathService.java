@@ -8,6 +8,26 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
+/**
+ * COS 对象键（存储路径）生成服务
+ *
+ * <p><b>异步下载链路中的角色：</b></p>
+ * <ul>
+ *   <li>{@link #buildArchiveObjectKey(String, String, String)} — 生成 ZIP 归档包的 COS 路径，
+ *       格式：{@code archives/{userNum}/{yyyyMM}/{taskId}-{zipFileName}}</li>
+ *   <li>{@link #buildMigratedObjectKey(FileHub)} — 生成迁移文件的 COS 路径</li>
+ *   <li>{@link #sanitizeFileName(String)} — 清理文件名中的非法字符，
+ *       在 ZIP 打包 {@link DownloadTaskService#resolveUniqueEntryName} 中调用</li>
+ * </ul>
+ *
+ * <p>文件路径规则：</p>
+ * <ul>
+ *   <li>头像：{@code avatars/{userNum}/{yyyyMM}/{uuid}-{fileName}}</li>
+ *   <li>附件：{@code files/{fileKind}/{typeNum}/{userNum}/{yyyyMM}/{uuid}-{fileName}}</li>
+ *   <li>归档：{@code archives/{userNum}/{yyyyMM}/{taskId}-{zipFileName}}</li>
+ *   <li>公开文件：{@code files/public/{yyyyMM}/{uuid}-{fileName}}</li>
+ * </ul>
+ */
 @Service
 public class StoragePathService {
 
@@ -34,6 +54,20 @@ public class StoragePathService {
                 + "/" + currentMonth() + "/" + safeFileName;
     }
 
+    /**
+     * 生成异步下载任务的 ZIP 归档包 COS 对象键
+     *
+     * <p><b>异步下载场景：</b>{@link DownloadTaskService#processDownloadTaskInternal(String)}
+     * 在将多文件打包为 ZIP 后，调用此方法生成归档路径，
+     * 然后将本地 ZIP 上传到该路径下。</p>
+     *
+     * <p>路径格式：{@code archives/{userNum}/{yyyyMM}/{taskId}-{zipFileName}}</p>
+     *
+     * @param userNum     发起下载的用户编号
+     * @param taskId      下载任务 ID
+     * @param zipFileName ZIP 包文件名
+     * @return COS 对象键
+     */
     public String buildArchiveObjectKey(String userNum, String taskId, String zipFileName) {
         return "archives/" + safeSegment(userNum) + "/" + currentMonth()
                 + "/" + safeSegment(taskId) + "-" + sanitizeFileName(zipFileName);

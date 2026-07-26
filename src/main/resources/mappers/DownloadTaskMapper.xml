@@ -1,7 +1,24 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<!--
+  ================================================================
+  异步下载任务 Mapper XML
+  ================================================================
+  对应表：ieps_download_task
+  对应接口：com.ieps.mapper.DownloadTaskMapper
+
+  异步下载流程中的 SQL 操作：
+  1. 创建任务    → insertSelective（插入 PENDING 状态记录）
+  2. 查询状态    → selectByTaskId（前端轮询时使用）
+  3. 更新状态    → updateByTaskIdSelective（逐步更新 PENDING→RUNNING→SUCCESS/FAILED）
+  4. 过期查询    → selectSuccessTasksExpiredBefore（定时任务清理过期 ZIP）
+  5. 历史清理    → selectHistoryTasksBefore（定时任务清理过久历史记录）
+  6. 批量删除    → batchDeleteByTaskIds（清理历史记录时使用）
+  ================================================================
+-->
 <mapper namespace="com.ieps.mapper.DownloadTaskMapper">
 
+  <!-- 基础列名列表，除 source_files 外所有字段，供各 SQL 复用 -->
   <sql id="Base_Column_List">
     task_id, user_num, status, file_count, source_files, zip_object_key, zip_file_name,
     error_message, created_time, started_time, finished_time, expire_time, update_time

@@ -22,6 +22,18 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * 统一存储服务
+ *
+ * <p><b>异步下载链路中的角色：</b></p>
+ * <ul>
+ *   <li>文件权限校验：{@link #canAccessFile(User, FileHub)} 在创建下载任务时判断用户是否可访问某文件</li>
+ *   <li>头像 URL 解析：{@link #resolveUserImageUrl(String)} 为 COS 预签名 URL</li>
+ *   <li>本地到 COS 的迁移：{@link #migrateLocalFilesToCos()} 在启动时将存量文件批量迁移到 COS</li>
+ * </ul>
+ *
+ * <p>作为 {@link CosStorageService} 的上层封装，统一处理权限判断和路径解析逻辑。</p>
+ */
 @Service
 public class StorageService {
 
@@ -58,6 +70,20 @@ public class StorageService {
         return "/" + storedValue;
     }
 
+    /**
+     * 判断用户是否有权限访问指定文件
+     *
+     * <p><b>异步下载场景：</b>在 {@link DownloadTaskService#createDownloadTask} 创建任务时，
+     * 对每个待下载文件调用此方法检查权限，确保用户不能下载无权访问的文件。</p>
+     *
+     * <p>权限规则（按优先级）：</p>
+     * <ol>
+     *   <li>公开文件（fileKind ≤ FIRST_FILE_KIND）— 所有人可访问</li>
+     *   <li>学校/学院管理员/专家/指导老师 — 可访问所有文件</li>
+     *   <li>文件上传者（userNum 匹配）— 可访问自己的文件</li>
+     *   <li>项目成员（通过 userItem 表关联）— 可访问所属项目的文件</li>
+     * </ol>
+     */
     public boolean canAccessFile(User currentUser, FileHub fileHub) {
         if (fileHub == null) {
             return false;

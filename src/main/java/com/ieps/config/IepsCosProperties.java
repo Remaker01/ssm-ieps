@@ -7,25 +7,53 @@ import org.springframework.util.unit.DataSize;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * 腾讯云 COS 配置属性
+ *
+ * <p><b>异步下载相关配置项说明：</b></p>
+ * <ul>
+ *   <li>{@code download-url-ttl-seconds} — COS 预签名下载链接有效期（默认 300 秒 / 5 分钟）</li>
+ *   <li>{@code download-task-executor-pool-size} — 异步打包线程池大小（默认 2）</li>
+ *   <li>{@code download-task-expire-seconds} — 成功打包后的 ZIP 保留时长（默认 86400 秒 / 24 小时）</li>
+ *   <li>{@code download-task-history-retention-seconds} — 任务历史记录保留时长（默认 604800 秒 / 7 天）</li>
+ *   <li>{@code multipart-upload-threshold} — 分片上传阈值（默认 16MB），超过此大小使用分片上传</li>
+ * </ul>
+ *
+ * <p>所有配置项以 {@code ieps.storage.cos.*} 为前缀，在 application.yml 中配置。</p>
+ */
 @Component
 @ConfigurationProperties(prefix = "ieps.storage.cos")
 public class IepsCosProperties {
 
     private static final Pattern BUCKET_APP_ID_PATTERN = Pattern.compile("-(\\d{6,})$");
 
+    /** COS 密钥 ID */
     private String secretId;
+    /** COS 密钥 Key */
     private String secretKey;
+    /** COS Bucket 名称（不含 appId 后缀，系统自动拼接） */
     private String bucket;
+    /** COS 地域（如 ap-guangzhou） */
     private String region;
+    /** COS APPID（自动从 bucket 名提取或手动指定） */
     private String appId;
+    /** STS 临时密钥有效期（秒），默认 600 秒 */
     private long stsDurationSeconds = 600L;
+    /** 【异步下载】预签名下载 URL 有效期（秒），默认 300 秒（5 分钟） */
     private long downloadUrlTtlSeconds = 300L;
+    /** 启动时是否迁移本地文件到 COS，默认 false */
     private boolean migrationEnabled = false;
+    /** 分片上传阈值，超过此大小使用分片上传，默认 16MB */
     private DataSize multipartUploadThreshold = DataSize.ofMegabytes(16);
+    /** 分片上传的最小分片大小，默认 8MB */
     private DataSize minimumUploadPartSize = DataSize.ofMegabytes(8);
+    /** COS TransferManager 分片上传线程池大小，默认 4 */
     private int transferThreadPoolSize = 4;
+    /** 【异步下载】下载任务线程池大小，默认 2 */
     private int downloadTaskExecutorPoolSize = 2;
+    /** 【异步下载】ZIP 包保留时长（秒），默认 86400 秒（24 小时） */
     private long downloadTaskExpireSeconds = 86400L;
+    /** 【异步下载】任务历史记录保留时长（秒），默认 604800 秒（7 天） */
     private long downloadTaskHistoryRetentionSeconds = 604800L;
 
     public String getSecretId() {
