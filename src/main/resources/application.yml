@@ -114,7 +114,7 @@ mybatis:
   configuration:
     map-underscore-to-camel-case: true
     use-generated-keys: true
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl
 
 # PageHelper 分页插件配置
 pagehelper:
@@ -127,5 +127,7 @@ pagehelper:
 logging:
   level:
     com.ieps: DEBUG
+    com.ieps.mapper: DEBUG
+    org.apache.ibatis: DEBUG
     org.springframework: INFO
     com.zaxxer.hikari: INFO

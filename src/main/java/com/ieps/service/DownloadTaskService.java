@@ -4,6 +4,7 @@ import com.ieps.common.ServerResponse;
 import com.ieps.config.IepsCosProperties;
 import com.ieps.dto.DownloadTaskDto;
 import com.ieps.enums.DownloadTaskStatus;
+import com.ieps.event.DownloadTaskCreatedEvent;
 import com.ieps.mapper.DownloadTaskMapper;
 import com.ieps.mapper.FileHubMapper;
 import com.ieps.pojo.DownloadTask;
@@ -12,6 +13,7 @@ import com.ieps.pojo.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -49,8 +51,8 @@ import java.util.zip.ZipOutputStream;
  *
  * <p><b>关键设计点：</b></p>
  * <ul>
- *   <li><b>异步切换：</b>通过 {@link DownloadTaskWorkerService#processDownloadTask(String)}
- *       触发 {@code @Async}，避免 ZIP 打包阻塞 HTTP 响应</li>
+ *   <li><b>异步切换：</b>通过发布 {@link DownloadTaskCreatedEvent} 并由
+ *       {@link DownloadTaskWorkerService} 异步订阅，避免 ZIP 打包阻塞 HTTP 响应</li>
  *   <li><b>ZIP 打包：</b>在本地临时文件完成压缩，然后上传到 COS，避免将大文件保留在内存中</li>
  *   <li><b>过期清理：</b>通过 {@code @Scheduled} 定时任务自动清理过期 ZIP 包和历史记录</li>
  *   <li><b>权限校验：</b>创建、查询、下载三个阶段均校验用户所有权</li>
@@ -81,7 +83,7 @@ public class DownloadTaskService {
     private IepsCosProperties iepsCosProperties;
 
     @Autowired
-    private DownloadTaskWorkerService downloadTaskWorkerService;
+    private ApplicationEventPublisher eventPublisher;
 
     /**
      * 【步骤1】创建异步下载任务（同步方法，快速返回）
@@ -91,7 +93,7 @@ public class DownloadTaskService {
      *   <li>校验用户登录状态</li>
      *   <li>校验文件列表非空且全部可访问</li>
      *   <li>在数据库插入 PENDING 状态的任务记录</li>
-     *   <li>通过 {@link DownloadTaskWorkerService} 触发异步 ZIP 打包</li>
+     *   <li>发布 {@link DownloadTaskCreatedEvent} 事件，触发异步 ZIP 打包</li>
      *   <li>立即返回任务 DTO（含 taskId），前端据此轮询</li>
      * </ol>
      *
@@ -130,8 +132,8 @@ public class DownloadTaskService {
 
         logger.info("Created async download task. taskId={}, requestUser={}, fileCount={}",
                 taskId, currentUser.getUserNum(), normalizedFileNames.size());
-        // 触发异步打包：此调用立即返回，ZIP 打包在独立线程池中执行
-        downloadTaskWorkerService.processDownloadTask(taskId);
+        // 发布事件触发异步 ZIP 打包，由 @EventListener 订阅执行
+        eventPublisher.publishEvent(new DownloadTaskCreatedEvent(this, taskId));
         return ServerResponse.createBySuccess("批量下载任务已创建，请稍候！", toDto(downloadTaskMapper.selectByTaskId(taskId)));
     }
 
@@ -436,7 +438,7 @@ public class DownloadTaskService {
                 && currentUser.getUserNum().equals(downloadTask.getUserNum());
     }
 
-    private boolean shouldExpire(DownloadTask downloadTask) {
+    private boolean  shouldExpire(DownloadTask downloadTask) {
         return DownloadTaskStatus.SUCCESS.getValue().equals(downloadTask.getStatus())
                 && downloadTask.getExpireTime() != null
                 && downloadTask.getExpireTime().getTime() <= System.currentTimeMillis();
