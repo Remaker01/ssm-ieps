@@ -398,7 +398,8 @@ line-height: 43px;"></div>
                     return layer.msg(result.msg, {icon: 2});
                 }
                 // JWT: 存储 Token 后跳转首页
-                setToken(result.data);
+                setToken(result.data.accessToken);
+                setRefreshToken(result.data.refreshToken);
                 layer.msg(result.msg, {icon: 1});
                 setTimeout(function () {
                     $(window).attr('location', '/index');

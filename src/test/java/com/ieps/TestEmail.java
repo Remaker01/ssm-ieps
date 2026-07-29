@@ -1,6 +1,8 @@
-package com.ieps.util;
+package com.ieps;
 
 import javax.mail.MessagingException;
+
+import com.ieps.util.MailUtil;
 
 public class TestEmail {
     public static void main(String[] args) {

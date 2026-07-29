@@ -1,26 +1,4 @@
-# IEPS - Innovation and Entrepreneurship Project Management System
-
-## 项目概述
-
-大学生创新创业项目管理系统（IEPS），采用 **Spring Boot 2.7.18 + MyBatis + Layui** 半前后端分离架构。前端为静态 HTML 页面（无 JSP/模板引擎），通过 AJAX 调用后端 RESTful API。
-
----
-
-## 技术栈
-
-| 层 | 技术 | 说明 |
-|---|------|------|
-| **后端框架** | Spring Boot 2.7.18 | Java 11, 内嵌 Tomcat, JAR 打包 |
-| **ORM** | MyBatis + mybatis-spring-boot-starter 2.3.0 | XML 映射文件在 `src/main/resources/mappers/` |
-| **分页** | PageHelper (pagehelper-spring-boot-starter 1.4.6) | |
-| **连接池** | HikariCP | Spring Boot 默认连接池 |
-| **数据库** | MySQL 8.0+ | 数据库名 `ieps` |
-| **Redis** | Spring Data Redis | 用于忘记密码验证码、发送冷却和短期重置 token 存储 |
-| **鉴权** | JWT (jjwt) | 前端通过 `Authorization: Bearer <token>` 调用受保护接口 |
-| **JSON** | Jackson | 统一使用 Spring Boot 默认 `ObjectMapper` 处理 JSON |
-| **前端** | Layui 2.7 + jQuery 3.7.1 + Bootstrap 4.6 | 纯静态 HTML，CDN 引用 |
-
----
+# IEPS - Agent 指导
 
 ## 项目结构
 
@@ -95,7 +73,7 @@ ssm-ieps/
 
 ### 5. 安全校验
 
-- *默认密码*: `Ieps@123`
+- *默认密码*: `Ieps123`
 - 登录成功后后端返回 JWT，前端通过 `src/main/resources/static/static/js/ieps-jwt.js` 存入 `localStorage`
 - 受保护接口由 `JwtAuthenticationFilter` 校验 `Authorization` 请求头
 - 控制器通过 `request.getAttribute(Const.REQUEST_CURRENT_USER)` 获取当前用户
@@ -202,63 +180,6 @@ ssm-ieps/
 ### 命令执行规范
 - Windows下如已安装Powershell 7，优先采用，尽量不要使用Powershell的旧版本，*更不要使用cmd（除非绝对必要）*
 - Powershell下不要使用`Pid`等内部变量
-
----
-
-## 构建与运行
-
-```bash
-# 开发运行
-mvn spring-boot:run
-
-# 构建 JAR
-mvn clean package -DskipTests
-
-# 运行 JAR
-java -jar target/ieps.jar
-
-# 指定端口
-java -jar target/ieps.jar --server.port=8080
-```
-
-静态资源通过Nginx转发，仅在确有必要时，通过`scripts`中的脚本启停Nginx服务器
-
----
-
-## 数据库
-
-- **数据库名**: `ieps`
-- **连接**: `jdbc:mysql://localhost:3306/ieps?characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai`
-- **初始化 SQL**: 项目根目录 `ieps.sql`
-- **表前缀**: `ieps_` (如 `ieps_user`, `ieps_perm`)
-
----
-
-## 关键配置
-
-### application.yml 核心配置项
-
-```yaml
-# 数据源 (默认 localhost:3306/ieps)
-spring.datasource.url
-spring.datasource.username
-spring.datasource.password
-
-# Redis / JWT
-spring.redis.host
-spring.redis.port
-spring.redis.database
-ieps.redis.verify-code.ttl-seconds
-ieps.redis.verify-code.cooldown-seconds
-ieps.redis.verify-code.max-failures
-ieps.redis.verify-code.namespace
-ieps.jwt.secret
-ieps.jwt.expiration
-
-# 文件上传路径 (上传文件实际存储在服务器)
-# application.yml 中 upload/ 路径映射
-spring.web.resources.static-locations[2]: file:./upload/
-```
 
 ### 静态资源路径说明
 
